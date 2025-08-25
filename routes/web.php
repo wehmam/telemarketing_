@@ -4,6 +4,7 @@ use App\Http\Controllers\Apps\PermissionManagementController;
 use App\Http\Controllers\Apps\RoleManagementController;
 use App\Http\Controllers\Apps\UserManagementController;
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/user-management/permissions', PermissionManagementController::class);
     });
 
+    Route::get('/config/ips', [ConfigController::class, 'index'])->name('config.ips.index');
+    Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
 });
 
 Route::get('/error', function () {

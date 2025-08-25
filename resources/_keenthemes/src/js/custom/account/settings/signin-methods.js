@@ -25,10 +25,10 @@ var KTAccountSettingsSigninMethods = function () {
     }
 
     // Private functions
-    var initSettings = function () {  
+    var initSettings = function () {
         if (!signInMainEl) {
             return;
-        }        
+        }
 
         // toggle UI
         signInChangeEmail.querySelector('button').addEventListener('click', function () {
@@ -49,7 +49,7 @@ var KTAccountSettingsSigninMethods = function () {
     }
 
     var handleChangeEmail = function (e) {
-        var validation;        
+        var validation;
 
         if (!signInForm) {
             return;

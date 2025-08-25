@@ -23,31 +23,24 @@ class RolesPermissionsSeeder extends Seeder
         $permissions_by_role = [
             'administrator' => [
                 'user management',
-                'content management',
-                'financial management',
-                'reporting',
-                'payroll',
-                'disputes management',
-                'api controls',
-                'database management',
-                'repository management',
+                'transaction management',
+                'member management',
+                'log management',
+                'reporting management',
+                'configuration management'
             ],
-            'developer' => [
-                'api controls',
-                'database management',
-                'repository management',
+            'leader' => [
+                'user management',
+                'transaction management',
+                'member management',
+                'log management',
+                'reporting management',
+                'configuration management'
             ],
-            'analyst' => [
-                'content management',
-                'financial management',
-                'reporting',
-                'payroll',
-            ],
-            'support' => [
-                'reporting',
-            ],
-            'trial' => [
-            ],
+            'marketing' => [
+                'member management',
+                'reporting management'
+            ]
         ];
 
         foreach ($permissions_by_role['administrator'] as $permission) {
@@ -67,6 +60,7 @@ class RolesPermissionsSeeder extends Seeder
         }
 
         User::find(1)->assignRole('administrator');
-        User::find(2)->assignRole('developer');
+        User::find(2)->assignRole('leader');
+        User::find(3)->assignRole('marketing');
     }
 }

@@ -12,7 +12,7 @@
         <!--end::Drawer toggle-->
     </div>
     <!--end::Activities-->
-    <!--begin::Notifications-->
+    {{-- <!--begin::Notifications-->
     <div class="app-navbar-item ms-1 ms-md-3">
         <!--begin::Menu- wrapper-->
         <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent"
@@ -20,8 +20,8 @@
         @include('partials/menus/_notifications-menu')
         <!--end::Menu wrapper-->
     </div>
-    <!--end::Notifications-->
-    <!--begin::Chat-->
+    <!--end::Notifications--> --}}
+    {{-- <!--begin::Chat-->
     <div class="app-navbar-item ms-1 ms-md-3">
         <!--begin::Menu wrapper-->
         <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px position-relative" id="kt_drawer_chat_toggle">{!! getIcon('message-text-2', 'fs-2 fs-md-1') !!}
@@ -29,8 +29,8 @@
         </div>
         <!--end::Menu wrapper-->
     </div>
-    <!--end::Chat-->
-    <!--begin::My apps links-->
+    <!--end::Chat--> --}}
+    {{-- <!--begin::My apps links-->
     <div class="app-navbar-item ms-1 ms-md-3">
         <!--begin::Menu wrapper-->
         <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent"
@@ -38,7 +38,7 @@
         @include('partials/menus/_my-apps-menu')
         <!--end::Menu wrapper-->
     </div>
-    <!--end::My apps links-->
+    <!--end::My apps links--> --}}
     <!--begin::Theme mode-->
     <div class="app-navbar-item ms-1 ms-md-3">
         @include('partials/theme-mode/_main')

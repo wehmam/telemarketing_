@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Config;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,6 +35,20 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
         $request->authenticate();
+        $user = $request->user();
+
+
+        if (!$user->hasRole('super-admin')) {
+            $allowedIps = Config::where('key', 'allowed_ips')->first()?->value ?? [];
+
+            if (!in_array($request->ip(), $allowedIps)) {
+                Auth::logout();
+
+                throw ValidationException::withMessages([
+                    'email' => 'Your IP address ('.$request->ip().') is not allowed to access this system.',
+                ]);
+            }
+        }
 
         $request->session()->regenerate();
 
