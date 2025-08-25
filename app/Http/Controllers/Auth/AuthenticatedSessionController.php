@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Config;
@@ -38,11 +39,26 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
 
+        if ($user->session_id) {
+            ActivityLogger::log("Login attempt denied for user {$user->email} - already logged in on another device", 403);
+
+            throw ValidationException::withMessages([
+                'email' => 'This account is already logged in on another device.',
+            ]);
+        }
+
+
         if (!$user->hasRole('super-admin')) {
             $allowedIps = Config::where('key', 'allowed_ips')->first()?->value ?? [];
+            if (is_string($allowedIps)) {
+                $allowedIps = json_decode($allowedIps, true) ?? [];
+            }
 
             if (!in_array($request->ip(), $allowedIps)) {
                 Auth::logout();
+
+
+                ActivityLogger::log("Login attempt denied for user {$user?->email} - IP {$request->ip()} not in whitelist", 403);
 
                 throw ValidationException::withMessages([
                     'email' => 'Your IP address ('.$request->ip().') is not allowed to access this system.',
@@ -54,8 +70,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->user()->update([
             'last_login_at' => Carbon::now()->toDateTimeString(),
-            'last_login_ip' => $request->getClientIp()
+            'last_login_ip' => $request->getClientIp(),
+            'session_id'    => session()->getId()
         ]);
+
+
+
+        ActivityLogger::log("Login successful for user {$user->email}", 200);
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
@@ -69,11 +90,24 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
+        $user = Auth::guard('web')->user();
+
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+
+        if ($user) {
+            $user->session_id = null;
+            $user->save(); // save() works because $user is an Eloquent model
+
+            ActivityLogger::log(
+                "Logout successful for user {$user->email}",
+                200,
+                $user->id
+            );
+        }
+
+        ActivityLogger::log("Logout successful for user {$user?->email}", 200, $user->id);
 
         return redirect('/');
     }

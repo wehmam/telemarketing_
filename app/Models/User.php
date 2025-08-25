@@ -27,6 +27,7 @@ class User extends Authenticatable
         'last_login_at',
         'last_login_ip',
         'profile_photo_path',
+        'session_id',
     ];
 
     /**
