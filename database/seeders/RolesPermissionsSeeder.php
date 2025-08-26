@@ -18,11 +18,13 @@ class RolesPermissionsSeeder extends Seeder
             'read',
             'write',
             'create',
+            'delete'
         ];
 
         $permissions_by_role = [
             'administrator' => [
                 'user management',
+                'role management',
                 'transaction management',
                 'member management',
                 'log management',

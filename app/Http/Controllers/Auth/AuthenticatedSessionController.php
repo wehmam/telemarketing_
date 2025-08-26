@@ -39,12 +39,26 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
 
-        if ($user->session_id) {
-            ActivityLogger::log("Login attempt denied for user {$user->email} - already logged in on another device", 403);
+        if ($user->is_active == false) {
+            Auth::logout();
+
+            ActivityLogger::log("Login attempt denied for user {$user->email} - account is inactive", 403);
 
             throw ValidationException::withMessages([
-                'email' => 'This account is already logged in on another device.',
+                'email' => 'This account is inactive. Please contact the administrator.',
             ]);
+        }
+
+        if ($user->session_id) {
+            $path = storage_path('framework/sessions/'.$user->session_id);
+
+            if (file_exists($path)) {
+                ActivityLogger::log("Login attempt denied for user {$user->email} - already logged in on another device", 403);
+
+                throw ValidationException::withMessages([
+                    'email' => 'This account is already logged in on another device.',
+                ]);
+            }
         }
 
 

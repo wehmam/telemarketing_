@@ -27,12 +27,12 @@
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                     <!--begin::Add user-->
-                    {{-- @can('user management') --}}
+                    @can('create user management')
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
                             {!! getIcon('plus', 'fs-2', '', 'i') !!}
                             Add User
                         </button>
-                    {{-- @endcan --}}
+                    @endcan
                     <!--end::Add user-->
                 </div>
                 <!--end::Toolbar-->

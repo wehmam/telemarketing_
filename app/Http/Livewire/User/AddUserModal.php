@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\User;
 
+use App\Helpers\ActivityLogger;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -22,12 +23,17 @@ class AddUserModal extends Component
     public $saved_avatar;
 
     public $edit_mode = false;
+    public $password;
+    public $is_active = true;
+
 
     protected $rules = [
         'name' => 'required|string',
         'email' => 'required|email',
         'role' => 'required|string',
         'avatar' => 'nullable|sometimes|image|max:1024',
+        'password' => 'nullable|min:6',
+        'is_active' => 'boolean'
     ];
 
     protected $listeners = [
@@ -38,17 +44,26 @@ class AddUserModal extends Component
     public function render()
     {
         $roles = Role::all();
+        $user = Auth::user();
+
+        if ($user->hasRole('administrator')) {
+            $roles = Role::all();
+        } else {
+            $roles = Role::whereNotIn('name', ['administrator'])->get();
+        }
 
         $roles_description = [
-            'administrator' => 'Best for business owners and company administrators',
-            'developer' => 'Best for developers or people primarily using the API',
-            'analyst' => 'Best for people who need full access to analytics data, but don\'t need to update business settings',
-            'support' => 'Best for employees who regularly refund payments and respond to disputes',
-            'trial' => 'Best for people who need to preview content data, but don\'t need to make any updates',
+            'administrator' => 'All Access System',
+            'leader' => 'Leader Of Team',
+            'marketing' => 'Staff Of Marketing'
         ];
 
         foreach ($roles as $i => $role) {
             $roles[$i]->description = $roles_description[$role->name] ?? '';
+        }
+
+        if (!$this->edit_mode) {
+            $this->reset();
         }
 
         return view('livewire.user.add-user-modal', compact('roles'));
@@ -56,51 +71,105 @@ class AddUserModal extends Component
 
     public function submit()
     {
-        // Validate the form input data
         $this->validate();
 
         DB::transaction(function () {
-            // Prepare the data for creating a new user
             $data = [
                 'name' => $this->name,
+                'is_active' => $this->is_active,
+                'profile_photo_path' => $this->avatar
+                    ? $this->avatar->store('avatars', 'public')
+                    : null,
             ];
 
-            if ($this->avatar) {
-                $data['profile_photo_path'] = $this->avatar->store('avatars', 'public');
-            } else {
-                $data['profile_photo_path'] = null;
-            }
-
             if (!$this->edit_mode) {
-                $data['password'] = Hash::make($this->email);
-            }
+                if (User::where('email', $this->email)->exists()) {
+                    $this->emit('error', __('Email already exists!'));
+                    return;
+                }
 
-            // Create a new user record in the database
-            $user = User::updateOrCreate([
-                'email' => $this->email,
-            ], $data);
+                $data['password'] = Hash::make($this->password ?: $this->email);
 
-            if ($this->edit_mode) {
-                // Assign selected role for user
-                $user->syncRoles($this->role);
+                $user = User::create(array_merge($data, [
+                    'email' => $this->email,
+                ]));
 
-                // Emit a success event with a message
-                $this->emit('success', __('User updated'));
-            } else {
-                // Assign selected role for user
                 $user->assignRole($this->role);
 
-                // Send a password reset link to the user's email
-                Password::sendResetLink($user->only('email'));
-
-                // Emit a success event with a message
                 $this->emit('success', __('New user created'));
+                ActivityLogger::log("New user created: {$user->email}");
+
+            } else {
+                $user = User::where('email', $this->email)->firstOrFail();
+
+                if (!empty($this->password)) {
+                    $data['password'] = Hash::make($this->password);
+                }
+
+                $user->update($data);
+
+                $user->syncRoles($this->role);
+
+                $this->emit('success', __('User updated'));
+                ActivityLogger::log("User updated: {$user->email}");
             }
         });
 
-        // Reset the form fields after successful submission
         $this->reset();
     }
+
+
+    // public function submit()
+    // {
+    //     // Validate the form input data
+    //     $this->validate();
+
+    //     DB::transaction(function () {
+    //         // Prepare the data for creating a new user
+    //         $data = [
+    //             'name' => $this->name,
+    //         ];
+
+    //         if ($this->avatar) {
+    //             $data['profile_photo_path'] = $this->avatar->store('avatars', 'public');
+    //         } else {
+    //             $data['profile_photo_path'] = null;
+    //         }
+
+    //         if (!$this->edit_mode) {
+    //             $data['password'] = Hash::make($this->password ?: $this->email);
+    //         } elseif (!empty($this->password)) {
+    //             $data['password'] = Hash::make($this->password);
+    //         }
+
+    //         // Create a new user record in the database
+    //         $user = User::updateOrCreate([
+    //             'email' => $this->email,
+    //         ], $data);
+
+    //         if ($this->edit_mode) {
+    //             // Assign selected role for user
+    //             $user->syncRoles($this->role);
+
+    //             // Emit a success event with a message
+    //             $this->emit('success', __('User updated'));
+    //             ActivityLogger::log("User updated: {$user->email}");
+    //         } else {
+    //             // Assign selected role for user
+    //             $user->assignRole($this->role);
+
+    //             // Send a password reset link to the user's email
+    //             // Password::sendResetLink($user->only('email'));
+
+    //             // Emit a success event with a message
+    //             $this->emit('success', __('New user created'));
+    //             ActivityLogger::log("New user created: {$user->email}");
+    //         }
+    //     });
+
+    //     // Reset the form fields after successful submission
+    //     $this->reset();
+    // }
 
     public function deleteUser($id)
     {
@@ -127,6 +196,8 @@ class AddUserModal extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->role = $user->roles?->first()->name ?? '';
+        $this->is_active    = (bool) $user->is_active;
+        $this->password     = ''; // blank input on edit
     }
 
     public function hydrate()

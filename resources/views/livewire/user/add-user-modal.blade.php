@@ -22,7 +22,7 @@
                     <!--begin::Scroll-->
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
                         <!--begin::Input group-->
-                        <div class="fv-row mb-7">
+                        <div class="fv-row mb-7 d-none">
                             <!--begin::Label-->
                             <label class="d-block fw-semibold fs-6 mb-5">Avatar</label>
                             <!--end::Label-->
@@ -92,12 +92,51 @@
                             <label class="required fw-semibold fs-6 mb-2">Email</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="email" wire:model.defer="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com"/>
+                            <input type="email" wire:model.defer="email" name="email" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="example@domain.com" autocomplete="new-email"/>
                             <!--end::Input-->
                             @error('email')
                             <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <!--end::Input group-->
+
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
+                            <label class="required fw-semibold fs-6 mb-2">Password</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="password" wire:model.defer="password" name="password" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Password" autocomplete="new-password"/>
+                            <!--end::Input-->
+                            @error('password')
+                            <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <!--end::Input group-->
+
+                        @if ($edit_mode)
+                            <!--begin::Input group-->
+                            <div class="fv-row mb-7">
+                            <div class="d-flex flex-stack mb-8">
+                                    <!--begin::Label-->
+                                    <div class="me-5">
+                                        <label class="fs-6 fw-semibold">Active User</label>
+                                        <div class="fs-7 fw-semibold text-muted">For Activated / Deactivated User</div>
+                                    </div>
+                                    <!--end::Label-->
+                                    <!--begin::Switch-->
+                                    <label class="form-check form-switch form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="checkbox" wire:model.defer="is_active" name="is_active" value="1" checked="checked">
+                                        <span class="form-check-label fw-semibold text-muted">Allowed</span>
+                                    </label>
+                                    <!--end::Switch-->
+                                </div>
+                                @error('password')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <!--end::Input group-->
+                        @endif
+
+
                         <!--begin::Input group-->
                         <div class="mb-7">
                             <!--begin::Label-->

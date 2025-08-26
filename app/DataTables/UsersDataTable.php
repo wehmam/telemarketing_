@@ -19,7 +19,7 @@ class UsersDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->rawColumns(['user', 'last_login_at'])
+            ->rawColumns(['user', 'last_login_at', 'is_active'])
             ->editColumn('user', function (User $user) {
                 return view('pages.apps.user-management.users.columns._user', compact('user'));
             })
@@ -27,7 +27,14 @@ class UsersDataTable extends DataTable
                 return ucwords($user->roles->first()?->name);
             })
             ->editColumn('last_login_at', function (User $user) {
-                return sprintf('<div class="badge badge-light fw-bold">%s</div>', $user->last_login_at ? $user->last_login_at->diffForHumans() : $user->updated_at->diffForHumans());
+                return sprintf('<div class="badge badge-info fw-bold">%s</div>', $user->last_login_at ? $user->last_login_at->diffForHumans() : $user->updated_at->diffForHumans());
+            })
+            ->editColumn('is_active', function (User $user) {
+                return sprintf(
+                    '<div class="badge badge-%s fw-bold">%s</div>',
+                    $user->is_active ? 'success' : 'danger',
+                    $user->is_active ? 'Active' : 'Inactive'
+                );
             })
             ->editColumn('created_at', function (User $user) {
                 return $user->created_at->format('d M Y, h:i a');
@@ -72,6 +79,7 @@ class UsersDataTable extends DataTable
             Column::make('user')->addClass('d-flex align-items-center')->name('name'),
             Column::make('role')->searchable(false),
             Column::make('last_login_at')->title('Last Login'),
+            Column::make('is_active')->title('Status'),
             Column::make('created_at')->title('Joined Date')->addClass('text-nowrap'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
