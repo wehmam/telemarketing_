@@ -15,7 +15,7 @@
             </div>
             <!--end:Menu item-->
 
-            @can ("read user management")
+            @can ("user-management.read")
                 <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('user-management.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
@@ -63,15 +63,28 @@
                             <!--end:Menu link-->
                         </div>
                         <!--end:Menu item-->
+
+                         <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('user-management.teams.*') ? 'active' : '' }}" href="{{ route('user-management.teams.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Teams</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
                     </div>
                     <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
             @endcan
 
-            @can ("read member management")
+            @can ("transaction-management.read")
                 <!--begin:Menu item-->
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('user-management.*') ? 'here show' : '' }}">
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('transactions.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
                     <span class="menu-link">
                         <span class="menu-icon">{!! getIcon('dollar', 'fs-2', 'finance') !!}</span>
@@ -111,9 +124,9 @@
                 <!--end:Menu item-->
             @endcan
 
-            @can ("read member management")
+            @can ("member-management.read")
                 <!--begin:Menu item-->
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('user-management.*') ? 'here show' : '' }}">
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('members.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
                     <span class="menu-link">
                         <span class="menu-icon">{!! getIcon('people', 'fs-2', 'users') !!}</span>
@@ -153,18 +166,35 @@
                 <!--end:Menu item-->
             @endcan
 
-            @hasrole("administrator")
-                <!--begin:Menu item-->
-                <div class="menu-item">
+            @can('configuration-management.read')
+                 <!--begin:Menu item-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('settings.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('config.ips.*') ? 'active' : '' }}" href="{{ route('config.ips.index') }}">
-                        <span class="menu-icon">{!! getIcon('rocket', 'fs-2') !!}</span>
-                        <span class="menu-title">Config</span>
-                    </a>
+                    <span class="menu-link">
+                        <span class="menu-icon">{!! getIcon('setting-4', 'fs-2', 'settings') !!}</span>
+                        <span class="menu-title">Settings</span>
+                        <span class="menu-arrow"></span>
+                    </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                         <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('settings.config.ips.*') ? 'active' : '' }}" href="{{ route('settings.config.ips.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Config</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
-            @endhasrole
+            @endcan
 		</div>
 		<!--end::Menu-->
 	</div>

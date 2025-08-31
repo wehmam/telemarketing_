@@ -63,7 +63,7 @@
         document.getElementById('btn-save-ips').addEventListener('click', function () {
             let ips = document.getElementById('allowed_ips_input').value;
 
-            fetch("{{ route('config.ips.update') }}", {
+            fetch("{{ route('settings.config.ips.update') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

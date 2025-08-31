@@ -51,3 +51,16 @@ Breadcrumbs::for('user-management.permissions.index', function (BreadcrumbTrail 
     $trail->parent('user-management.index');
     $trail->push('Permissions', route('user-management.permissions.index'));
 });
+
+
+// Home > Dashboard > User Management > Teams
+Breadcrumbs::for('user-management.teams.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('user-management.index');
+    $trail->push('Teams', route('user-management.teams.index'));
+});
+
+// Home > Dashboard
+Breadcrumbs::for('members', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push('List Members', route('members.index'));
+});

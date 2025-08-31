@@ -6,16 +6,16 @@
 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
     <!--begin::Menu item-->
     <div class="menu-item px-3">
-        <a href="{{ route('user-management.users.show', $user) }}" class="menu-link px-3">
+        <a href="{{ route('members.show', $member) }}" class="menu-link px-3">
             View
         </a>
     </div>
     <!--end::Menu item-->
 
-    @can('user-management.update')
+    @can('member-management.update')
         <!--begin::Menu item-->
         <div class="menu-item px-3">
-            <a href="#" class="menu-link px-3" data-kt-user-id="{{ $user->id }}" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user" data-kt-action="update_row">
+            <a href="#" class="menu-link px-3 kt_modal_edit_member" data-data="{{ $member }}" data-kt-member-id="{{ $member->id }}">
                 Edit
             </a>
         </div>
@@ -23,11 +23,21 @@
     @endcan
 
 
-    @can('user-management.delete')
+    @can('member-management.delete')
         <!--begin::Menu item-->
         <div class="menu-item px-3">
-            <a href="#" class="menu-link px-3" data-kt-user-id="{{ $user->id }}" data-kt-action="delete_row">
+            <a href="#" class="menu-link px-3" data-kt-member-id="{{ $member->id }}" data-kt-action="delete_row">
                 Delete
+            </a>
+        </div>
+        <!--end::Menu item-->
+    @endcan
+
+    @can('member-management.restore')
+        <!--begin::Menu item-->
+        <div class="menu-item px-3">
+            <a href="#" class="menu-link px-3" data-kt-member-id="{{ $member->id }}" data-kt-action="restore_row">
+                Restore
             </a>
         </div>
         <!--end::Menu item-->

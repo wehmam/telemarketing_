@@ -431,3 +431,22 @@ if (!function_exists('getIcon')) {
         return theme()->getIcon($name, $class, $type, $tag);
     }
 }
+
+if (!function_exists('responseCustom')) {
+    /**
+     * Get icon
+     *
+     * @param $path
+     *
+     * @return string
+     */
+    function responseCustom($status = false, $message = "", $data = [], $errors = [])
+    {
+        return [
+            "status"    => $status,
+            "message"   => $message,
+            "data"      => $data,
+            "errors"    => $errors
+        ];
+    }
+}

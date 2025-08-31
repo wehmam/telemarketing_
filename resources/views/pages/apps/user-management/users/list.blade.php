@@ -27,7 +27,7 @@
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                     <!--begin::Add user-->
-                    @can('create user management')
+                    @can('user-management.create')
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
                             {!! getIcon('plus', 'fs-2', '', 'i') !!}
                             Add User

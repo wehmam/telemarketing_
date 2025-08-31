@@ -59,4 +59,29 @@ class User extends Authenticatable
 
         return $this->profile_photo_path;
     }
+
+    public function getRoleNameAttribute()
+    {
+        return $this->getRoleNames()
+            ->map(fn ($role) => ucwords(strtolower($role)))
+            ->implode(', ');
+    }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')
+            ->withTimestamps();
+    }
+
+    public function team()
+    {
+        return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')
+            ->withTimestamps()
+            ->limit(1);
+    }
+
+    public function getTeamIdAttribute()
+    {
+        return $this->teams()->first()?->id;
+    }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Apps\UserManagementController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Apps\TeamManagementController;
+use App\Http\Controllers\MemberController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,10 +31,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/user-management/users', UserManagementController::class);
         Route::resource('/user-management/roles', RoleManagementController::class);
         Route::resource('/user-management/permissions', PermissionManagementController::class);
+        Route::resource('/user-management/teams', TeamManagementController::class);
     });
 
-    Route::get('/config/ips', [ConfigController::class, 'index'])->name('config.ips.index');
-    Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
+    Route::name('settings.')->group(function () {
+        Route::get('/config/ips', [ConfigController::class, 'index'])->name('config.ips.index');
+        Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
+    });
+
+    Route::name('transactions.')->group(function () {
+        // Route::get('/config/ips', [ConfigController::class, 'index'])->name('config.ips.index');
+        // Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
+    });
+
+    Route::resource("members", MemberController::class);
+    Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
 });
 
 Route::get('/error', function () {

@@ -66,6 +66,30 @@
 @foreach(getCustomJs() as $path)
     {!! sprintf('<script src="%s"></script>', asset($path)) !!}
 @endforeach
+
+<script type="text/javascript">
+    let loadingEl = '';
+
+    function showLoadPage() {
+        loadingEl = document.createElement("div");
+        document.body.prepend(loadingEl);
+        loadingEl.classList.add("page-loader");
+        loadingEl.classList.add("flex-column");
+        loadingEl.classList.add("bg-dark");
+        loadingEl.classList.add("bg-opacity-25");
+        loadingEl.innerHTML = `
+                    <span class="spinner-border text-primary" role="status"></span>
+                    <span class="text-gray-800 fs-6 fw-semibold mt-5">Loading...</span>
+                `;
+        KTApp.showPageLoading();
+    }
+
+    function hideLoadPage() {
+        KTApp.hidePageLoading();
+        loadingEl.remove();
+    }
+</script>
+
 <!--end::Custom Javascript-->
 @stack('scripts')
 <!--end::Javascript-->
