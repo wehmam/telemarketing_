@@ -158,8 +158,59 @@ document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (ele
                 .then(data => {
                     hideLoadPage();
                     Swal.fire({
-                        text: data.message || (data.success ? 'Member deleted successfully!' : 'Failed to delete member.'),
-                        icon: data.success ? 'success' : 'error',
+                        text: data.message || (data.status ? 'Member deleted successfully!' : 'Failed to delete member.'),
+                        icon: data.status ? 'success' : 'error',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-primary' }
+                    });
+                    window.LaravelDataTables['members-table'].ajax.reload();
+                })
+                .catch(error => {
+                    hideLoadPage();
+                    Swal.fire({
+                        text: 'Something went wrong!',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-primary' }
+                    });
+                });
+            }
+        });
+    });
+});
+
+// ===== Restore Member =====
+document.querySelectorAll('[data-kt-action="restore_row"]').forEach(function (element) {
+    element.addEventListener('click', function () {
+        const memberId = this.getAttribute('data-kt-member-id');
+
+        Swal.fire({
+            text: 'Are you sure you want to restore this member?',
+            icon: 'warning',
+            buttonsStyling: false,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'No, cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                cancelButton: 'btn btn-secondary',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoadPage();
+                fetch(`/members/${memberId}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoadPage();
+                    Swal.fire({
+                        text: data.message || (data.status ? 'Member restored successfully!' : 'Failed to restore member.'),
+                        icon: data.status ? 'success' : 'error',
                         confirmButtonText: 'OK',
                         customClass: { confirmButton: 'btn btn-primary' }
                     });

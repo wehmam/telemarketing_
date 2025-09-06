@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\MembersDataTable;
+use App\DataTables\MemberTransactionsDataTable;
 use App\Models\Members;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -61,9 +62,19 @@ class MemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, MemberTransactionsDataTable $memberTransactions)
     {
-        //
+        $member = Members::withTrashed()->findOrFail($id);
+
+        // dd($member);
+        // $teamName = $user->team->name ?? 'N/A';
+        $membersTable      = $memberTransactions->setMemberContext($member->id, $member->name);
+
+        return view('pages.apps.members.show', [
+            'member'         => $member,
+            'transactionsTable' => $membersTable->html(),
+            // 'logsTable'    => $logsTable->html(),
+        ]);
     }
 
     /**
@@ -80,7 +91,7 @@ class MemberController extends Controller
     public function update(Request $request, string $id)
     {
         $member = Members::findOrFail($id);
-        
+
         $validator = Validator::make($request->all(), [
             'name'          => 'required|string|max:255',
             'username'      => 'required|string|max:100|unique:members,username,' . $member->id,
@@ -142,5 +153,11 @@ class MemberController extends Controller
         } else {
             return response()->json(responseCustom(false, "Member is still active"));
         }
+    }
+
+    public function transactionsData(Members $member, MemberTransactionsDataTable $dataTable)
+    {
+        return $dataTable->setMemberContext($member->id, $member->name, $member->team?->name ?? 'N/A')->ajax();
+
     }
 }

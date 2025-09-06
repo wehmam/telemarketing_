@@ -17,13 +17,21 @@ class MembersDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->rawColumns(['deleted_at'])
             ->editColumn('marketing_id', function (Members $member) {
                 return $member->marketing?->name ?? '—';
             })
             ->editColumn('team_id', function (Members $member) {
                 return $member->team?->name ?? '—';
             })
-             ->addColumn('action', function (Members $member) {
+            ->editColumn('deleted_at', function (Members $member) {
+                return sprintf(
+                    '<div class="badge badge-%s fw-bold">%s</div>',
+                    $member->deleted_at ? 'danger' : 'success',
+                    $member->deleted_at ? 'Not Active' : 'Active'
+                );
+            })
+            ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
             })
             // ->addColumn('action', function (Members $member) {
@@ -117,6 +125,7 @@ class MembersDataTable extends DataTable
             Column::make('phone'),
             Column::make('marketing_id')->title('Marketing'),
             Column::make('team_id')->title('Team'),
+            Column::make('deleted_at')->title('Status'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

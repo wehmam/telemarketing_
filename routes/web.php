@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
+    Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');
 });
 
 Route::get('/error', function () {

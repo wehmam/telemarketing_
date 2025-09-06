@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Members;
 use App\Models\User;
 use Diglactic\Breadcrumbs\Breadcrumbs;
 use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
@@ -64,3 +65,19 @@ Breadcrumbs::for('members', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
     $trail->push('List Members', route('members.index'));
 });
+
+// Home > Dashboard > Members
+Breadcrumbs::for('members.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Members', route('members.index'));
+});
+
+// Home > Dashboard > Members > [Member]
+Breadcrumbs::for('members.show', function (BreadcrumbTrail $trail, $member) {
+    // Always fetch withTrashed in case it's deleted
+    $member = \App\Models\Members::withTrashed()->findOrFail($member->id ?? $member);
+
+    $trail->parent('members.index');
+    $trail->push(ucwords($member->name), route('members.show', $member->id));
+});
+

@@ -14,7 +14,7 @@
 
     @can('member-management.update')
         <!--begin::Menu item-->
-        <div class="menu-item px-3">
+        <div class="menu-item px-3 {{ $member->deleted_at ? 'd-none' : '' }}">
             <a href="#" class="menu-link px-3 kt_modal_edit_member" data-data="{{ $member }}" data-kt-member-id="{{ $member->id }}">
                 Edit
             </a>
@@ -25,7 +25,7 @@
 
     @can('member-management.delete')
         <!--begin::Menu item-->
-        <div class="menu-item px-3">
+        <div class="menu-item px-3 {{ $member->deleted_at ? 'd-none' : '' }}">
             <a href="#" class="menu-link px-3" data-kt-member-id="{{ $member->id }}" data-kt-action="delete_row">
                 Delete
             </a>
@@ -35,7 +35,7 @@
 
     @can('member-management.restore')
         <!--begin::Menu item-->
-        <div class="menu-item px-3">
+        <div class="menu-item px-3 {{ $member->deleted_at ? '' : 'd-none' }}">
             <a href="#" class="menu-link px-3" data-kt-member-id="{{ $member->id }}" data-kt-action="restore_row">
                 Restore
             </a>
