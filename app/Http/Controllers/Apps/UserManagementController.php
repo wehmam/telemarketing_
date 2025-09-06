@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps;
 
+use App\DataTables\MemberUserDataTable;
 use App\DataTables\UsersDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -36,9 +37,17 @@ class UserManagementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(User $user, MemberUserDataTable $membersDataTable)
     {
-        return view('pages.apps.user-management.users.show', compact('user'));
+        $teamName = $user->team->name ?? 'N/A';
+        $membersTable      = $membersDataTable->setUserContext($user->id, $user->name, $teamName);
+
+        return view('pages.apps.user-management.users.show', [
+            'user'         => $user,
+            'membersTable' => $membersTable->html(),
+            // 'transactionsTable' => $transactionsTable->html(),
+            // 'logsTable'    => $logsTable->html(),
+        ]);
     }
 
     /**
@@ -63,5 +72,10 @@ class UserManagementController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function membersData(User $user, MemberUserDataTable $dataTable)
+    {
+        return $dataTable->setUserContext($user->id, $user->name, $user->team?->name ?? 'N/A')->ajax();
     }
 }

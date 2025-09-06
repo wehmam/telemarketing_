@@ -84,4 +84,9 @@ class User extends Authenticatable
     {
         return $this->teams()->first()?->id;
     }
+
+    public function getTeamAttribute()
+    {
+        return $this->teams()->first();
+    }
 }
