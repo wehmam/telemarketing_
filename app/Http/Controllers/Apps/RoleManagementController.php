@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Apps;
 
 use App\DataTables\UsersAssignedRoleDataTable;
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -14,6 +15,7 @@ class RoleManagementController extends Controller
      */
     public function index()
     {
+        ActivityLogger::log("View List Roles", 200);
         return view('pages.apps.user-management.roles.list');
     }
 
@@ -38,6 +40,7 @@ class RoleManagementController extends Controller
      */
     public function show(Role $role, UsersAssignedRoleDataTable $dataTable)
     {
+        ActivityLogger::log("View Role {$role->name} Detail", 200);
         return $dataTable->with('role', $role)
             ->render('pages.apps.user-management.roles.show', compact('role'));
     }

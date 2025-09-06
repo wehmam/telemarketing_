@@ -61,4 +61,25 @@ class Members extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function setPhoneAttribute($value)
+    {
+        $phone = trim($value);
+
+        if (preg_match('/^0/', $phone)) {
+            $phone = preg_replace('/^0/', '62', $phone);
+        }
+
+        if (preg_match('/^\+62/', $phone)) {
+            $phone = preg_replace('/^\+62/', '62', $phone);
+        }
+
+        $this->attributes['phone'] = $phone;
+    }
+
+    // change to be 0 at the beginning
+    public function getPhoneLocalAttribute()
+    {
+        return preg_replace('/^62/', '0', $this->phone);
+    }
 }

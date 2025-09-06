@@ -73,6 +73,17 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function allTeams()
+    {
+        return Team::whereIn('id', function($q) {
+                $q->select('team_id')
+                ->from('team_members')
+                ->where('user_id', $this->id);
+            })
+            ->orWhere('leader_id', $this->id)
+            ->get();
+    }
+
     public function team()
     {
         return $this->belongsToMany(Team::class, 'team_members', 'user_id', 'team_id')

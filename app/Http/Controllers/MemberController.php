@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DataTables\MembersDataTable;
 use App\DataTables\MemberTransactionsDataTable;
+use App\Helpers\ActivityLogger;
 use App\Models\Members;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ class MemberController extends Controller
      */
     public function index(MembersDataTable $dataTable)
     {
+        ActivityLogger::log("View List Members", 200);
         return $dataTable->render('pages.apps.members.index');
     }
 
@@ -46,15 +48,19 @@ class MemberController extends Controller
 
         $user = Auth::user();
         $teamId = $user->team_id;
+        if (!$teamId) {
+            return response()->json(responseCustom(false, "You must be part of a team to add members., please contact your team leader!"), 422);
+        }
 
         $member = Members::create([
-            'name'              => strtolower($request->name),
-            'username'          => $request->username,
+            'name'              => ucwords($request->name),
+            'username'          => strtolower($request->username),
             'phone'             => $request->phone,
-            'nama_rekening'     => $request->nama_rekening,
+            'nama_rekening'     => strtoupper($request->nama_rekening),
             'marketing_id'      => $user->id,
             'team_id'           => $teamId
         ]);
+        ActivityLogger::log("Add Member {$member->name}", 201);
 
         return response()->json(responseCustom(true, "Success Add New Member", $member));
     }
@@ -65,11 +71,9 @@ class MemberController extends Controller
     public function show(string $id, MemberTransactionsDataTable $memberTransactions)
     {
         $member = Members::withTrashed()->findOrFail($id);
-
-        // dd($member);
-        // $teamName = $user->team->name ?? 'N/A';
         $membersTable      = $memberTransactions->setMemberContext($member->id, $member->name);
 
+        ActivityLogger::log("View Member {$member->name} Detail", 200);
         return view('pages.apps.members.show', [
             'member'         => $member,
             'transactionsTable' => $membersTable->html(),
@@ -111,6 +115,7 @@ class MemberController extends Controller
             'nama_rekening' => $request->nama_rekening,
         ]);
 
+        ActivityLogger::log("Update Member {$member->name}", 200);
         return response()->json([
             'status'  => true,
             'message' => 'Member updated successfully',
@@ -126,6 +131,7 @@ class MemberController extends Controller
         $member = Members::findOrFail($id);
         $member->delete();
 
+        ActivityLogger::log("Delete Member {$member->name}", 200);
         return response()->json([
             'status'  => true,
             'message' => 'Member deleted successfully'
@@ -149,6 +155,7 @@ class MemberController extends Controller
         if ($member->trashed()) {
             $member->restore();
 
+            ActivityLogger::log("Restore Member {$member->name} Detail", 200);
             return response()->json(responseCustom(true, "Members successfully restored", $member));
         } else {
             return response()->json(responseCustom(false, "Member is still active"));

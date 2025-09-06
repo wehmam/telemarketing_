@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Apps;
 
 use App\DataTables\MemberUserDataTable;
 use App\DataTables\UsersDataTable;
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class UserManagementController extends Controller
      */
     public function index(UsersDataTable $dataTable)
     {
+        ActivityLogger::log("View List Users", 200);
         return $dataTable->render('pages.apps.user-management.users.list');
     }
 
@@ -39,9 +41,10 @@ class UserManagementController extends Controller
      */
     public function show(User $user, MemberUserDataTable $membersDataTable)
     {
-        $teamName = $user->team->name ?? 'N/A';
+        $teamName          = $user->team->name ?? 'N/A';
         $membersTable      = $membersDataTable->setUserContext($user->id, $user->name, $teamName);
-
+        // $transactionsTable = $memberTransactions->setMemberContext($member->id, $
+        ActivityLogger::log("View User {$user->name} Detail", 200);
         return view('pages.apps.user-management.users.show', [
             'user'         => $user,
             'membersTable' => $membersTable->html(),

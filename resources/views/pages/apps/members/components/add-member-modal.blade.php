@@ -29,7 +29,7 @@
                             <label class="required fw-semibold fs-6 mb-2">Full Name</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="text" id="iName" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name"/>
+                            <input type="text" id="iName" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name" required/>
                             <!--end::Input-->
                             @error('name')
                                 <span class="text-danger">{{ $message }}</span>
@@ -43,7 +43,7 @@
                             <label class="required fw-semibold fs-6 mb-2">Username</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                                <input type="text" id="iUsername" name="username" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Username"/>
+                                <input type="text" id="iUsername" name="username" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Username" required/>
                             <!--end::Input-->
                             @error('username')
                                 <span class="text-danger">{{ $message }}</span>

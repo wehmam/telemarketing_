@@ -63,6 +63,23 @@
                 defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
+
+
+            const phoneInput = document.getElementById('iPhone');
+
+            phoneInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            phoneInput.addEventListener('blur', function() {
+                let phone = this.value.trim();
+
+                if (phone.startsWith('0')) {
+                    phone = '62' + phone.substring(1);
+                }
+
+                this.value = phone;
+            });
         </script>
     @endpush
 

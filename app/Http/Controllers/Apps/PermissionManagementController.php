@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Apps;
 
 use App\DataTables\PermissionsDataTable;
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -13,6 +14,7 @@ class PermissionManagementController extends Controller
      */
     public function index(PermissionsDataTable $dataTable)
     {
+        ActivityLogger::log("View List Permissions", 200);
         return $dataTable->render('pages.apps.user-management.permissions.list');
     }
 

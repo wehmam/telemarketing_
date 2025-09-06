@@ -53,7 +53,7 @@
     @endforeach
 
     <!--begin::Add new card-->
-    <div class="ol-md-4">
+    <div class="ol-md-4 d-none">
         <!--begin::Card-->
         <div class="card h-md-100">
             <!--begin::Card body-->

@@ -119,12 +119,24 @@
                             <!--begin::Details item-->
                             <div class="fw-bold mt-5">Email</div>
                             <div class="text-gray-600">
-                                <a href="#" class="text-gray-600 text-hover-primary">info@keenthemes.com</a>
+                                <a href="#" class="text-gray-600 text-hover-primary">{{ $user->email }}</a>
+                            </div>
+                            <!--begin::Details item-->
+                             <!--begin::Details item-->
+                            <div class="fw-bold mt-5">Role</div>
+                            <div class="text-gray-600">
+                                <a href="#" class="text-gray-600 text-hover-primary">{{ $user->role_name ?? '' }}</a>
+                            </div>
+                            <!--begin::Details item-->
+                             <!--begin::Details item-->
+                            <div class="fw-bold mt-5">Teams</div>
+                            <div class="text-gray-600">
+                                <a href="#" class="text-gray-600 text-hover-primary">{{ $user->role_name == "Administrator" ? "*" : $user->allTeams()->pluck('name')->join(', ') }}</a>
                             </div>
                             <!--begin::Details item-->
                             <!--begin::Details item-->
                             <div class="fw-bold mt-5">Last Login</div>
-                            <div class="text-gray-600">{{ $user->last_login_at->format('d M Y, h:i A') }}</div>
+                            <div class="text-gray-600">{{ $user->last_login_at ?  $user->last_login_at->format('d M Y, h:i A') : "" }}</div>
                             <!--begin::Details item-->
                         </div>
                     </div>
