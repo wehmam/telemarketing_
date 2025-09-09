@@ -97,7 +97,7 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="javascript:void(0)">
+                            <a class="menu-link {{ request()->routeIs('transactions.index') ? 'active' : '' }}" href="{{ url('transactions') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
@@ -139,7 +139,7 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="{{ route('members.index') }}">
+                            <a class="menu-link {{ request()->routeIs('members.index') ? 'active' : '' }}" href="{{ route('members.index') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
@@ -179,7 +179,7 @@
                     <!--begin:Menu sub-->
                     <div class="menu-sub menu-sub-accordion">
                          <!--begin:Menu item-->
-                        <div class="menu-item">
+                        <div class="menu-item {{ request()->routeIs('settings.config.ips.index') ? 'active' : '' }}">
                             <!--begin:Menu link-->
                             <a class="menu-link {{ request()->routeIs('settings.config.ips.*') ? 'active' : '' }}" href="{{ route('settings.config.ips.index') }}">
                                 <span class="menu-bullet">

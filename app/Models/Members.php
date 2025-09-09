@@ -59,7 +59,7 @@ class Members extends Model
      */
     public function transactions()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Transaction::class, 'member_id');
     }
 
     public function setPhoneAttribute($value)

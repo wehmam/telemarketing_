@@ -50,11 +50,11 @@
                             <!--begin::Stats-->
                             <div class="border border-gray-300 border-dashed rounded py-3 px-3 mb-3">
                                 <div class="fs-4 fw-bold text-gray-700">
-                                    <span class="w-75px">243</span>
-                                    <i class="ki-duotone ki-arrow-up fs-3 text-success">
+                                    <span class="w-200px">Rp. {{ number_format($totalTransactions ?? 0) }}</span>
+                                    {{-- <i class="ki-duotone ki-arrow-up fs-3 text-success">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
-                                    </i>
+                                    </i> --}}
                                 </div>
                                 <div class="fw-semibold text-muted">Total Deposit</div>
                             </div>
@@ -62,13 +62,9 @@
                             <!--begin::Stats-->
                             <div class="border border-gray-300 border-dashed rounded py-3 px-3 mx-4 mb-3">
                                 <div class="fs-4 fw-bold text-gray-700">
-                                    <span class="w-50px">56</span>
-                                    <i class="ki-duotone ki-arrow-down fs-3 text-danger">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
+                                    <span class="w-200px">{{ date("d M Y" , strtotime($lastTransaction)) }}</span>
                                 </div>
-                                <div class="fw-semibold text-muted">Total Follow Up</div>
+                                <div class="fw-semibold text-muted">Last Transactions</div>
                             </div>
                             <!--end::Stats-->
                         </div>

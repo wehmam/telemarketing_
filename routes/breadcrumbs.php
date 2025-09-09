@@ -81,3 +81,16 @@ Breadcrumbs::for('members.show', function (BreadcrumbTrail $trail, $member) {
     $trail->push(ucwords($member->name), route('members.show', $member->id));
 });
 
+
+// Home > Dashboard > Members
+Breadcrumbs::for('transactions', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Transactions', route('transactions.index'));
+});
+
+// Home > Dashboard > Transactions
+Breadcrumbs::for('transactions.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Transactions', route('transactions.index'));
+});
+

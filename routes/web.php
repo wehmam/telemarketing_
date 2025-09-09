@@ -8,6 +8,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Apps\TeamManagementController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,10 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
     });
 
-    Route::name('transactions.')->group(function () {
-        // Route::get('/config/ips', [ConfigController::class, 'index'])->name('config.ips.index');
-        // Route::post('/config/ips', [ConfigController::class, 'update'])->name('config.ips.update');
-    });
+    Route::resource("transactions", TransactionController::class);
+    Route::post("transactions/import", [TransactionController::class, 'import'])->name('transactions.import');
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');

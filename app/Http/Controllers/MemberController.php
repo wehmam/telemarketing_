@@ -73,10 +73,16 @@ class MemberController extends Controller
         $member = Members::withTrashed()->findOrFail($id);
         $membersTable      = $memberTransactions->setMemberContext($member->id, $member->name);
 
+        $totalTransactions = $member->transactions()->sum('amount');
+        $lastTransaction = $member->transactions()
+            ->latest('transaction_date')
+            ->first();
         ActivityLogger::log("View Member {$member->name} Detail", 200);
         return view('pages.apps.members.show', [
             'member'         => $member,
             'transactionsTable' => $membersTable->html(),
+            'totalTransactions'  => $totalTransactions,
+            'lastTransaction'    => $lastTransaction?->transaction_date,
             // 'logsTable'    => $logsTable->html(),
         ]);
     }

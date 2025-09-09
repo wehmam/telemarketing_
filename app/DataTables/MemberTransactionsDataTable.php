@@ -25,15 +25,17 @@ class MemberTransactionsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->editColumn('amount', fn($transaction) => number_format($transaction->amount, 2))
-            ->editColumn('transaction_date', fn($transaction) => $transaction->transaction_date->format('Y-m-d'))
-            ->addColumn('followups', function ($transaction) {
-                if ($transaction->followups->isEmpty()) {
-                    return '<span class="badge bg-danger">Not Followed Up</span>';
-                }
-
-                return $transaction->followups->map(function ($f) {
-                    return $f->user->name . ' (' . $f->followed_up_at->format('Y-m-d H:i') . ')';
-                })->implode('<br>');
+            // ->editColumn('transaction_date', fn($transaction) => $transaction->transaction_date->format('Y-m-d'))
+            ->editColumn('transaction_date', function ($trx) {
+                return $trx->transaction_date
+                    ? \Carbon\Carbon::parse($trx->transaction_date)->format('Y-m-d')
+                    : '—';
+            })
+            ->addColumn('followups', function ($trx) {
+                $last = $trx->followups->sortByDesc('followed_up_at')->first();
+                return $last
+                    ? $last->user->name . ' (' . \Carbon\Carbon::parse($last->followed_up_at)->format('Y-m-d H:i') . ')'
+                    : '<span class="badge badge-danger">Not Followed Up</span>';
             })
             ->rawColumns(['followups'])
             ->setRowId('id');
@@ -63,7 +65,7 @@ class MemberTransactionsDataTable extends DataTable
         return [
             Column::make('id')->title('ID'),
             Column::make('amount')->title('Amount'),
-            Column::make('transaction_date')->title('Date'),
+            Column::make('transaction_date')->title('Deposit Date'),
             Column::make('type')->title('Type'),
             Column::make('username')->title('Username'),
             Column::make('phone')->title('Phone'),
