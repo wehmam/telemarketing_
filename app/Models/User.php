@@ -100,4 +100,9 @@ class User extends Authenticatable
     {
         return $this->teams()->first();
     }
+
+    public function members()
+    {
+        return $this->hasMany(Members::class, 'marketing_id'); // adjust foreign key
+    }
 }

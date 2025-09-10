@@ -31,6 +31,13 @@ class MembersDataTable extends DataTable
                     $member->deleted_at ? 'Not Active' : 'Active'
                 );
             })
+            ->addColumn('last_deposit', function (Members $member) {
+                $lastDeposit = $member->transactions()->latest('transaction_date')->first();
+                // return $lastDeposit ? $lastDeposit->transaction_date->format('d-m-Y H:i') : '—';
+                return $lastDeposit
+                    ? \Carbon\Carbon::parse($lastDeposit->transaction_date)->format('Y-m-d')
+                    : '—';
+            })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
             })
@@ -94,7 +101,7 @@ class MembersDataTable extends DataTable
             }
         }
 
-        return $query;
+        return $query->orderBy('id', 'asc');
     }
 
     /**
@@ -126,6 +133,7 @@ class MembersDataTable extends DataTable
             Column::make('marketing_id')->title('Marketing'),
             Column::make('team_id')->title('Team'),
             Column::make('deleted_at')->title('Status'),
+            Column::make('last_deposit')->title('Last Deposit'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

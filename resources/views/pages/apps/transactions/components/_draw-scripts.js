@@ -214,13 +214,13 @@ document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (
     })
 })
 
-// ===== Delete Member =====
+// ===== Delete Transaction =====
 document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (element) {
     element.addEventListener('click', function () {
-        const memberId = this.getAttribute('data-kt-member-id');
+        const transactionId = this.getAttribute('data-kt-transaction-id');
 
         Swal.fire({
-            text: 'Are you sure you want to remove this member?',
+            text: 'Are you sure you want to remove this transaction?',
             icon: 'warning',
             buttonsStyling: false,
             showCancelButton: true,
@@ -233,7 +233,7 @@ document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (ele
         }).then((result) => {
             if (result.isConfirmed) {
                 showLoadPage();
-                fetch(`/members/${memberId}`, {
+                fetch(`/transactions/${transactionId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -244,7 +244,7 @@ document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (ele
                 .then(data => {
                     hideLoadPage();
                     Swal.fire({
-                        text: data.message || (data.status ? 'Member deleted successfully!' : 'Failed to delete member.'),
+                        text: data.message || (data.status ? 'Transaction deleted successfully!' : 'Failed to delete transaction.'),
                         icon: data.status ? 'success' : 'error',
                         confirmButtonText: 'OK',
                         customClass: { confirmButton: 'btn btn-primary' }
@@ -265,3 +265,54 @@ document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (ele
     });
 });
 
+
+// ===== Restore Transaction =====
+document.querySelectorAll('[data-kt-action="restore_row"]').forEach(function (element) {
+    element.addEventListener('click', function () {
+        const transactionId = this.getAttribute('data-kt-transaction-id');
+
+        Swal.fire({
+            text: 'Are you sure you want to restore this transaction?',
+            icon: 'warning',
+            buttonsStyling: false,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restore it!',
+            cancelButtonText: 'No, cancel',
+            customClass: {
+                confirmButton: 'btn btn-danger',
+                cancelButton: 'btn btn-secondary',
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoadPage();
+                fetch(`/transactions/${transactionId}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoadPage();
+                    Swal.fire({
+                        text: data.message || (data.status ? 'Transaction restored successfully!' : 'Failed to restore transaction.'),
+                        icon: data.status ? 'success' : 'error',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-primary' }
+                    });
+                    window.LaravelDataTables['transactions-table'].ajax.reload();
+                })
+                .catch(error => {
+                    hideLoadPage();
+                    Swal.fire({
+                        text: 'Something went wrong!',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-primary' }
+                    });
+                });
+            }
+        });
+    });
+});

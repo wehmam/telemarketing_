@@ -50,11 +50,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post("transactions/import", [TransactionController::class, 'import'])->name('transactions.import');
     Route::post("transactions/{id}/follow-up", [TransactionController::class, 'followUpMember'])->name('transactions.follow-up');
     Route::get('transactions/export/{type}', [\App\Http\Controllers\TransactionController::class, 'export'])->name('transactions.export');
-
+    Route::post('transactions/{id}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
     Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');
+    Route::get('/members/{member}/followups/data', [MemberController::class, 'followupsData'])->name('members.followups.data');
 });
 
 Route::get('/error', function () {

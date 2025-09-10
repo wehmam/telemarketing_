@@ -66,7 +66,40 @@ class TransactionController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $transaction = \App\Models\Transaction::find($id);
+            if (!$transaction) {
+                return response()->json(responseCustom(false, "Transaction not found."));
+            }
+
+            $transaction->delete();
+            ActivityLogger::log("Deleted transaction ID: {$transaction->id}, Member: {$transaction->member?->name}, Amount: {$transaction->amount}");
+            return response()->json(responseCustom(true, "Transaction deleted successfully."));
+        } catch (\Throwable $th) {
+            return response()->json(responseCustom(false, "Failed to delete transaction: " . $th->getMessage()));
+        }
+    }
+
+    /**
+     * Restore the specified resource from storage.
+     */
+    public function restore(string $id)
+    {
+        try {
+            $transaction = \App\Models\Transaction::withTrashed()->find($id);
+            if (!$transaction) {
+                return response()->json(responseCustom(false, "Transaction not found."));
+            }
+            if (!$transaction->trashed()) {
+                return response()->json(responseCustom(false, "Transaction is not deleted."));
+            }
+
+            $transaction->restore();
+            ActivityLogger::log("Restored transaction ID: {$transaction->id}, Member: {$transaction->member?->name}, Amount: {$transaction->amount}");
+            return response()->json(responseCustom(true, "Transaction restored successfully."));
+        } catch (\Throwable $th) {
+            return response()->json(responseCustom(false, "Failed to restore transaction: " . $th->getMessage()));
+        }
     }
 
     public function import(Request $request)

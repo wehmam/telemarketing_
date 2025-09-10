@@ -38,6 +38,9 @@ class RolesPermissionsSeeder extends Seeder
                 'role-management.import',
 
                 'transaction-management.read',
+                'transaction-management.delete',
+                'transaction-management.follow-up',
+                'transaction-management.restore',
                 'transaction-management.export',
                 'transaction-management.import',
 
@@ -67,6 +70,8 @@ class RolesPermissionsSeeder extends Seeder
                 'user-management.import',
 
                 'transaction-management.read',
+                'transaction-management.delete',
+                'transaction-management.follow-up',
                 'transaction-management.import',
 
                 'member-management.read',
@@ -78,6 +83,7 @@ class RolesPermissionsSeeder extends Seeder
             'marketing' => [
                 'transaction-management.read',
                 'transaction-management.import',
+                'transaction-management.follow-up',
 
                 'member-management.read',
                 'member-management.create',

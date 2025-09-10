@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DataTables\MembersDataTable;
 use App\DataTables\MemberTransactionsDataTable;
+use App\DataTables\TransactionFollowupDataTable;
 use App\Helpers\ActivityLogger;
 use App\Models\Members;
 use Illuminate\Support\Facades\Validator;
@@ -68,10 +69,11 @@ class MemberController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id, MemberTransactionsDataTable $memberTransactions)
+    public function show(string $id, MemberTransactionsDataTable $memberTransactions, TransactionFollowupDataTable $transactionFollowup)
     {
-        $member = Members::withTrashed()->findOrFail($id);
-        $membersTable      = $memberTransactions->setMemberContext($member->id, $member->name);
+        $member             = Members::withTrashed()->findOrFail($id);
+        $membersTable       = $memberTransactions->setMemberContext($member->id, $member->name);
+        $followupsTable     = $transactionFollowup->setMemberContext($member->id);
 
         $totalTransactions = $member->transactions()->sum('amount');
         $lastTransaction = $member->transactions()
@@ -81,6 +83,7 @@ class MemberController extends Controller
         return view('pages.apps.members.show', [
             'member'         => $member,
             'transactionsTable' => $membersTable->html(),
+            'followupsTable'    => $followupsTable->html(),
             'totalTransactions'  => $totalTransactions,
             'lastTransaction'    => $lastTransaction?->transaction_date,
             // 'logsTable'    => $logsTable->html(),
@@ -171,6 +174,10 @@ class MemberController extends Controller
     public function transactionsData(Members $member, MemberTransactionsDataTable $dataTable)
     {
         return $dataTable->setMemberContext($member->id, $member->name, $member->team?->name ?? 'N/A')->ajax();
+    }
 
+    public function followupsData(Members $member, TransactionFollowupDataTable $dataTable)
+    {
+        return $dataTable->setMemberContext($member->id)->ajax();
     }
 }

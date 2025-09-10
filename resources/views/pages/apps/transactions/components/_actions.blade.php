@@ -5,18 +5,28 @@
 <!--begin::Menu-->
 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
     <!--begin::Menu item-->
-    <div class="menu-item px-3">
+    <div class="menu-item px-3  {{ request()->routeIs('members.transactions.*') ? 'd-none' : '' }}">
         <a href="{{ route('members.show', $transaction->member_id) }}" class="menu-link px-3">
             View
         </a>
     </div>
     <!--end::Menu item-->
 
-    @can('member-management.delete')
+    @can('transaction-management.delete')
         <!--begin::Menu item-->
         <div class="menu-item px-3 {{  $transaction->deleted_at ? 'd-none' : '' }}">
-            <a href="#" class="menu-link px-3" data-kt-member-id="{{  $transaction->id }}" data-kt-action="delete_row">
+            <a href="#" class="menu-link px-3" data-kt-transaction-id="{{  $transaction->id }}" data-kt-action="delete_row">
                 Delete
+            </a>
+        </div>
+        <!--end::Menu item-->
+    @endcan
+
+    @can('transaction-management.restore')
+        <!--begin::Menu item-->
+        <div class="menu-item px-3 {{ $transaction->deleted_at ? '' : 'd-none' }}">
+            <a href="#" class="menu-link px-3" data-kt-transaction-id="{{ $transaction->id }}" data-kt-action="restore_row">
+                Restore
             </a>
         </div>
         <!--end::Menu item-->

@@ -93,6 +93,8 @@ class TransactionDataTable extends DataTable
 
         if (in_array($status, ['DEPOSIT', 'REDEPOSIT'])) {
             $query->where('type', $status);
+        } elseif( $status === 'DELETED') {
+            $query->onlyTrashed();
         }
 
         if ($lastDepositRange) {

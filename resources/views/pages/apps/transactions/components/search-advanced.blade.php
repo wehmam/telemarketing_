@@ -46,6 +46,12 @@
                     <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">REDEPOSIT</span>
                 </label>
                 <!--end::Option-->
+                <!--begin::Option-->
+                <label>
+                    <input type="radio" class="btn-check sStatus" name="search_status" value="DELETED">
+                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">DELETED</span>
+                </label>
+                <!--end::Option-->
             </div>
             <!--end::Radio group-->
         </div>
