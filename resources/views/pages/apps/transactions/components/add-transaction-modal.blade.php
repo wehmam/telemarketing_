@@ -18,7 +18,7 @@
             <!--begin::Modal body-->
             <div class="modal-body px-5 my-7">
                 <!--begin::Form-->
-                <form id="kt_modal_add_members_form" class="form" method="POST" action="{{ route('transactions.import') }}" enctype="multipart/form-data">
+                <form id="kt_modal_import_transaction_form" class="form" action="javascript:void(0);" enctype="multipart/form-data">
                     @csrf
                     <!--begin::Scroll-->
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_members_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_members_header" data-kt-scroll-wrappers="#kt_modal_add_members_scroll" data-kt-scroll-offset="300px">

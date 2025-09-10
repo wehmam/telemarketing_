@@ -24,17 +24,26 @@ class MemberTransactionsDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->editColumn('amount', fn($transaction) => number_format($transaction->amount, 2))
+            ->editColumn('amount', fn($transaction) => "Rp. " . number_format($transaction->amount, 2))
+            ->editColumn('phone', function($trx) {
+                $phone = $trx->member?->phone ?? '—';
+
+                if ($phone !== '—' && substr($phone, 0, 2) === '62') {
+                    $phone = '0' . substr($phone, 2);
+                }
+
+                return $phone;
+            })
             // ->editColumn('transaction_date', fn($transaction) => $transaction->transaction_date->format('Y-m-d'))
             ->editColumn('transaction_date', function ($trx) {
                 return $trx->transaction_date
-                    ? \Carbon\Carbon::parse($trx->transaction_date)->format('Y-m-d')
+                    ? \Carbon\Carbon::parse($trx->transaction_date)->format('d-m-Y')
                     : '—';
             })
             ->addColumn('followups', function ($trx) {
                 $last = $trx->followups->sortByDesc('followed_up_at')->first();
                 return $last
-                    ? $last->user->name . ' (' . \Carbon\Carbon::parse($last->followed_up_at)->format('Y-m-d H:i') . ')'
+                    ? $last->user->name . '<br> (' . \Carbon\Carbon::parse($last->followed_up_at)->format('Y-m-d H:i') . ')'
                     : '<span class="badge badge-danger">Not Followed Up</span>';
             })
             ->rawColumns(['followups'])
@@ -63,7 +72,7 @@ class MemberTransactionsDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->title('ID'),
+            Column::make('id')->title('Transaction ID'),
             Column::make('amount')->title('Amount'),
             Column::make('transaction_date')->title('Deposit Date'),
             Column::make('type')->title('Type'),

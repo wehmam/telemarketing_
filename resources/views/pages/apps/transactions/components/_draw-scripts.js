@@ -53,12 +53,17 @@ $('.sStatus').on('change', function() {
     window.LaravelDataTables['transactions-table'].ajax.reload();
 });
 
+$('.sLastDeposit').on('change', function() {
+    window.LaravelDataTables['transactions-table'].ajax.reload();
+})
+
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
     data.s_nama_rekening = $('#sNamaRekening').val();
     data.s_username = $('#sUsername').val();
     data.s_phone = $('#sPhone').val();
     data.s_status = $('.sStatus:checked').val();
+    data.s_last_deposit = $('.sLastDeposit').val();
 });
 
 // $('#statusFilter').on('change', function() {
@@ -73,6 +78,94 @@ if (modal) {
     });
 }
 
+$(document).ready(function() {
+    $('#kt_modal_import_transaction_form').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        let url = '/transactions/import';
+
+        showLoadPage();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                hideLoadPage();
+                Swal.fire(
+                    response.status ? "Success" : "Error",
+                    response.message,
+                    response.status ? "success" : "error"
+                );
+                $('#kt_modal_add_transactions').modal('hide');
+                $('#kt_modal_import_transaction_form')[0].reset();
+                window.LaravelDataTables['transactions-table'].ajax.reload();
+            },
+            error: function (xhr) {
+                hideLoadPage();
+                if (xhr.status === 422) {
+                    let message = xhr.responseJSON.message;
+                    Swal.fire("Validation Error", message, "error");
+                } else {
+                    Swal.fire("Error", "Something went wrong", "error");
+                }
+            }
+        })
+
+    });
+})
+
+document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (e) {
+    e.addEventListener('click', function() {
+        const transactionId = this.getAttribute('data-kt-transaction-id');
+        showLoadPage();
+        fetch(`/transactions/${transactionId}/follow-up`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoadPage();
+            if(data.status) {
+                if (data.data.redirectUrl) {
+                    window.open(data.data.redirectUrl, '_blank');
+                    window.LaravelDataTables['transactions-table'].ajax.reload();
+                    return
+                } else {
+                    Swal.fire({
+                            text: "Failed to get redirect URL WA.ME",
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'btn btn-primary' }
+                    });
+                    return
+                }
+            }
+
+            Swal.fire({
+                text: data.message ,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' }
+            });
+            window.LaravelDataTables['transactions-table'].ajax.reload();
+        })
+        .catch(error => {
+            hideLoadPage();
+            Swal.fire({
+                text: 'Something went wrong!',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' }
+            });
+        });
+    })
+})
 
 // ===== Delete Member =====
 document.querySelectorAll('[data-kt-action="delete_row"]').forEach(function (element) {

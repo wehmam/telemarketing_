@@ -64,7 +64,7 @@
                                 <div class="fs-4 fw-bold text-gray-700">
                                     <span class="w-200px">{{ date("d M Y" , strtotime($lastTransaction)) }}</span>
                                 </div>
-                                <div class="fw-semibold text-muted">Last Transactions</div>
+                                <div class="fw-semibold text-muted">Last Deposit</div>
                             </div>
                             <!--end::Stats-->
                         </div>

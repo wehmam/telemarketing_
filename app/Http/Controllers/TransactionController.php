@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataTables\TransactionDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use PDO;
 
 class TransactionController extends Controller
@@ -68,9 +69,14 @@ class TransactionController extends Controller
     public function import(Request $request)
     {
         try {
-            $request->validate([
-                'file' => 'required|file|mimes:csv,txt',
+            $validator = Validator::make($request->all(), [
+               'file' => 'required|file|mimes:csv,txt'
             ]);
+
+            if ($validator->fails()) {
+                $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+                return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+            }
 
             $user   = auth()->user();
             $teamId = $user->team_id;
@@ -172,9 +178,31 @@ class TransactionController extends Controller
         }
     }
 
-    public function followUp(string $id)
+    public function followUpMember(string $id)
     {
-        $transaction = \App\Models\Transaction::findOrFail($id);
-        return view('pages.apps.transactions.follow-up', compact('transaction'));
+        try {
+            $transaction = \App\Models\Transaction::find($id);
+            if (!$transaction) {
+                return response()->json(responseCustom(false, "Transaction not found."));
+            }
+
+            $phone = $transaction->member?->phone ?? null;
+            if (!$phone) {
+                return response()->json(responseCustom(false, "Member phone number not available, please update member phone data first."));
+            }
+
+            $waLink = "https://wa.me/{$phone}";
+            $transaction->followups()->create([
+                'user_id'        => auth()->id(),
+                'note'           => "Followed up via Link WA : {$waLink}!",
+                'followed_up_at' => now(),
+            ]);
+
+            return response()->json(responseCustom(true, "Follow-up recorded successfully.", [
+                'redirectUrl' => $waLink
+            ]));
+        } catch (\Throwable $th) {
+            return response()->json(responseCustom(false, "Failed to record follow-up: " . $th->getMessage()));
+        }
     }
 }

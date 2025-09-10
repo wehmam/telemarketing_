@@ -53,7 +53,7 @@ class TransactionDataTable extends DataTable
             ->addColumn('followups', function ($trx) {
                 $last = $trx->followups->sortByDesc('followed_up_at')->first();
                 return $last
-                    ? $last->user->name . ' (' . \Carbon\Carbon::parse($last->followed_up_at)->format('Y-m-d H:i') . ')'
+                    ? $last->user->name . '<br> (' . \Carbon\Carbon::parse($last->followed_up_at)->format('d-m-Y H:i') . ')'
                     : '<span class="badge badge-danger">Not Followed Up</span>';
             })
             ->addColumn('action', function (Transaction $transaction) {
@@ -93,6 +93,16 @@ class TransactionDataTable extends DataTable
 
         if (in_array($status, ['DEPOSIT', 'REDEPOSIT'])) {
             $query->where('type', $status);
+        }
+
+        if ($lastDepositRange) {
+            $dates = explode(' - ', $lastDepositRange);
+            if (count($dates) === 2) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->startOfDay();
+                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->endOfDay();
+
+                $query->whereBetween('transaction_date', [$startDate->toDateString(), $endDate->toDateString()]);
+            }
         }
 
         return $query;

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource("transactions", TransactionController::class);
     Route::post("transactions/import", [TransactionController::class, 'import'])->name('transactions.import');
+    Route::post("transactions/{id}/follow-up", [TransactionController::class, 'followUpMember'])->name('transactions.follow-up');
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
