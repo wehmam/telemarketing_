@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Apps;
 
+use App\DataTables\ActivityLogDataTable;
 use App\DataTables\MemberUserDataTable;
 use App\DataTables\UsersDataTable;
 use App\Helpers\ActivityLogger;
@@ -39,15 +40,18 @@ class UserManagementController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user, MemberUserDataTable $membersDataTable)
+    public function show(User $user, MemberUserDataTable $membersDataTable, ActivityLogDataTable $logDataTable)
     {
         $teamName          = $user->team->name ?? 'N/A';
         $membersTable      = $membersDataTable->setUserContext($user->id, $user->name, $teamName);
         // $transactionsTable = $memberTransactions->setMemberContext($member->id, $
+        $logTable          = $logDataTable->setUserContext($user->id);
+
         ActivityLogger::log("View User {$user->name} Detail", 200);
         return view('pages.apps.user-management.users.show', [
             'user'         => $user,
             'membersTable' => $membersTable->html(),
+            'logsTable'    => $logTable->html(),
             // 'transactionsTable' => $transactionsTable->html(),
             // 'logsTable'    => $logsTable->html(),
         ]);
@@ -80,5 +84,10 @@ class UserManagementController extends Controller
     public function membersData(User $user, MemberUserDataTable $dataTable)
     {
         return $dataTable->setUserContext($user->id, $user->name, $user->team?->name ?? 'N/A')->ajax();
+    }
+
+    public function logsData(User $user, ActivityLogDataTable $dataTable)
+    {
+        return $dataTable->setUserContext($user->id)->ajax();
     }
 }

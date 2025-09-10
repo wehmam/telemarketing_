@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/user-management/users', UserManagementController::class);
         Route::prefix('/user-management/users')->name('users.')->group(function () {
             Route::get('{user}/members-data', [UserManagementController::class, 'membersData'])->name('members.data');
+            Route::get('{user}/logs-data', [UserManagementController::class, 'logsData'])->name('logs.data');
             //            Route::get('{user}/transactions-data', [UserManagementController::class, 'transactionsData'])->name('transactions.data');
             // Route::get('{user}/logs-data', [UserManagementController::class, 'logsData'])->name('logs.data');
         });
