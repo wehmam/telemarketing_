@@ -33,8 +33,17 @@ class MemberUserDataTable extends DataTable
 
     public function query(Members $model): QueryBuilder
     {
-        $query = $model->newQuery()->with(['marketing', 'team'])
-            ->where('marketing_id', $this->userId);
+        $query = $model->newQuery()->with(['marketing', 'team']);
+
+        $user = \App\Models\User::find($this->userId);
+        if (!$user->hasRole('administrator')) {
+            if ($user->hasRole('leader')) {
+                $teamIds = $user->allTeams()->pluck('id')->toArray() ?? [];
+                $query->whereIn('team_id', $teamIds);
+            } else {
+                $query->where('marketing_id', $this->userId);
+            }
+        }
 
         return $query;
     }

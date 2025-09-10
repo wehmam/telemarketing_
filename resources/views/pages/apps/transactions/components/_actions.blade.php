@@ -32,13 +32,15 @@
         <!--end::Menu item-->
     @endcan
 
-    <!--begin::Menu item-->
-    <div class="menu-item px-3 {{ $transaction->deleted_at ? 'd-none' : '' }}">
-        <a href="#" class="menu-link px-3" data-kt-transaction-id="{{ $transaction->id }}" data-kt-action="follow_up_row">
-            Follow Up
-        </a>
-    </div>
-    <!--end::Menu item-->
+    @can('transaction-management.follow-up')
+        <!--begin::Menu item-->
+        <div class="menu-item px-3 {{ $transaction->deleted_at ? 'd-none' : '' }}">
+            <a href="#" class="menu-link px-3" data-kt-transaction-id="{{ $transaction->id }}" data-kt-action="follow_up_row">
+                Follow Up
+            </a>
+        </div>
+        <!--end::Menu item-->
+    @endcan
 
 </div>
 <!--end::Menu-->
