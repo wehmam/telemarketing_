@@ -157,11 +157,13 @@
                     <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#kt_user_view_overview_tab">Overview</a>
                 </li>
                 <!--end:::Tab item-->
-                <!--begin:::Tab item-->
-                <li class="nav-item">
-                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_user_view_overview_events_and_logs_tab">Activity Logs</a>
-                </li>
-                <!--end:::Tab item-->
+                @can('log-management.read')
+                    <!--begin:::Tab item-->
+                    <li class="nav-item">
+                        <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_user_view_overview_events_and_logs_tab">Activity Logs</a>
+                    </li>
+                    <!--end:::Tab item-->
+                @endcan
 
             </ul>
             <!--end:::Tabs-->
