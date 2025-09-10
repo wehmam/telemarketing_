@@ -16,6 +16,7 @@ class AddUserModal extends Component
 {
     use WithFileUploads;
 
+    public $user_id;
     public $name;
     public $email;
     public $role;
@@ -27,19 +28,31 @@ class AddUserModal extends Component
     public $is_active = true;
 
 
-    protected $rules = [
-        'name' => 'required|string',
-        'email' => 'required|email',
-        'role' => 'required|string',
-        'avatar' => 'nullable|sometimes|image|max:1024',
-        'password' => 'nullable|min:6',
-        'is_active' => 'boolean'
-    ];
+    // protected $rules = [
+    //     'name' => 'required|string',
+    //     'email' => 'required|email',
+    //     'role' => 'required|string',
+    //     'avatar' => 'nullable|sometimes|image|max:1024',
+    //     'password' => 'nullable|min:6',
+    //     'is_active' => 'boolean'
+    // ];
 
     protected $listeners = [
         'delete_user' => 'deleteUser',
         'update_user' => 'updateUser',
     ];
+
+    public function rules()
+    {
+        return [
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email,' . ($this->user_id ?? 'NULL'),
+            'role' => 'required|string',
+            'avatar' => 'nullable|sometimes|image|max:1024',
+            'password' => 'nullable|min:6',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function render()
     {
@@ -76,6 +89,7 @@ class AddUserModal extends Component
         DB::transaction(function () {
             $data = [
                 'name' => $this->name,
+                'email' => $this->email,
                 'is_active' => $this->is_active,
                 'profile_photo_path' => $this->avatar
                     ? $this->avatar->store('avatars', 'public')
@@ -100,7 +114,8 @@ class AddUserModal extends Component
                 ActivityLogger::log("New user created: {$user->email}");
 
             } else {
-                $user = User::where('email', $this->email)->firstOrFail();
+                $user = User::findOrFail($this->user_id);
+                // $user = User::where('email', $this->email)->firstOrFail();
 
                 if (!empty($this->password)) {
                     $data['password'] = Hash::make($this->password);
@@ -192,6 +207,7 @@ class AddUserModal extends Component
 
         $user = User::find($id);
 
+        $this->user_id      = $user->id;
         $this->saved_avatar = $user->profile_photo_url;
         $this->name = $user->name;
         $this->email = $user->email;

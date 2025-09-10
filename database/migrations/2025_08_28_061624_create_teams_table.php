@@ -19,7 +19,12 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
 
-            $table->foreign('leader_id')->references('id')->on('users')->nullOnDelete();
+            $table->foreign('leader_id')->references('id')->on('users');
+            // $table->foreign('leader_id')->references('id')->on('users')->nullOnDelete();
+
+            $table->index('leader_id');
+            $table->index('created_by');
+            $table->index('updated_by');
         });
     }
 

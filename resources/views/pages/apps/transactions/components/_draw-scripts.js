@@ -66,9 +66,56 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_last_deposit = $('.sLastDeposit').val();
 });
 
-// $('#statusFilter').on('change', function() {
-//     window.LaravelDataTables['transactions-table'].ajax.reload();
-// });
+
+const btnExportExcel = document.getElementById('btnExportExcel');
+if (btnExportExcel) {
+    document.getElementById('btnExportExcel').addEventListener('click', function (e) {
+        e.preventDefault();
+        showLoadPage();
+
+        let params = {
+            s_nama_rekening: $('#sNamaRekening').val(),
+            s_username: $('#sUsername').val(),
+            s_phone: $('#sPhone').val(),
+            s_status: $('.sStatus:checked').val(),
+            s_last_deposit: $('.sLastDeposit').val(),
+        };
+        let query = $.param(params);
+        let url = '/transactions/export/excel?' + query;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            // Try to read filename from Content-Disposition header
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = "transactions.xlsx";
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                filename = disposition.split('filename=')[1].replace(/"/g, '');
+            }
+            return response.blob().then(blob => ({ blob, filename }));
+        })
+        .then(({ blob, filename }) => {
+            hideLoadPage();
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+            hideLoadPage();
+            Swal.fire("Error", "Failed to export file.", "error");
+        });
+    });
+}
 
 // ===== Modal Show Event =====
 const modal = document.querySelector('#kt_modal_add_transactions');
@@ -109,7 +156,7 @@ $(document).ready(function() {
                     let message = xhr.responseJSON.message;
                     Swal.fire("Validation Error", message, "error");
                 } else {
-                    Swal.fire("Error", "Something went wrong", "error");
+                    Swal.fire("Error", message ?? "Something went wrong", "error");
                 }
             }
         })

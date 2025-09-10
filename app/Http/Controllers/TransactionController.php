@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\TransactionDataTable;
+use App\Exports\TransactionsExport;
+use App\Helpers\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 use PDO;
 
 class TransactionController extends Controller
@@ -80,7 +83,9 @@ class TransactionController extends Controller
 
             $user   = auth()->user();
             $teamId = $user->team_id;
-
+            if (!$teamId) {
+                return response()->json(responseCustom(false, "❌ Import failed: You are not assigned to any team. Please contact the administrator."), 422);
+            }
 
             $path = $request->file('file')->storeAs(
                 'imports',
@@ -132,13 +137,35 @@ class TransactionController extends Controller
                 throw new \Exception("❌ Import failed: {$invalidCount} invalid phone numbers found in CSV.");
             }
 
-            $pdo->exec("
-                INSERT INTO members (username, phone, name, marketing_id, team_id, created_at, updated_at)
-                SELECT t.username, t.phone, t.username, t.entry_by, {$teamId}, NOW(), NOW()
+            // $pdo->exec("
+            //     INSERT INTO members (username, phone, name, marketing_id, team_id, created_at, updated_at)
+            //     SELECT t.username, t.phone, t.username, t.entry_by, {$teamId}, NOW(), NOW()
+            //     FROM tmp_transactions t
+            //     LEFT JOIN members m ON m.username = t.username
+            //     WHERE m.id IS NULL
+            // ");
+            $teamIdValue = $teamId !== null ? (int) $teamId : 'NULL';
+            $pdo->exec("INSERT INTO members (username, phone, name, marketing_id, team_id, created_at, updated_at)
+                SELECT t.username,
+                    MAX(t.phone)       AS phone,
+                    MAX(t.username)    AS name,
+                    MAX(t.entry_by)    AS marketing_id,
+                    {$teamIdValue}     AS team_id,
+                    NOW(),
+                    NOW()
                 FROM tmp_transactions t
                 LEFT JOIN members m ON m.username = t.username
                 WHERE m.id IS NULL
+                GROUP BY t.username
             ");
+            // $pdo->exec("
+            //     INSERT INTO members (username, phone, name, marketing_id, team_id, created_at, updated_at)
+            //     SELECT t.username, t.phone, t.username, t.entry_by, {$teamIdValue}, NOW(), NOW()
+            //     FROM tmp_transactions t
+            //     LEFT JOIN members m ON m.username = t.username
+            //     WHERE m.id IS NULL
+            // ");
+            // die("DEBUG: STOPPED BEFORE INSERT TRANSACTIONS");
 
             $pdo->exec("
                 INSERT INTO transactions (id, member_id, user_id, amount, transaction_date, type, username, phone, created_at, updated_at)
@@ -171,13 +198,20 @@ class TransactionController extends Controller
 
             $pdo->exec("DELETE FROM tmp_transactions WHERE entry_by = " . $user->id);
 
+            if (file_exists($csvfile)) {
+                unlink($csvfile);
+            }
 
+            ActivityLogger::log("Imported transactions via CSV File. By User : " . $user->name);
             return response()->json(responseCustom(true, "✅ Import successful"));
         } catch (\Throwable $th) {
-            return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()));
+            return response()->json(responseCustom(false, "❌ Import failed Exception: " . $th->getMessage()));
         }
     }
 
+    /**
+     * Follow up member via WhatsApp link and record the follow-up action.
+     */
     public function followUpMember(string $id)
     {
         try {
@@ -198,11 +232,24 @@ class TransactionController extends Controller
                 'followed_up_at' => now(),
             ]);
 
+            ActivityLogger::log("Followed up member {$transaction->member?->name} (Transaction ID: {$transaction->id}) via WhatsApp link.");
             return response()->json(responseCustom(true, "Follow-up recorded successfully.", [
                 'redirectUrl' => $waLink
             ]));
         } catch (\Throwable $th) {
             return response()->json(responseCustom(false, "Failed to record follow-up: " . $th->getMessage()));
         }
+    }
+
+    /**
+    * Export to Excel or CSV.
+    */
+    public function export(Request $request, $type)
+    {
+        ActivityLogger::log("Exported transactions data file.");
+        return Excel::download(
+            new \App\Exports\TransactionsExport($request->all()),
+            'transactions-' . now()->format('YmdHis') . '.xlsx'
+        );
     }
 }

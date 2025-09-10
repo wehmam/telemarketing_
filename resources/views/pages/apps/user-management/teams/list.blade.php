@@ -28,7 +28,7 @@
                         <!--begin::Card body-->
                         <div class="card-body pt-1">
                             <!--begin::Users-->
-                            <div class="fw-bold text-gray-600 mb-5">Total users with this role: {{ $team->members->count() }}</div>
+                            <div class="fw-bold text-gray-600 mb-5">Total users with this team: {{ $team->members->count() }}</div>
                             <!--end::Users-->
                             <!--begin::Permissions-->
                             <div class="d-flex flex-column text-gray-600">
@@ -46,8 +46,18 @@
                         <!--end::Card body-->
                         <!--begin::Card footer-->
                         <div class="card-footer flex-wrap pt-0">
-                            <a href="{{ route('user-management.roles.show', $team) }}" class="btn btn-light btn-active-primary my-1 me-2">View Team</a>
-                            <button type="button" class="btn btn-light btn-active-light-primary my-1" data-role-id="{{ $team->name }}" data-bs-toggle="modal" data-bs-target="#kt_modal_update_team">Edit Team</button>
+                            {{-- <a href="{{ route('user-management.roles.show', $team) }}" class="btn btn-light btn-active-primary my-1 me-2">View Team</a> --}}
+                            {{-- <button type="button" class="btn btn-light btn-active-light-primary my-1 edit-team-btn" data-role-id="{{ $team->name }}" data-team-id="{{ $team->id }}" data-team-name="{{ $team->name }}" data-team-leader="{{ $team->leader_id }}" data-team-members="{{ $team->members->pluck('id')->implode(',') }}" data-bs-toggle="modal" data-bs-target="#kt_modal_update_team">Edit Team</button> --}}
+                            <button type="button"
+                                class="btn btn-light btn-active-light-primary my-1 edit-team-btn"
+                                data-id="{{ $team->id }}"
+                                data-name="{{ $team->name }}"
+                                data-leader="{{ $team->leader_id }}"
+                                data-members="{{ $team->members->pluck('id')->implode(',') }}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#kt_modal_update_team">
+                                Edit Team
+                            </button>
                         </div>
                         <!--end::Card footer-->
                     </div>
@@ -184,6 +194,24 @@
             const modal = document.querySelector('#kt_modal_update_team');
             modal.addEventListener('show.bs.modal', (e) => {
             //     Livewire.emit('modal.show.role_name', e.relatedTarget.getAttribute('data-role-id'));
+                const button = e.relatedTarget; // Button that triggered the modal
+                const teamId = button.getAttribute('data-id');
+
+                if (!teamId) {
+                    // New team modal -> reset all fields
+                    $('#team_id').val('');
+                    $('input[name="team_name"]').val('');
+                    $('#leader_id').val(null).trigger('change');
+
+                    // Reset marketing list
+                    let originalOptions = @json($marketings); // Laravel variable with users without a team
+                    let select = $('#users');
+                    select.empty();
+                    $.each(originalOptions, function(i, user) {
+                        select.append(new Option(user.name, user.id, false, false));
+                    });
+                    select.val(null).trigger('change');
+                }
             });
 
 
@@ -191,7 +219,7 @@
                 $('#kt_modal_team_form').on('submit', function (e) {
                     e.preventDefault();
 
-                    let id = $('#teamId').val();
+                    let id = $('#team_id').val();
                     let url = '';
                     let method = '';
 
@@ -205,6 +233,8 @@
                         method = 'POST';
                     }
 
+                    console.log('Submitting to:', url, 'with method:', method);
+                    
                     showLoadPage();
                     $.ajax({
                         url: url,
@@ -233,6 +263,31 @@
                         }
                     });
                 });
+
+                $(document).on('click', '.edit-team-btn', function () {
+                    let teamId   = $(this).data('id');
+                    let teamName = $(this).data('name');
+                    let leaderId = $(this).data('leader');
+                    let members  = $(this).data('members') ? $(this).data('members').toString().split(',') : [];
+
+                    $('#team_id').val(teamId);
+                    $('input[name="team_name"]').val(teamName);
+                    $('#leader_id').val(leaderId).trigger('change');
+
+                    // Preselect members di Select2
+                    $('#users').val(members).trigger('change');
+
+                    // Ambil marketings via AJAX untuk tim ini
+                    $.get(`/user-management/teams/${teamId}/available-marketings`, function(data) {
+                        let select = $('#users');
+                        select.empty(); // kosongkan dulu
+                        $.each(data, function(i, user) {
+                            select.append(new Option(user.name, user.id, members.includes(user.id.toString()), members.includes(user.id.toString())));
+                        });
+                        select.trigger('change');
+                    });
+                });
+
             });
         </script>
     @endpush

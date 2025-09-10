@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/user-management/roles', RoleManagementController::class);
         Route::resource('/user-management/permissions', PermissionManagementController::class);
         Route::resource('/user-management/teams', TeamManagementController::class);
+        Route::get('/user-management/teams/{team}/available-marketings', [TeamManagementController::class, 'getAvailableMarketings']);
     });
 
     Route::name('settings.')->group(function () {
@@ -48,6 +49,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource("transactions", TransactionController::class);
     Route::post("transactions/import", [TransactionController::class, 'import'])->name('transactions.import');
     Route::post("transactions/{id}/follow-up", [TransactionController::class, 'followUpMember'])->name('transactions.follow-up');
+    Route::get('transactions/export/{type}', [\App\Http\Controllers\TransactionController::class, 'export'])->name('transactions.export');
+
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');

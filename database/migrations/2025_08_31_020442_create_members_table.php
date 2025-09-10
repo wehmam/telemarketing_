@@ -20,13 +20,21 @@ return new class extends Migration
 
             // langsung relasi ke users.id
             $table->foreignId('marketing_id')
+                ->nullable()
                 ->constrained('users');
 
             $table->foreignId('team_id')
+                ->nullable()
                 ->constrained('teams');
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('phone');
+            $table->index('marketing_id');
+            $table->index('team_id');
+
+            $table->index(['marketing_id', 'team_id']);
         });
     }
 

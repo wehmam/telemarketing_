@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index('session_id');
+            $table->index('is_active');
         });
     }
 

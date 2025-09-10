@@ -30,6 +30,16 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('member_id');
+            $table->index('user_id');
+            $table->index('transaction_date');
+            $table->index('type');
+            $table->index('username');
+            $table->index('phone');
+
+            $table->index(['member_id', 'transaction_date']);
+            $table->index(['user_id', 'transaction_date']);
         });
 
     }

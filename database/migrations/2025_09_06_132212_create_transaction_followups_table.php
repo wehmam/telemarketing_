@@ -19,14 +19,19 @@ return new class extends Migration
                 ->references('id')->on('transactions')
                 ->cascadeOnDelete();
 
-            // User (marketing/staff) yang follow up
             $table->foreignId('user_id')
                 ->constrained('users');
 
             $table->text('note')->nullable();
-            $table->timestamp('followed_up_at')->useCurrent(); 
+            $table->timestamp('followed_up_at')->useCurrent();
 
             $table->timestamps();
+
+            $table->index('transaction_id');
+            $table->index('user_id');
+            $table->index('followed_up_at');
+
+            $table->index(['transaction_id', 'followed_up_at']);
         });
     }
 

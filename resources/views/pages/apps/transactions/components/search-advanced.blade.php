@@ -54,7 +54,7 @@
          <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
-            <input type="text" class="form-control form-control form-control-solid sLastDeposit" id="periodeLastDeposit" name="last_deposit" value="{{ date("d-m-Y") }}" tabindex="-1">
+            <input type="text" class="form-control form-control form-control-solid sLastDeposit" id="periodeLastDeposit" name="last_deposit" placeholder="Select date range Deposit" tabindex="-1">
         </div>
         <!--end::Col-->
     </div>

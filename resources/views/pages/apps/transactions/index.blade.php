@@ -21,18 +21,18 @@
 
             <div class="card-toolbar">
 
+            @can('transaction-management.export')
+            <!--begin::Add Member Button-->
+            <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
+                <a href="javascript:void(0);" class="btn btn-sm btn-success p-3" id="btnExportExcel">
+                    {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
+                    Export
+                </a>
+            </div>
+            <!--end::Add Member Button-->
+            @endcan
 
             @can('transaction-management.import')
-                {{-- <!--begin::Add Member Button-->
-                <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
-                    <button type="button" class="btn btn-sm btn-success p-3"
-                            data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_add_transactions">
-                        {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
-                        Export
-                    </button>
-                </div>
-                <!--end::Add Member Button--> --}}
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
                     {{-- <button type="button" class="btn btn-sm btn-info p-3" onclick="window.location='{{ route('transactions.downloadTemplate') }}'"> --}}
@@ -43,6 +43,7 @@
                     </button>
                 </div>
                 <!--end::Add Member Button-->
+                
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0">
                     <button type="button" class="btn btn-sm btn-primary p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_add_transactions">
@@ -78,7 +79,7 @@
             flatpickr("#periodeLastDeposit", {
                 mode: "range",            // memungkinkan pilih dua tanggal (start & end)
                 dateFormat: "d-m-Y",      // format sesuai Laravel
-                defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
+                // defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
         </script>

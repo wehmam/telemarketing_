@@ -29,6 +29,7 @@ class RolesPermissionsSeeder extends Seeder
                 'user-management.delete',
                 'user-management.export',
                 'user-management.import',
+
                 'role-management.read',
                 'role-management.create',
                 'role-management.update',
@@ -37,9 +38,6 @@ class RolesPermissionsSeeder extends Seeder
                 'role-management.import',
 
                 'transaction-management.read',
-                'transaction-management.create',
-                'transaction-management.update',
-                'transaction-management.delete',
                 'transaction-management.export',
                 'transaction-management.import',
 
@@ -48,7 +46,6 @@ class RolesPermissionsSeeder extends Seeder
                 'member-management.update',
                 'member-management.delete',
                 'member-management.export',
-                'member-management.import',
                 'member-management.restore',
 
                 'log-management.read',
@@ -70,34 +67,21 @@ class RolesPermissionsSeeder extends Seeder
                 'user-management.import',
 
                 'transaction-management.read',
-                'transaction-management.create',
-                'transaction-management.update',
-                'transaction-management.delete',
-                'transaction-management.export',
                 'transaction-management.import',
 
                 'member-management.read',
                 'member-management.create',
                 'member-management.update',
-                'member-management.delete',
                 'member-management.export',
-                'member-management.import',
                 'member-management.restore',
             ],
             'marketing' => [
                 'transaction-management.read',
-                'transaction-management.create',
-                'transaction-management.update',
-                'transaction-management.delete',
-                'transaction-management.export',
                 'transaction-management.import',
 
                 'member-management.read',
                 'member-management.create',
                 'member-management.update',
-                // 'member-management.delete',
-                'member-management.export',
-                'member-management.import',
             ]
         ];
 
