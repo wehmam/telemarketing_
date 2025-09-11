@@ -30,10 +30,12 @@ class UsersDataTable extends DataTable
                 return sprintf('<div class="badge badge-info fw-bold">%s</div>', $user->last_login_at ? $user->last_login_at->diffForHumans() : $user->updated_at->diffForHumans());
             })
             ->editColumn('is_active', function (User $user) {
+                $class = $user->is_active && is_null($user->deleted_at) ? 'success' : 'danger';
+                $label = $user->is_active && is_null($user->deleted_at) ? 'Active' : ($user->deleted_at ? 'Deleted' : 'Inactive');
                 return sprintf(
                     '<div class="badge badge-%s fw-bold">%s</div>',
-                    $user->is_active ? 'success' : 'danger',
-                    $user->is_active ? 'Active' : 'Inactive'
+                    $class,
+                    $label
                 );
             })
             ->editColumn('created_at', function (User $user) {

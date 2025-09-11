@@ -8,6 +8,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Apps\TeamManagementController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\TransactionAssignController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('/user-management/users')->name('users.')->group(function () {
             Route::get('{user}/members-data', [UserManagementController::class, 'membersData'])->name('members.data');
             Route::get('{user}/logs-data', [UserManagementController::class, 'logsData'])->name('logs.data');
+            Route::post('{user}/restore', [UserManagementController::class, 'restore'])->name('restore');
             //            Route::get('{user}/transactions-data', [UserManagementController::class, 'transactionsData'])->name('transactions.data');
             // Route::get('{user}/logs-data', [UserManagementController::class, 'logsData'])->name('logs.data');
         });
@@ -52,6 +54,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post("transactions/{id}/follow-up", [TransactionController::class, 'followUpMember'])->name('transactions.follow-up');
     Route::get('transactions/export/{type}', [\App\Http\Controllers\TransactionController::class, 'export'])->name('transactions.export');
     Route::post('transactions/{id}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
+
+    Route::resource("transactions-assign", TransactionAssignController::class);
+
 
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');

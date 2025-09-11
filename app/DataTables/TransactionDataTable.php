@@ -60,7 +60,13 @@ class TransactionDataTable extends DataTable
                 return view('pages.apps.transactions.components._actions', compact('transaction'));
             })
             ->rawColumns(['followups'])
-            ->setRowId('id');
+            ->setRowId('id')
+            ->with([
+                'totalAmount' => (clone $query)->sum('amount'),
+                'totalMember' => (clone $query)->distinct('member_id')->count('member_id'),
+                'totalMemberDeposit' => (clone $query)->where('type', 'DEPOSIT')->sum("amount"),
+                'totalMemberRedeposit' => (clone $query)->where('type', 'REDEPOSIT')->sum("amount")
+            ]);
     }
 
     public function query(Transaction $model): QueryBuilder

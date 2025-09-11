@@ -8,6 +8,59 @@
         {{ Breadcrumbs::render('transactions') }}
     @endsection
 
+     <div class="card card-xxl-stretch mb-5 mb-xxl-10">
+        <!--begin::Header-->
+        <div class="card-header">
+            <div class="card-title">
+                <h3>Summary Transaction</h3>
+            </div>
+        </div>
+        <!--end::Header-->
+        <!--begin::Body-->
+        <div class="card-body pb-0">
+            {{-- <span class="fs-5 fw-semibold text-gray-600 pb-5 d-block">Last 30 day earnings calculated. Apart from arrangingthe order of topics.</span> --}}
+            <!--begin::Left Section-->
+            <div class="d-flex flex-wrap justify-content-between pb-6">
+                <!--begin::Row-->
+                <div class="d-flex flex-wrap">
+                    <!--begin::Col-->
+                    <div class="border border-dashed border-gray-300 w-500px rounded my-3 p-4 me-6">
+                        <span class="fs-2x fw-bold text-gray-800 lh-1">
+                            <span id="totalTransactions">Rp. 0</span>
+                        </span>
+                        <span class="fs-6 fw-semibold text-gray-400 d-block lh-1 pt-2">Total</span>
+                    </div>
+                    <!--end::Col-->
+                    <!--begin::Col-->
+                    <div class="border border-dashed border-gray-300 w-250px rounded my-3 p-4 me-6">
+                        <span class="fs-2x fw-bold text-gray-800 lh-1">
+                            <span id="totalMember">0</span></span>
+                        <span class="fs-6 fw-semibold text-gray-400 d-block lh-1 pt-2">Total Member</span>
+                    </div>
+                    <!--end::Col-->
+                    <!--begin::Col-->
+                    <div class="border border-dashed border-gray-300 w-250px rounded my-3 p-4 me-6">
+                        <span class="fs-2x fw-bold text-gray-800 lh-1">
+                            <span id="totalMemberDeposit">Rp. 0</span></span>
+                        <span class="fs-6 fw-semibold text-gray-400 d-block lh-1 pt-2">Total Member DEPOSIT</span>
+                    </div>
+                    <!--end::Col-->
+                    <!--begin::Col-->
+                    <div class="border border-dashed border-gray-300 w-250px rounded my-3 p-4 me-6">
+                        <span class="fs-2x fw-bold text-gray-800 lh-1">
+                            <span id="totalMemberRedeposit">Rp. 0</span>
+                        </span>
+                        <span class="fs-6 fw-semibold text-gray-400 d-block lh-1 pt-2">Total Member REDEPOSIT</span>
+                    </div>
+                    <!--end::Col-->
+                </div>
+                <!--end::Row-->
+            </div>
+            <!--end::Left Section-->
+        </div>
+        <!--end::Body-->
+    </div>
+
     <div class="card">
         <!--begin::Card header-->
         <div class="card-header border-0 pt-6">
@@ -43,7 +96,7 @@
                     </button>
                 </div>
                 <!--end::Add Member Button-->
-                
+
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0">
                     <button type="button" class="btn btn-sm btn-primary p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_add_transactions">

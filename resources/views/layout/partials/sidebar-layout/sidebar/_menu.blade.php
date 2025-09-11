@@ -117,7 +117,7 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="javascript:void(0)">
+                            <a class="menu-link {{ request()->routeIs('transactions-assign.index') ? 'active' : '' }}" href="{{ route('transactions-assign.index') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>

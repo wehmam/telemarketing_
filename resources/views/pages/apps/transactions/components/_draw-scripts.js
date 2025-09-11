@@ -66,6 +66,35 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_last_deposit = $('.sLastDeposit').val();
 });
 
+// ===== Update Total Transactions =====
+function updateHeaderTransaction(json) {
+    console.log('AJAX Response JSON:', json); // Debugging line
+    if (json && json.totalAmount !== undefined) {
+        $('#totalTransactions').text(formatRupiah(json.totalAmount));
+    }
+
+    if (json && json.totalMember !== undefined) {
+        $('#totalMember').text(json.totalMember);
+    }
+
+    if (json && json.totalMemberDeposit !== undefined) {
+        $('#totalMemberDeposit').text(formatRupiah(json.totalMemberDeposit));
+    }
+
+    if (json && json.totalMemberRedeposit !== undefined) {
+        $('#totalMemberRedeposit').text(formatRupiah(json.totalMemberRedeposit));
+    }
+}
+
+// First load
+dt.on('init.dt', function (e, settings, json) {
+    updateHeaderTransaction(json);
+});
+
+// Every ajax request
+dt.on('xhr.dt', function (e, settings, json, xhr) {
+    updateHeaderTransaction(json);
+});
 
 const btnExportExcel = document.getElementById('btnExportExcel');
 if (btnExportExcel) {

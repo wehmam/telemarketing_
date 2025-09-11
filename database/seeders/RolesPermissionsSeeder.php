@@ -27,6 +27,7 @@ class RolesPermissionsSeeder extends Seeder
                 'user-management.create',
                 'user-management.update',
                 'user-management.delete',
+                'user-management.restore',
                 'user-management.export',
                 'user-management.import',
 

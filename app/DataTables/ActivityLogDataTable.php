@@ -46,7 +46,7 @@ class ActivityLogDataTable extends DataTable
             $query->where('user_id', $this->userId);
         }
 
-        return $query->orderBy('created_at', 'desc');
+        return $query->orderBy('id', 'desc');
     }
 
     /**

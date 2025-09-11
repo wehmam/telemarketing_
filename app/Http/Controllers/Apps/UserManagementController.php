@@ -90,4 +90,25 @@ class UserManagementController extends Controller
     {
         return $dataTable->setUserContext($user->id)->ajax();
     }
+
+    public function restore(string $id)
+    {
+        $user = User::withTrashed()->find($id);
+        if (!$user) {
+            return response()->json(responseCustom(false, 'User not found.'), 404);
+        }
+
+        
+        if (!$user->deleted_at) {
+            return response()->json(responseCustom(false, 'User is not deleted.'));
+        }
+
+        try {
+            $user->restore();
+            ActivityLogger::log("Restore User {$user->name}", 200);
+            return response()->json(responseCustom(true, 'User successfully restored.'));
+        } catch (\Exception $e) {
+            return response()->json(responseCustom(false, 'Failed to restore user. ' . $e->getMessage()), 500);
+        }
+    }
 }

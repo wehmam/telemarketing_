@@ -25,12 +25,22 @@
 
     @can('user-management.delete')
         <!--begin::Menu item-->
-        <div class="menu-item px-3">
+        <div class="menu-item px-3 {{ $user->deleted_at ? 'd-none' : '' }}">
             <a href="#" class="menu-link px-3" data-kt-user-id="{{ $user->id }}" data-kt-action="delete_row">
                 Delete
             </a>
         </div>
         <!--end::Menu item-->
     @endcan
+
+     {{-- @can('user-management.restore') --}}
+        <!--begin::Menu item-->
+        <div class="menu-item px-3 {{ $user->deleted_at ? '' : 'd-none' }}">
+            <a href="#" class="menu-link px-3" data-kt-user-id="{{ $user->id }}" data-kt-action="restore_row">
+                Restore
+            </a>
+        </div>
+        <!--end::Menu item-->
+    {{-- @endcan --}}
 </div>
 <!--end::Menu-->
