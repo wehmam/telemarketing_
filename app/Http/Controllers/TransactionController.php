@@ -248,9 +248,14 @@ class TransactionController extends Controller
     public function followUpMember(string $id)
     {
         try {
+            $currentUser = auth()->user();
             $transaction = \App\Models\Transaction::find($id);
             if (!$transaction) {
                 return response()->json(responseCustom(false, "Transaction not found."));
+            }
+
+            if (!$transaction->user && !$currentUser->hasRole(['administrator', 'leader'])) {
+                return response()->json(responseCustom(false, "Please assign a user to this transaction before follow-up!"));
             }
 
             $phone = $transaction->member?->phone ?? null;

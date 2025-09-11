@@ -10,7 +10,7 @@ class ActivityLogger
     /**
      * Write activity log with optional description
      */
-    public static function log($description = null, $statusCode = null, $userId = null)
+    public static function log($description = null, $statusCode = null, $userId = null, $method = null)
     {
         try {
             $request  = request();
@@ -18,7 +18,7 @@ class ActivityLogger
 
             ActivityLog::create([
                 'user_id'     => Auth::id() ?? $userId,
-                'method'      => $request->method(),
+                'method'      => $method ?? $request->method(),
                 'url'         => $request->fullUrl(),
                 'status_code' => $statusCode ?? ($response ? $response->getStatusCode() : null),
                 'ip_address'  => $request->ip(),

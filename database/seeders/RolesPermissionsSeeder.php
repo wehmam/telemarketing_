@@ -37,6 +37,11 @@ class RolesPermissionsSeeder extends Seeder
                 'role-management.export',
                 'role-management.import',
 
+                'team-management.read',
+                'team-management.create',
+                'team-management.update',
+                'team-management.delete',
+
                 'transaction-management.read',
                 'transaction-management.delete',
                 'transaction-management.follow-up',
@@ -65,7 +70,6 @@ class RolesPermissionsSeeder extends Seeder
                 'user-management.read',
                 'user-management.create',
                 'user-management.update',
-                'user-management.delete',
                 'user-management.export',
                 'user-management.import',
 

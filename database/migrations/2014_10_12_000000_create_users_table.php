@@ -27,6 +27,8 @@ return new class extends Migration
 
             $table->index('session_id');
             $table->index('is_active');
+
+            $table->softDeletes();
         });
     }
 

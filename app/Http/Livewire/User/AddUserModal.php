@@ -111,7 +111,7 @@ class AddUserModal extends Component
                 $user->assignRole($this->role);
 
                 $this->emit('success', __('New user created'));
-                ActivityLogger::log("New user created: {$user->email}");
+                ActivityLogger::log("New user created: {$user->email}", method: 'POST', statusCode: 201);
 
             } else {
                 $user = User::findOrFail($this->user_id);
@@ -126,7 +126,7 @@ class AddUserModal extends Component
                 $user->syncRoles($this->role);
 
                 $this->emit('success', __('User updated'));
-                ActivityLogger::log("User updated: {$user->email}");
+                ActivityLogger::log("User updated: {$user->email}", method: 'PUT', statusCode: 200);
             }
         });
 
@@ -197,6 +197,7 @@ class AddUserModal extends Component
         // Delete the user record with the specified ID
         User::destroy($id);
 
+        ActivityLogger::log("User deleted with ID: {$id}", method: 'DELETE', statusCode: 200);
         // Emit a success event with a message
         $this->emit('success', 'User successfully deleted');
     }
