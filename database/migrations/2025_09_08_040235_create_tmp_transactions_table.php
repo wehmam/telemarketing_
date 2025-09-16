@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tmp_transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_rekening')->nullable(); 
             $table->string('username')->nullable();
             $table->string('phone', 20)->nullable();
             $table->decimal('amount', 15, 2)->nullable();

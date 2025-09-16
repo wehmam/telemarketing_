@@ -38,6 +38,9 @@ class MembersDataTable extends DataTable
                     ? \Carbon\Carbon::parse($lastDeposit->transaction_date)->format('Y-m-d')
                     : '—';
             })
+            ->addColumn('type', function (Members $member) {
+                return ($member->id && $member->team_id) ? 'WA' : 'DEFAULT';
+            })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
             })
@@ -134,6 +137,7 @@ class MembersDataTable extends DataTable
             Column::make('team_id')->title('Team'),
             Column::make('deleted_at')->title('Status'),
             Column::make('last_deposit')->title('Last Deposit'),
+            Column::make('type')->title('Member Type'), // <-- added
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

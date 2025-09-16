@@ -23,6 +23,7 @@ class Transaction extends Model
         'type',
         'username',
         'phone',
+        'nama_rekening',
     ];
 
     protected static function booted()

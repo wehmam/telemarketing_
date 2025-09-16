@@ -155,7 +155,8 @@ if (modal) {
 }
 
 $(document).ready(function() {
-    $('#kt_modal_import_transaction_form').on('submit', function (e) {
+    // $('#kt_modal_import_transaction_form').on('submit', function (e) {
+    $('#kt_modal_import_transaction_form').off('submit').on('submit', function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string("type");
             $table->string("username")->nullable();
             $table->string('phone')->nullable();
+            $table->string('nama_rekening')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -12,6 +12,7 @@ class TmpTransaction extends Model
     protected $table = 'tmp_transactions';
 
     protected $fillable = [
+        'nama_rekening',
         'username',
         'phone',
         'amount',

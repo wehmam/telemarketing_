@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');                      // nama member
             $table->string('nama_rekening')->nullable(); // nama rekening bank
             $table->string('username')->unique();
-            $table->string('phone');
+            $table->string('phone')->nullable();
 
             // langsung relasi ke users.id
             $table->foreignId('marketing_id')

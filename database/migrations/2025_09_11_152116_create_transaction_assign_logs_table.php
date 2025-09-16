@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('action_by');      // who performed the reassignment
             $table->unsignedBigInteger('from_member_id'); // member that was reassigned
-            $table->unsignedBigInteger('from_user_id');   // old marketing user
+            $table->unsignedBigInteger('from_user_id')->nullable();   // old marketing user
             $table->unsignedBigInteger('to_user_id');     // new marketing user
             $table->integer('moved_count');               // how many transactions were moved
             $table->timestamps();
