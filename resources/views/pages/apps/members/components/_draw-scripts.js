@@ -109,6 +109,23 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", ".modal_add_member", function(e) {
+        e.preventDefault();
+
+        showLoadPage();
+
+        $("#titleModal").text("Create Member");
+
+        $("#member_id").val("");
+        $("#iName").val("");
+        $("#iUsername").val("").prop("disabled", false); // ✅ enable username
+        $("#iPhone").val("");
+        $("#iNamaRekening").val("");
+
+        $("#kt_modal_add_members").modal("show");
+        hideLoadPage();
+    });
+
     // ===== Edit Member =====
     $(document).on("click", ".kt_modal_edit_member", function(e) {
         e.preventDefault();
@@ -120,7 +137,7 @@ $(document).ready(function () {
 
         $("#member_id").val(member.id);
         $("#iName").val(member.name);
-        $("#iUsername").val(member.username);
+        $("#iUsername").val(member.username).prop("disabled", true);
         $("#iPhone").val(member.phone);
         $("#iNamaRekening").val(member.nama_rekening);
         $("#kt_modal_add_members").modal("show");

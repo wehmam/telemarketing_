@@ -29,11 +29,15 @@ class TransactionAssignController extends Controller
             ->get();
 
         $teams = \App\Models\Team::orderBy('name')->get();
+        $marketings = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'marketing');
+        })->orderBy('id', 'asc')->get();
 
         return $dataTable->render('pages.apps.transaction-assign.index', [
             'fromMembers' => $fromMembers,
             'toUsers'   => $toUsers,
             'teams'     => $teams,
+            'marketings' => $marketings
         ]);
     }
 

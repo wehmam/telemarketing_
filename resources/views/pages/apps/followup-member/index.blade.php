@@ -14,7 +14,7 @@
             <!--begin::Card title-->
             <div class="card-title">
                 <!--begin::Search-->
-                @include('pages.apps.members.components.search')
+                @include('pages.apps.followup-member.components.search')
                 <!--end::Search-->
             </div>
             <!--begin::Card title-->
@@ -40,7 +40,7 @@
 
         <!--begin::Table Members-->
         <div class="card-body py-4">
-            @include('pages.apps.members.components.search-advanced')
+            @include('pages.apps.followup-member.components.search-advanced')
             <!--begin::Table-->
             <div class="table-responsive mt-5">
                 {{ $dataTable->table() }}
@@ -51,7 +51,7 @@
     </div>
 
     <!--begin::Modal-->
-        @include("pages.apps.members.components.add-member-modal")
+        {{-- @include("pages.apps.followup-member.components.add-member-modal") --}}
     <!--end::Modal-->
 
     @push('scripts')
@@ -62,23 +62,6 @@
                 dateFormat: "d-m-Y",      // format sesuai Laravel
                 defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
-            });
-
-
-            const phoneInput = document.getElementById('iPhone');
-
-            phoneInput.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-
-            phoneInput.addEventListener('blur', function() {
-                let phone = this.value.trim();
-
-                if (phone.startsWith('0')) {
-                    phone = '62' + phone.substring(1);
-                }
-
-                this.value = phone;
             });
         </script>
     @endpush

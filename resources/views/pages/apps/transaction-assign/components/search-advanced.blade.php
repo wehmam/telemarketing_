@@ -23,10 +23,22 @@
         </div>
         <!--end::Col-->
 
-         <!--begin::Col-->
+         {{-- <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Marketing Name</label>
             <input type="text" class="form-control form-control form-control-solid" id="sMarketing" name="search_marketing" tabindex="-1">
+        </div>
+        <!--end::Col--> --}}
+
+         <!--begin::Col-->
+        <div class="col-xxl-4">
+            <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
+            <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-control="select2" data-placeholder="Select Marketing">
+                <option></option>
+                @foreach ($marketings as $marketing)
+                    <option value="{{ $marketing->id }}">{{ $marketing->name }}</option>
+                @endforeach
+            </select>
         </div>
         <!--end::Col-->
 

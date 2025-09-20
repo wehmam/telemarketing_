@@ -24,7 +24,7 @@
 
             @can('member-management.create')
                 <!--begin::Add Member Button-->
-                <div class="d-flex align-items-center mt-2 mt-md-0">
+                <div class="d-flex align-items-center mt-2 mt-md-0 modal_add_member">
                     <button type="button" class="btn btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#kt_modal_add_members">

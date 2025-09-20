@@ -24,13 +24,13 @@ class MembersDataTable extends DataTable
             ->editColumn('team_id', function (Members $member) {
                 return $member->team?->name ?? '—';
             })
-            ->editColumn('deleted_at', function (Members $member) {
-                return sprintf(
-                    '<div class="badge badge-%s fw-bold">%s</div>',
-                    $member->deleted_at ? 'danger' : 'success',
-                    $member->deleted_at ? 'Not Active' : 'Active'
-                );
-            })
+            // ->editColumn('deleted_at', function (Members $member) {
+            //     return sprintf(
+            //         '<div class="badge badge-%s fw-bold">%s</div>',
+            //         $member->deleted_at ? 'danger' : 'success',
+            //         $member->deleted_at ? 'Not Active' : 'Active'
+            //     );
+            // })
             ->addColumn('last_deposit', function (Members $member) {
                 $lastDeposit = $member->transactions()->latest('transaction_date')->first();
                 // return $lastDeposit ? $lastDeposit->transaction_date->format('d-m-Y H:i') : '—';
@@ -39,7 +39,7 @@ class MembersDataTable extends DataTable
                     : '—';
             })
             ->addColumn('type', function (Members $member) {
-                return ($member->id && $member->team_id) ? 'WA' : 'DEFAULT';
+                return ($member->marketing_id && $member->team_id) ? 'WA' : 'DEFAULT';
             })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
@@ -70,10 +70,10 @@ class MembersDataTable extends DataTable
         $namaRekening = request('s_nama_rekening');
         $lastDepositRange = request('s_last_deposit');
 
-        if ($status === 'active') {
-            $query->whereNull('deleted_at');
-        } elseif ($status === 'not_active') {
-            $query->onlyTrashed();
+        if ($status === 'default') {
+            $query->whereNull('marketing_id')->orWhereNull('team_id');
+        } elseif ($status === 'has_team') {
+            $query->whereNotNull('marketing_id')->whereNotNull('team_id');
         } else {
             $query->withTrashed();
         }
@@ -135,7 +135,7 @@ class MembersDataTable extends DataTable
             Column::make('phone'),
             Column::make('marketing_id')->title('Marketing'),
             Column::make('team_id')->title('Team'),
-            Column::make('deleted_at')->title('Status'),
+            // Column::make('deleted_at')->title('Status'),
             Column::make('last_deposit')->title('Last Deposit'),
             Column::make('type')->title('Member Type'), // <-- added
             Column::computed('action')

@@ -10,6 +10,7 @@ use App\Models\Members;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
@@ -107,7 +108,7 @@ class MemberController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name'          => 'required|string|max:255',
-            'username'      => 'required|string|max:100|unique:members,username,' . $member->id,
+            // 'username'      => 'required|string|max:100|unique:members,username,' . $member->id,
             'phone'         => 'required|string|max:20',
             'nama_rekening' => 'required|string|max:255',
         ]);
@@ -119,7 +120,7 @@ class MemberController extends Controller
 
         $member->update([
             'name'          => $request->name,
-            'username'      => $request->username,
+            // 'username'      => $request->username,
             'phone'         => $request->phone,
             'nama_rekening' => $request->nama_rekening,
         ]);
@@ -137,14 +138,33 @@ class MemberController extends Controller
      */
     public function destroy(string $id)
     {
-        $member = Members::findOrFail($id);
-        $member->delete();
+        // $member = Members::findOrFail($id);
+        // $member->delete();
 
-        ActivityLogger::log("Delete Member {$member->name}", 200);
-        return response()->json([
-            'status'  => true,
-            'message' => 'Member deleted successfully'
-        ]);
+        // ActivityLogger::log("Delete Member {$member->name}", 200);
+        // return response()->json([
+        //     'status'  => true,
+        //     'message' => 'Member deleted successfully'
+        // ]);
+        return DB::transaction(function () use ($id) {
+            $member = Members::findOrFail($id);
+
+            // Delete related transactions
+            $member->transactions()->forceDelete();
+
+            // Delete related followups
+            $member->followups()->forceDelete();
+
+            // Finally delete member
+            $member->forceDelete();
+
+            ActivityLogger::log("Delete Member {$member->name}, transactions, and followups", 200);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Member, transactions, and followups permanently deleted successfully'
+            ]);
+        });
     }
 
     /**

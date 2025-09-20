@@ -37,7 +37,7 @@ class MembersFollowUpDataTable extends DataTable
             })
             ->addColumn('total_deposit', fn($member) => "Rp. " . number_format( ($member->transactions()->sum("amount") ?? 0) , 0, ",", "." ))
             ->addColumn('last_deposit_amount', fn($member) => "Rp. " . number_format(($member->lastTransaction?->amount ?? '0')  , 0, ",", "."))
-            ->addColumn('action', fn($member) => view('pages.apps.members.components._actions', compact('member')))
+            ->addColumn('action', fn($member) => view('pages.apps.followup-member.components._actions', compact('member')))
             ->rawColumns(['action'])
             ->setRowId('id');
     }
@@ -60,6 +60,14 @@ class MembersFollowUpDataTable extends DataTable
             $query->where('nama_rekening', 'like', "%{$namaRekening}%");
         }
 
+        if ($teamId = request('s_team')) {
+            $query->where('team_id', $teamId);
+        }
+
+        if ($marketingId = request('s_marketing')) {
+            $query->where('marketing_id', $marketingId);
+        }
+
         return $query->orderBy('id', 'asc');
     }
 
@@ -75,7 +83,8 @@ class MembersFollowUpDataTable extends DataTable
             ->dom('rt' . "<'row'<'col-sm-12 col-md-5'l><'col-sm-12 col-md-7'p>>")
             ->addTableClass('table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer text-gray-600 fw-semibold')
             ->setTableHeadClass('text-start text-muted fw-bold fs-7 text-uppercase gs-0')
-            ->orderBy(0);
+            ->orderBy(0)
+            ->drawCallback("function() {" . file_get_contents(resource_path('views/pages/apps/followup-member/components/_draw-scripts.js')) . "}");
     }
 
     /**

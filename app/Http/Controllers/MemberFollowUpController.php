@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\DataTables\MembersFollowUpDataTable;
+use App\Helpers\ActivityLogger;
+use App\Models\Members;
+
 // use App\DataTables\MembersDataTable;
 
 
@@ -14,7 +17,12 @@ class MemberFollowUpController extends Controller
      */
     public function index(MembersFollowUpDataTable $dataTable)
     {
-        return $dataTable->render('pages.apps.followup-member.index');
+        $teams = \App\Models\Team::orderBy('id', 'asc')->get();
+        $marketings = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'marketing');
+        })->orderBy('id', 'asc')->get();
+
+        return $dataTable->render('pages.apps.followup-member.index', compact('teams', 'marketings'));
     }
 
     /**
@@ -30,7 +38,46 @@ class MemberFollowUpController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $currentUser = auth()->user();
+            $member = Members::find($request->member_id);
+            if (!$member) {
+                return response()->json(responseCustom(false, "Member not found."));
+            }
+
+            if ($member->phone === null || $member->phone === '') {
+                return response()->json(responseCustom(false, "Member phone number is empty, cannot follow up."));
+            }
+
+            if (empty($member->marketing_id) && !$currentUser->hasRole(['administrator', 'leader'])) {
+                return response()->json(responseCustom(false, "Member does not have an assigned marketing, cannot follow up."));
+            }
+
+            $created = 0;
+            foreach ($member->transactions as $transaction) {
+                $alreadyFollowed = $member->followups()
+                    ->where('transaction_id', $transaction->id)
+                    ->exists();
+
+                if (! $alreadyFollowed) {
+                    $member->followups()->create([
+                        'transaction_id'=> $transaction->id,
+                        'user_id'       => $currentUser->id,
+                        'followed_up_at'=> now(),
+                        'notes'         => 'Follow up by ' . $currentUser->name,
+                    ]);
+                    $created++;
+                }
+            }
+
+            $waLink = "https://wa.me/{$member->phone}";
+            ActivityLogger::log("Followed up member {$member->name} via WhatsApp link.");
+            return response()->json(responseCustom(true, "Follow-up recorded successfully.", [
+                'redirectUrl' => $waLink
+            ]));
+        } catch (\Throwable $th) {
+            return response()->json(responseCustom(false, "Failed to record follow-up: " . $th->getMessage()));
+        }
     }
 
     /**

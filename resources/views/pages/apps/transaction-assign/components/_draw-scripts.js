@@ -46,9 +46,9 @@ $('#sTeam').on('change', function() {
     window.LaravelDataTables['member-transactions-table'].ajax.reload();
 });
 
-$('#sMarketing').on('keyup', debounce(function() {
+$('#sMarketing').on('change', function() {
     dt.ajax.reload();
-}, 500));
+});
 
 // $('#periodeLastDeposit').on('change', function() {
 //     window.LaravelDataTables['member-transactions-table'].ajax.reload();
@@ -60,7 +60,7 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_username = $('#sUsername').val();
     data.s_phone = $('#sPhone').val();
     data.s_team = $('#sTeam').val();
-    data.s_marketing_name = $('#sMarketing').val();
+    data.s_marketing = $('#sMarketing').val();
     // data.s_last_deposit = $('#periodeLastDeposit').val();
 });
 

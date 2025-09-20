@@ -134,7 +134,7 @@
 
             @can ("member-management.read")
                 <!--begin:Menu item-->
-                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('members.*') ? 'here show' : '' }}">
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('members.*') || request()->routeIs('followup.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
                     <span class="menu-link">
                         <span class="menu-icon">{!! getIcon('people', 'fs-2', 'users') !!}</span>
@@ -159,7 +159,7 @@
                         <!--begin:Menu item-->
                         <div class="menu-item">
                             <!--begin:Menu link-->
-                            <a class="menu-link" href="javascript:void(0)">
+                            <a class="menu-link {{ request()->routeIs('followup.index') ? 'active' : '' }}" href="{{ route('followup.index') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>

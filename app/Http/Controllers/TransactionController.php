@@ -380,7 +380,8 @@ class TransactionController extends Controller
 
             $stmt->execute([
                 ':nama_rekening' => $nama_rekening,
-                ':username'      => strtolower($username),
+                // ':username'      => strtolower($username),
+                ':username'     => strtolower(preg_replace('/\s+/', '', $username)),
                 ':amount'        => str_replace(',', '', $nominal),
                 ':entry_by'      => $user->id
             ]);

@@ -23,7 +23,7 @@ class MemberAssignTransactionDataTable extends DataTable
             })
             ->addColumn('marketing', fn($member) => $member->marketing?->name ?? '—')
             ->addColumn('team', fn($member) => $member->team?->name ?? '—')
-            ->addColumn('action', fn($member) => view('pages.apps.members.components._actions', compact('member')))
+            ->addColumn('action', fn($member) => view('pages.apps.transaction-assign.components._actions', compact('member')))
             ->editColumn('phone', function ($member) {
                 if ($member->phone && str_starts_with($member->phone, '62')) {
                     return '0' . substr($member->phone, 2);
@@ -46,6 +46,7 @@ class MemberAssignTransactionDataTable extends DataTable
         $namaRekening = request('s_nama_rekening');
         $team = request('s_team');
         $marketingName = request('s_marketing_name');
+        $marketingId = request('s_marketing');
         $lastDepositRange = request('s_last_deposit');
 
         if ($namaRekening) {
@@ -66,9 +67,9 @@ class MemberAssignTransactionDataTable extends DataTable
             });
         }
 
-        if ($marketingName) {
-            $query->whereHas('marketing', function ($q) use ($marketingName) {
-                $q->where('name', 'like', '%' . $marketingName . '%');
+        if ($marketingId) {
+            $query->whereHas('marketing', function ($q) use ($marketingId) {
+                $q->where('id', $marketingId);
             });
         }
 

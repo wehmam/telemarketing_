@@ -36,14 +36,14 @@
                 <!--end::Option-->
                 <!--begin::Option-->
                 <label>
-                    <input type="radio" class="btn-check sStatus" name="search_status" value="active">
-                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">Actived</span>
+                    <input type="radio" class="btn-check sStatus" name="search_status" value="default">
+                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">Default</span>
                 </label>
                 <!--end::Option-->
                 <!--begin::Option-->
                 <label>
-                    <input type="radio" class="btn-check sStatus" name="search_status" value="not_active">
-                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">Not Actived</span>
+                    <input type="radio" class="btn-check sStatus" name="search_status" value="has_team">
+                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">Has Team</span>
                 </label>
                 <!--end::Option-->
             </div>
