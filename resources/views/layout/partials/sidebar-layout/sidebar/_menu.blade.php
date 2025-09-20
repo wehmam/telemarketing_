@@ -157,13 +157,13 @@
                         </div>
                         <!--end:Menu item-->
                         <!--begin:Menu item-->
-                        <div class="menu-item d-none">
+                        <div class="menu-item">
                             <!--begin:Menu link-->
                             <a class="menu-link" href="javascript:void(0)">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
                                 </span>
-                                <span class="menu-title">List Deposit</span>
+                                <span class="menu-title">Follow Up Member</span>
                             </a>
                             <!--end:Menu link-->
                         </div>

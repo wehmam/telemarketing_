@@ -82,4 +82,23 @@ class Members extends Model
     {
         return preg_replace('/^62/', '0', $this->phone);
     }
+
+    public function followups()
+    {
+        return $this->hasManyThrough(
+            TransactionFollowup::class,
+            Transaction::class,
+            'member_id',        // Foreign key on transactions table
+            'transaction_id',   // Foreign key on transaction_followups table
+            'id',               // Local key on members table
+            'id'                // Local key on transactions table
+        );
+    }
+
+    public function lastTransaction()
+    {
+        return $this->hasOne(\App\Models\Transaction::class, 'member_id')
+            ->latest('transaction_date')
+            ->latest('created_at');
+    }
 }

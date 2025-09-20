@@ -94,3 +94,14 @@ Breadcrumbs::for('transactions.index', function (BreadcrumbTrail $trail) {
     $trail->push('Transactions', route('transactions.index'));
 });
 
+// Home > Dashboard
+Breadcrumbs::for('followup', function (BreadcrumbTrail $trail) {
+    $trail->parent('home');
+    $trail->push('List Follow Ups', route('followup.index'));
+});
+
+// Home > Dashboard > Follow Ups
+Breadcrumbs::for('followup.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Follow Ups', route('followup.index'));
+});

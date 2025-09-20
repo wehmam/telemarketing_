@@ -8,6 +8,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Apps\TeamManagementController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\MemberFollowUpController;
 use App\Http\Controllers\TransactionAssignController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -58,10 +59,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource("transactions-assign", TransactionAssignController::class);
 
 
+    Route::resource('members/followup', MemberFollowUpController::class);
     Route::resource("members", MemberController::class);
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
     Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');
     Route::get('/members/{member}/followups/data', [MemberController::class, 'followupsData'])->name('members.followups.data');
+
+
 });
 
 Route::get('/error', function () {
