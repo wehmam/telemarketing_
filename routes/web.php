@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('members/followup', MemberFollowUpController::class);
     Route::resource("members", MemberController::class);
+    Route::post('/members/import', [MemberController::class, 'import'])->name('members.import');
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
     Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');
     Route::get('/members/{member}/followups/data', [MemberController::class, 'followupsData'])->name('members.followups.data');

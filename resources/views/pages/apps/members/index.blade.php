@@ -21,11 +21,22 @@
 
             <div class="card-toolbar">
 
+            {{-- @can('member-management.import') --}}
+                <!--begin::Add Member Button-->
+            <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
+                    <button type="button" class="btn btn-sm btn-info p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_import_members">
+                        {!! getIcon('file', 'fs-2', 'files-folders', 'i') !!}
+                        Import
+                    </button>
+                </div>
+                <!--end::Add Member Button-->
+            {{-- @endcan --}}
+
 
             @can('member-management.create')
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0 modal_add_member">
-                    <button type="button" class="btn btn-primary"
+                    <button type="button" class="btn btn-primary btn-sm p-3"
                             data-bs-toggle="modal"
                             data-bs-target="#kt_modal_add_members">
                         {!! getIcon('plus', 'fs-2', '', 'i') !!}
@@ -52,6 +63,7 @@
 
     <!--begin::Modal-->
         @include("pages.apps.members.components.add-member-modal")
+        @include("pages.apps.members.components.import-member-modal")
     <!--end::Modal-->
 
     @push('scripts')

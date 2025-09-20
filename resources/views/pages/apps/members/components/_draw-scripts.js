@@ -66,9 +66,17 @@ if (modal) {
     });
 }
 
+// modal import members
+const modalImportMember = document.querySelector('#kt_modal_import_members');
+if (modalImportMember) {
+    modalImportMember.addEventListener('show.bs.modal', (e) => {
+        // Livewire.emit('modal.show.role_name', e.relatedTarget.getAttribute('data-role-id'));
+    });
+}
+
 // ===== Form Submit =====
 $(document).ready(function () {
-    $('#kt_modal_add_members_form').on('submit', function (e) {
+    $('#kt_modal_add_members_form').off('submit').on('submit', function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);
@@ -107,6 +115,44 @@ $(document).ready(function () {
                 }
             }
         });
+    });
+
+    // import members
+    $('#kt_modal_import_members_form').off('submit').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        let url = '/members/import';
+
+        showLoadPage();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                hideLoadPage();
+                Swal.fire(
+                    response.status ? "Success" : "Error",
+                    response.message,
+                    response.status ? "success" : "error"
+                );
+                $('#kt_modal_import_members').modal('hide');
+                $('#kt_modal_import_members_form')[0].reset();
+                window.LaravelDataTables['members-table'].ajax.reload();
+            },
+            error: function (xhr) {
+                hideLoadPage();
+                if (xhr.status === 422) {
+                    let message = xhr.responseJSON.message;
+                    Swal.fire("Validation Error", message, "error");
+                } else {
+                    Swal.fire("Error", message ?? "Something went wrong", "error");
+                }
+            }
+        })
+
     });
 
     $(document).on("click", ".modal_add_member", function(e) {

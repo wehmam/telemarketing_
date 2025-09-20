@@ -319,150 +319,150 @@ class TransactionController extends Controller
 
 
     public function import(Request $request)
-{
-    try {
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:csv,txt'
-        ]);
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|file|mimes:csv,txt'
+            ]);
 
-        if ($validator->fails()) {
-            $errorMsg = collect($validator->errors())->flatten()->implode(' ');
-            return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
-        }
+            if ($validator->fails()) {
+                $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+                return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+            }
 
-        $user = auth()->user();
-        $path = $request->file('file')->storeAs(
-            'imports',
-            'transactions_' . time() . '.csv'
-        );
+            $user = auth()->user();
+            $path = $request->file('file')->storeAs(
+                'imports',
+                'transactions_' . time() . '.csv'
+            );
 
-        $csvfile = storage_path('app/' . $path);
-        $host = trim(config('app.connect_info.host'));
-        $db   = config('database.connections.mysql.database');
-        $username = config('database.connections.mysql.username');
-        $pass = config('database.connections.mysql.password');
+            $csvfile = storage_path('app/' . $path);
+            $host = trim(config('app.connect_info.host'));
+            $db   = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $pass = config('database.connections.mysql.password');
 
-        $pdo = new PDO("mysql:host=$host;dbname=$db", $username, $pass, [
-            PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        ]);
+            $pdo = new PDO("mysql:host=$host;dbname=$db", $username, $pass, [
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            ]);
 
-        $pdo->beginTransaction();
+            $pdo->beginTransaction();
 
-        // Delete previous tmp_transactions for this user
-        $pdo->exec("DELETE FROM tmp_transactions WHERE entry_by = " . $user->id);
+            // Delete previous tmp_transactions for this user
+            $pdo->exec("DELETE FROM tmp_transactions WHERE entry_by = " . $user->id);
 
-        // Open CSV and read line by line
-        $handle = fopen($csvfile, 'r');
-        if (!$handle) {
-            return response()->json(responseCustom(false, "Cannot open CSV file"), 422);
-        }
+            // Open CSV and read line by line
+            $handle = fopen($csvfile, 'r');
+            if (!$handle) {
+                return response()->json(responseCustom(false, "Cannot open CSV file"), 422);
+            }
 
-        fgetcsv($handle, 0, ","); // skip header
-        $rownum = 0;
+            fgetcsv($handle, 0, ","); // skip header
+            $rownum = 0;
 
-        while (($data = fgetcsv($handle, 0, ",")) !== false) {
-            $nama_rekening = $data[2] ?? null; // C
-            $username     = $data[3] ?? null; // D
-            $nominal      = $data[7] ?? null; // H
+            while (($data = fgetcsv($handle, 0, ",")) !== false) {
+                $nama_rekening = $data[2] ?? null; // C
+                $username     = $data[3] ?? null; // D
+                $nominal      = $data[7] ?? null; // H
 
-            if (!$username) continue;
+                if (!$username) continue;
 
-            $rownum++;
-            if ($rownum > 2000) break;
+                $rownum++;
+                if ($rownum > 2000) break;
 
-            $stmt = $pdo->prepare("
-                INSERT INTO tmp_transactions
-                    (nama_rekening, username, amount, entry_by, created_at, updated_at)
-                VALUES
-                    (:nama_rekening, :username, :amount, :entry_by, NOW(), NOW())
+                $stmt = $pdo->prepare("
+                    INSERT INTO tmp_transactions
+                        (nama_rekening, username, amount, entry_by, created_at, updated_at)
+                    VALUES
+                        (:nama_rekening, :username, :amount, :entry_by, NOW(), NOW())
+                ");
+
+                $stmt->execute([
+                    ':nama_rekening' => $nama_rekening,
+                    // ':username'      => strtolower($username),
+                    ':username'     => strtolower(preg_replace('/\s+/', '', $username)),
+                    ':amount'        => str_replace(',', '', $nominal),
+                    ':entry_by'      => $user->id
+                ]);
+            }
+
+            fclose($handle);
+
+            //  $pdo->exec("
+            //     INSERT INTO members (username, phone, name, nama_rekening, marketing_id, team_id, created_at, updated_at)
+            //     SELECT DISTINCT t.username, t.phone, COALESCE(t.nama_rekening, t.username), t.nama_rekening, NULL, NULL, NOW(), NOW()
+            //     FROM tmp_transactions t
+            //     LEFT JOIN members m ON m.username = t.username
+            //     WHERE m.id IS NULL
+            // ");
+            $pdo->exec("
+                INSERT INTO members (username, phone, name, nama_rekening, marketing_id, team_id, created_at, updated_at)
+                SELECT
+                    t.username,
+                    t.phone,
+                    COALESCE(t.nama_rekening, t.username) AS name,
+                    t.nama_rekening,
+                    NULL AS marketing_id,
+                    NULL AS team_id,
+                    NOW(),
+                    NOW()
+                FROM tmp_transactions t
+                LEFT JOIN members m
+                    ON LOWER(m.username) = LOWER(t.username)
+                WHERE m.id IS NULL
+                GROUP BY t.username
             ");
 
-            $stmt->execute([
-                ':nama_rekening' => $nama_rekening,
-                // ':username'      => strtolower($username),
-                ':username'     => strtolower(preg_replace('/\s+/', '', $username)),
-                ':amount'        => str_replace(',', '', $nominal),
-                ':entry_by'      => $user->id
-            ]);
+
+            // // Bulk insert into transactions from tmp_transactions
+            $pdo->exec("
+                INSERT INTO transactions (id, member_id, user_id, amount, transaction_date, type, username, phone, created_at, updated_at)
+                SELECT
+                    UUID(),
+                    m.id,
+                    t.entry_by,
+                    t.amount,
+                    COALESCE(t.transaction_date, NOW()) AS transaction_date,  -- default to NOW() if null
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1 FROM transactions trx WHERE trx.member_id = m.id
+                        ) THEN 'REDEPOSIT'  -- member already has previous transactions
+                        WHEN (
+                            SELECT COUNT(*)
+                            FROM tmp_transactions t2
+                            WHERE t2.username = t.username
+                            AND (t2.id < t.id)
+                        ) = 0 THEN 'DEPOSIT'  -- first transaction in this batch
+                        ELSE 'REDEPOSIT'       -- subsequent transactions in batch
+                    END AS type,
+                    t.username,
+                    t.phone,
+                    NOW(),
+                    NOW()
+                FROM tmp_transactions t
+                JOIN members m ON m.username = t.username
+            ");
+
+            // Clean up
+            $pdo->exec("DELETE FROM tmp_transactions WHERE entry_by = " . $user->id);
+            $pdo->commit();
+
+            if (file_exists($csvfile)) {
+                unlink($csvfile);
+            }
+
+            ActivityLogger::log("Imported transactions via CSV File. By User : " . $user->name);
+
+            return response()->json(responseCustom(true, "✅ Import successful"));
+
+        } catch (\Throwable $th) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
         }
-
-        fclose($handle);
-
-        //  $pdo->exec("
-        //     INSERT INTO members (username, phone, name, nama_rekening, marketing_id, team_id, created_at, updated_at)
-        //     SELECT DISTINCT t.username, t.phone, COALESCE(t.nama_rekening, t.username), t.nama_rekening, NULL, NULL, NOW(), NOW()
-        //     FROM tmp_transactions t
-        //     LEFT JOIN members m ON m.username = t.username
-        //     WHERE m.id IS NULL
-        // ");
-        $pdo->exec("
-            INSERT INTO members (username, phone, name, nama_rekening, marketing_id, team_id, created_at, updated_at)
-            SELECT
-                t.username,
-                t.phone,
-                COALESCE(t.nama_rekening, t.username) AS name,
-                t.nama_rekening,
-                NULL AS marketing_id,
-                NULL AS team_id,
-                NOW(),
-                NOW()
-            FROM tmp_transactions t
-            LEFT JOIN members m
-                ON LOWER(m.username) = LOWER(t.username)
-            WHERE m.id IS NULL
-            GROUP BY t.username
-        ");
-
-
-        // // Bulk insert into transactions from tmp_transactions
-        $pdo->exec("
-            INSERT INTO transactions (id, member_id, user_id, amount, transaction_date, type, username, phone, created_at, updated_at)
-            SELECT
-                UUID(),
-                m.id,
-                t.entry_by,
-                t.amount,
-                COALESCE(t.transaction_date, NOW()) AS transaction_date,  -- default to NOW() if null
-                CASE
-                    WHEN EXISTS (
-                        SELECT 1 FROM transactions trx WHERE trx.member_id = m.id
-                    ) THEN 'REDEPOSIT'  -- member already has previous transactions
-                    WHEN (
-                        SELECT COUNT(*)
-                        FROM tmp_transactions t2
-                        WHERE t2.username = t.username
-                        AND (t2.id < t.id)
-                    ) = 0 THEN 'DEPOSIT'  -- first transaction in this batch
-                    ELSE 'REDEPOSIT'       -- subsequent transactions in batch
-                END AS type,
-                t.username,
-                t.phone,
-                NOW(),
-                NOW()
-            FROM tmp_transactions t
-            JOIN members m ON m.username = t.username
-        ");
-
-        // Clean up
-        $pdo->exec("DELETE FROM tmp_transactions WHERE entry_by = " . $user->id);
-        $pdo->commit();
-
-        if (file_exists($csvfile)) {
-            unlink($csvfile);
-        }
-
-        ActivityLogger::log("Imported transactions via CSV File. By User : " . $user->name);
-
-        return response()->json(responseCustom(true, "✅ Import successful"));
-
-    } catch (\Throwable $th) {
-        if (isset($pdo) && $pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
-        return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
     }
-}
 
 
     /**

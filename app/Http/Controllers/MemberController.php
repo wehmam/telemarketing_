@@ -7,10 +7,14 @@ use App\DataTables\MemberTransactionsDataTable;
 use App\DataTables\TransactionFollowupDataTable;
 use App\Helpers\ActivityLogger;
 use App\Models\Members;
+use App\Models\Team;
+use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Faker\Factory as Faker;
 
 class MemberController extends Controller
 {
@@ -199,5 +203,94 @@ class MemberController extends Controller
     public function followupsData(Members $member, TransactionFollowupDataTable $dataTable)
     {
         return $dataTable->setMemberContext($member->id)->ajax();
+    }
+
+    public function import(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,xls,csv', // max 2MB
+            ]);
+
+            if ($validator->fails()) {
+                $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+                return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+            }
+
+            $user = auth()->user();
+            $file = $request->file('file');
+            $handle = fopen($file->getRealPath(), "r");
+            $faker = Faker::create();
+
+            fgetcsv($handle, 1000, ",");
+
+            DB::beginTransaction();
+            $countImport = 0;
+            $countNewMembers = 0;
+            while (($row = fgetcsv($handle, 0, ",")) !== false) {
+                $countImport++;
+                if ($countImport > 2000) {
+                    break; // ✅ stop after 2000 rows
+                }
+
+                $tgl        = $row[1];
+                $tim        = $row[2];
+                $marketing  = $row[3];
+                $namaPlayer = $row[4];
+                $username   = strtolower(preg_replace('/\s+/', '', trim($row[5]))); // USERNAME → lowercase & hapus spasi
+                $nominal    = (float) str_replace([",", "."], "", $row[6]);
+                $phone      = '62' . $faker->numerify('8##########');
+
+
+                $member = Members::where('username', $username)->first();
+                if (!$member) {
+                    $teamId = $tim ? Team::where('name', $tim)->value('id') : null;
+                    $marketingId = $marketing ? User::where('name', $marketing)->value('id') : null;
+
+                    $member = Members::create([
+                        'name'          => ucwords(strtolower($namaPlayer)),
+                        'username'      => strtolower($username),
+                        'phone'         => $phone,
+                        'nama_rekening' => null,
+                        'marketing_id'  => $teamId && $marketingId ? $marketingId : null,
+                        'team_id'       => $teamId && $marketingId ? $teamId : null,
+                        'created_at'    => \Carbon\Carbon::parse($tgl)->format('Y-m-d H:i:s'),
+                    ]);
+                    $countNewMembers++;
+
+                    // Kalau nominal > 0 → bikin transaction
+                    if ((float)$nominal > 0) {
+                        Transaction::create([
+                            'id'               => \Illuminate\Support\Str::uuid(),
+                            'member_id'        => $member->id,
+                            'user_id'          => $teamId && $marketingId ? $marketingId : auth()->id(),
+                            'amount'           => $nominal,
+                            'transaction_date' => \Carbon\Carbon::parse($tgl)->format('Y-m-d'),
+                            'type'             => 'DEPOSIT',
+                            'username'         => strtolower($username),
+                            'phone'            => $member->phone,
+                            'nama_rekening'    => $member->nama_rekening,
+                        ]);
+                    }
+                } else {
+                    // kalau sudah ada → skip
+                    continue;
+                }
+            }
+
+            DB::commit();
+            fclose($handle);
+
+            if ($countNewMembers === 0) {
+                return response()->json(responseCustom(true, "No new members were added. All usernames already exist in the system."));
+            }
+
+            return response()->json(responseCustom(true, "✅ Import success, total processed: {$countImport}, new members added: {$countNewMembers}"));
+        } catch (\Throwable $th) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
+        }
     }
 }

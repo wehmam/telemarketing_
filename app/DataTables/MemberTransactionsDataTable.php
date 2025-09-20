@@ -37,13 +37,13 @@ class MemberTransactionsDataTable extends DataTable
             // ->editColumn('transaction_date', fn($transaction) => $transaction->transaction_date->format('Y-m-d'))
             ->editColumn('transaction_date', function ($trx) {
                 return $trx->transaction_date
-                    ? \Carbon\Carbon::parse($trx->transaction_date)->format('d-m-Y')
+                    ? \Carbon\Carbon::parse($trx->transaction_date)->format('d F Y')
                     : '—';
             })
             ->addColumn('followups', function ($trx) {
                 $last = $trx->followups->sortByDesc('followed_up_at')->first();
                 return $last
-                    ? $last->user->name . '<br> (' . \Carbon\Carbon::parse($last->followed_up_at)->format('Y-m-d H:i') . ')'
+                    ? $last->user->name . '<br> (' . \Carbon\Carbon::parse($last->followed_up_at)->format('d-m-Y H:i') . ')'
                     : '<span class="badge badge-danger">Not Followed Up</span>';
             })
             ->addColumn('action', function (Transaction $transaction) {
