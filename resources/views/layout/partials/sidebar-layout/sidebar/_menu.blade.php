@@ -174,6 +174,19 @@
                 <!--end:Menu item-->
             @endcan
 
+            {{-- @can('export-management.read') --}}
+                <!--begin:Menu item-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                        <span class="menu-icon">{!! getIcon('cloud-download', 'fs-2', '', 'i') !!}</span>
+                        <span class="menu-title">Export Report</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+            {{-- @endcan --}}
+
             @can('configuration-management.read')
                  <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('settings.*') ? 'here show' : '' }}">

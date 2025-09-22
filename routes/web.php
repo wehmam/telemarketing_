@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Apps\TeamManagementController;
+use App\Http\Controllers\ExportReportController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberFollowUpController;
 use App\Http\Controllers\TransactionAssignController;
@@ -66,6 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');
     Route::get('/members/{member}/followups/data', [MemberController::class, 'followupsData'])->name('members.followups.data');
 
+
+    Route::resource('export', ExportReportController::class);
 
 });
 
