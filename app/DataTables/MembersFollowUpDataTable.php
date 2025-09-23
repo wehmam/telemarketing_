@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Members;
+use App\Models\TransactionFollowup;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Services\DataTable;
@@ -17,8 +18,9 @@ class MembersFollowUpDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->editColumn('team_id', fn($member) => $member->team?->name ?? '—')
-            ->editColumn('marketing_id', fn($member) => $member->marketing?->name ?? '—')
+            ->editColumn('name', fn($member) => !empty($member->name) ? $member->name : "-")
+            ->editColumn('team_id', fn($member) => $member->team?->name ?? 'WA')
+            ->editColumn('marketing_id', fn($member) => $member->marketing?->name ?? 'WA')
             ->addColumn('total_transactions', fn($member) => $member->transactions()->count())
             ->addColumn('last_transaction_date', function ($member) {
                 $last = $member->transactions()
@@ -27,13 +29,25 @@ class MembersFollowUpDataTable extends DataTable
                     ->first();
                 return $last ? \Carbon\Carbon::parse($last->transaction_date)->format("d F Y") : '—';
             })
-            ->addColumn('total_followups', fn($member) => $member->followups()->count())
+            ->addColumn('total_followups', function($member) {
+                $followUp = TransactionFollowup::where("member_id", $member->id)->count();
+                return $followUp ?? 0;
+            })
             ->addColumn('last_followup_by', function ($member) {
-                $last = $member->followups()
+                $last = TransactionFollowup::where("member_id", $member->id)
                     ->orderByDesc('followed_up_at')
                     ->orderByDesc('created_at')
                     ->first();
+
                 return $last ? $last->user->name : '—';
+            })
+            ->addColumn('last_followup_at', function ($member) {
+                $last = TransactionFollowup::where("member_id", $member->id)
+                    ->orderByDesc('followed_up_at')
+                    ->orderByDesc('created_at')
+                    ->first();
+
+                return $last ? \Carbon\Carbon::parse($last->followed_up_at)->format("d M Y, h:i A") : '—';
             })
             ->addColumn('total_deposit', fn($member) => "Rp. " . number_format( ($member->transactions()->sum("amount") ?? 0) , 0, ",", "." ))
             ->addColumn('last_deposit_amount', fn($member) => "Rp. " . number_format(($member->lastTransaction?->amount ?? '0')  , 0, ",", "."))
@@ -68,6 +82,34 @@ class MembersFollowUpDataTable extends DataTable
             $query->where('marketing_id', $marketingId);
         }
 
+        if ($nominalDeposit = request('s_total_deposit')) {
+            $query->whereHas('transactions', function ($q) use ($nominalDeposit) {
+                $q->selectRaw('SUM(amount) as total_amount')
+                  ->groupBy('member_id')
+                  ->havingRaw('total_amount = ?', [$nominalDeposit]);
+            });
+        }
+
+        if ($lastDepositRange = request('s_last_deposit')) {
+            $dates = explode(' to ', $lastDepositRange);
+
+            if (count($dates) === 2) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->format('Y-m-d');
+
+                $query->whereHas('transactions', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween(\DB::raw('CAST(transaction_date AS DATE)'), [$startDate, $endDate]);
+                });
+            } elseif (count($dates) === 1) {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+
+                $query->whereHas('transactions', function ($q) use ($date) {
+                    $q->whereDate('transaction_date', $date);
+                });
+            }
+        }
+
+
         return $query->orderBy('id', 'asc');
     }
 
@@ -94,14 +136,16 @@ class MembersFollowUpDataTable extends DataTable
     {
         return [
             Column::make('name')->title('Member Name'),
+            Column::make('username')->title('Member Username'),
             Column::make('team_id')->title('Team'),
             Column::make('marketing_id')->title('Marketing'),
-            Column::computed('total_transactions')->title('Total Transactions'),
-            Column::computed('total_deposit')->title('Total Deposit'),
+            Column::computed('total_transactions')->title('Total Deposit'),
+            Column::computed('total_deposit')->title('Total Deposit Amount'),
             Column::computed('last_transaction_date')->title('Last Deposit Date'),
             Column::computed('last_deposit_amount')->title('Last Deposit Amount'),
             Column::computed('total_followups')->title('Total Followups'),
             Column::computed('last_followup_by')->title('Last Followup By'),
+            Column::computed('last_followup_at')->title('Last Followup'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

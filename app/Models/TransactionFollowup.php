@@ -10,6 +10,7 @@ class TransactionFollowup extends Model
     protected $fillable = [
         'transaction_id',
         'user_id',
+        'member_id',
         'note',
         'followed_up_at',
     ];

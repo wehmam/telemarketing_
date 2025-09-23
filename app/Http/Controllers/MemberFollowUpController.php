@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\DataTables\MembersFollowUpDataTable;
 use App\Helpers\ActivityLogger;
 use App\Models\Members;
+use App\Models\TransactionFollowup;
 
 // use App\DataTables\MembersDataTable;
 
@@ -68,6 +69,16 @@ class MemberFollowUpController extends Controller
                     ]);
                     $created++;
                 }
+            }
+
+            if ($member->transactions->isEmpty()) {
+                TransactionFollowup::create([
+                    'member_id'     => $member->id,
+                    'user_id'       => $currentUser->id,
+                    'followed_up_at'=> now(),
+                    'notes'         => 'Follow up by ' . $currentUser->name,
+                ]);
+                $created++;
             }
 
             $waLink = "https://wa.me/{$member->phone}";

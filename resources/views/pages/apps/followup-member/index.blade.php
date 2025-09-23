@@ -21,19 +21,6 @@
 
             <div class="card-toolbar">
 
-
-            @can('member-management.create')
-                <!--begin::Add Member Button-->
-                <div class="d-flex align-items-center mt-2 mt-md-0">
-                    <button type="button" class="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_add_members">
-                        {!! getIcon('plus', 'fs-2', '', 'i') !!}
-                        Add Members
-                    </button>
-                </div>
-                <!--end::Add Member Button-->
-            @endcan
             </div>
         </div>
         <!--end::Card header-->
@@ -60,8 +47,7 @@
             flatpickr("#periodeLastDeposit", {
                 mode: "range",            // memungkinkan pilih dua tanggal (start & end)
                 dateFormat: "d-m-Y",      // format sesuai Laravel
-                defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
-                allowInput: true
+                allowInput: false
             });
         </script>
     @endpush

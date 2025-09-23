@@ -37,10 +37,11 @@
                 <!--begin::Option-->
                 <div class="d-flex justify-content-end">
                     <div class="form-group">
-                        <select class="form-select form-select-solid w-auto" data-control="select2" name="type_report" data-placeholder="Select Type Report">
+                        <select class="form-select form-select-solid w-auto" data-control="select2" id="typeReport" name="type_report" data-placeholder="Select Type Report">
                             <option></option>
                             <option value="summary_employee">Summary Employee</option>
                             <option value="redeposit">Report Redeposit</option>
+                            <option value="backup">Backup Report</option>
                         </select>
                     </div>
                 </div>
@@ -120,22 +121,41 @@
                 allowInput: true
             });
 
+            $('#typeReport').on('change', function() {
+                var selectedValue = $(this).val();
+                if (selectedValue === "backup") {
+                    $('#periodeDate').val('').prop('disabled', true);
+                } else {
+                    $('#periodeDate').prop('disabled', false);
+                }
+                console.log("Selected Type Report: " + selectedValue);
+            });
 
             document.getElementById("kt_layout_builder_export").addEventListener("click", async function() {
                 let typeReport = document.querySelector('[name="type_report"]').value;
                 let periode = document.querySelector('#periodeDate').value;
 
-                if(!typeReport || !periode){
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Missing Data',
-                        text: 'Please select both Type Report and Period!'
-                    });
+                if (!typeReport || !periode) {
+                    if (typeReport !== "backup") {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Missing Data',
+                            text: 'Please select both Type Report and Period!'
+                        });
+                        return;
+                    }
+                }
+
+                // Kalau backup → langsung redirect ke route download
+                if (typeReport === "backup") {
+                    window.location.href = "{{ route('export.delete-transactions') }}";
                     return;
                 }
 
+                // Kalau report biasa → pakai fetch blob
                 try {
-                    let response = await fetch("{{ route('export.store') }}", {
+                    let url = "{{ route('export.store') }}";
+                    let response = await fetch(url, {
                         method: "POST",
                         headers: {
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
@@ -175,7 +195,7 @@
                     let downloadUrl = window.URL.createObjectURL(blob);
                     let a = document.createElement("a");
                     a.href = downloadUrl;
-                    a.download = filename; // use the dynamic filename
+                    a.download = filename; // dynamic filename dari server
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
@@ -194,7 +214,9 @@
                         text: err.message
                     });
                 }
-        });
+            });
+
+
         </script>
     @endpush
 

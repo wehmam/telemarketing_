@@ -38,12 +38,13 @@ class TransactionFollowupDataTable extends DataTable
     public function query(TransactionFollowup $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with(['user', 'transaction']);
+            ->with(['user', 'transaction'])
+            ->where("member_id", $this->memberId);
 
-        if ($this->memberId) {
-            // Only follow-ups for transactions belonging to this member
-            $query->whereHas('transaction', fn($q) => $q->where('member_id', $this->memberId));
-        }
+        // if ($this->memberId) {
+        //     // Only follow-ups for transactions belonging to this member
+        //     $query->whereHas('transaction', fn($q) => $q->where('member_id', $this->memberId));
+        // }
 
         return $query->orderBy('followed_up_at', 'desc');
     }

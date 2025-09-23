@@ -36,8 +36,8 @@
                 <!--end::Option-->
                 <!--begin::Option-->
                 <label>
-                    <input type="radio" class="btn-check sStatus" name="search_status" value="default">
-                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">Default</span>
+                    <input type="radio" class="btn-check sStatus" name="search_status" value="wa">
+                    <span class="btn btn-sm btn-color-muted btn-active btn-active-primary fw-bold px-4">WA</span>
                 </label>
                 <!--end::Option-->
                 <!--begin::Option-->

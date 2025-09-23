@@ -34,11 +34,19 @@ $('#sPhone').on('keyup', debounce(function() {
     dt.ajax.reload();
 }, 500));
 
+$('#totalDeposit').on('keyup', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
 $('#sMarketing').on('change', debounce(function() {
     dt.ajax.reload();
 }, 500));
 
 $('#sTeam').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
+$('#periodeLastDeposit').on('change', debounce(function() {
     dt.ajax.reload();
 }, 500));
 
@@ -49,6 +57,8 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_phone = $('#sPhone').val();
     data.s_marketing = $('#sMarketing').val();
     data.s_team = $('#sTeam').val();
+    data.s_total_deposit = $('#totalDeposit').val().replace(/\./g, '');
+    data.s_last_deposit = $('#periodeLastDeposit').val();
 });
 
 $('#statusFilter').on('change', function() {
@@ -62,6 +72,16 @@ $('#statusFilter').on('change', function() {
 //         // Livewire.emit('modal.show.role_name', e.relatedTarget.getAttribute('data-role-id'));
 //     });
 // }
+
+document.getElementById('totalDeposit').addEventListener('input', function (e) {
+    let value = this.value.replace(/\D/g, ''); // hanya angka
+    if (value) {
+        this.value = new Intl.NumberFormat('id-ID').format(value); // format ribuan Indonesia
+    } else {
+        this.value = '';
+    }
+});
+
 
 document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (e) {
     e.addEventListener('click', function() {

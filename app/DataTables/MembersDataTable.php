@@ -39,7 +39,7 @@ class MembersDataTable extends DataTable
                     : '—';
             })
             ->addColumn('type', function (Members $member) {
-                return ($member->marketing_id && $member->team_id) ? 'WA' : 'DEFAULT';
+                return ($member->marketing_id && $member->team_id) ? $member->team?->name ?? 'WA' : 'WA';
             })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
@@ -70,7 +70,7 @@ class MembersDataTable extends DataTable
         $namaRekening = request('s_nama_rekening');
         $lastDepositRange = request('s_last_deposit');
 
-        if ($status === 'default') {
+        if ($status === 'wa') {
             $query->whereNull('marketing_id')->orWhereNull('team_id');
         } elseif ($status === 'has_team') {
             $query->whereNotNull('marketing_id')->whereNotNull('team_id');

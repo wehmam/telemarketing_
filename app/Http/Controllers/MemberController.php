@@ -229,8 +229,8 @@ class MemberController extends Controller
             $countNewMembers = 0;
             while (($row = fgetcsv($handle, 0, ",")) !== false) {
                 $countImport++;
-                if ($countImport > 2000) {
-                    break; // ✅ stop after 2000 rows
+                if ($countImport > 3000) {
+                    break; // ✅ stop after 3000 rows
                 }
 
                 $tgl        = $row[1];

@@ -68,7 +68,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/members/{member}/followups/data', [MemberController::class, 'followupsData'])->name('members.followups.data');
 
 
-    Route::resource('export', ExportReportController::class);
+    Route::get('export', [ExportReportController::class, 'index'])->name('export.index');
+    Route::post('export', [ExportReportController::class, 'store'])->name('export.store');
+    Route::get('export/delete-transactions', [ExportReportController::class, 'deleteTransactions'])->name('export.delete-transactions');
+    // Route::resource('export', ExportReportController::class);
 
 });
 

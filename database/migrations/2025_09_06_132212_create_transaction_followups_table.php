@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('transaction_followups', function (Blueprint $table) {
             $table->id();
 
-            $table->uuid('transaction_id');
+            $table->uuid('transaction_id')->nullable();
             $table->foreign('transaction_id')
                 ->references('id')->on('transactions')
                 ->cascadeOnDelete();
 
             $table->foreignId('user_id')
                 ->constrained('users');
+
+             $table->foreignId('member_id')
+                ->constrained('members')->nullable();
 
             $table->text('note')->nullable();
             $table->timestamp('followed_up_at')->useCurrent();

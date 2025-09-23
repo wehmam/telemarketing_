@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BackupExport;
 use App\Exports\ReportExport;
+use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportReportController extends Controller
 {
@@ -148,32 +152,82 @@ class ExportReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function backupAndDeleteTransactions()
     {
-        //
+
+        $beforeDate = Carbon::now()->subYear()->toDateString(); // data lebih dari 1 tahun
+
+        // 1. Backup ke CSV
+        $fileName = "transactions_backup_" . now()->format('Ymd_His') . ".csv";
+        Excel::store(new BackupExport($beforeDate), $fileName, 'local');
+        // file ada di storage/app
+
+        // 2. Delete data lama
+        DB::transaction(function () use ($beforeDate) {
+            // Transaction::where('transaction_date', '<', $beforeDate)->delete();
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Backup & delete done',
+            'file' => $fileName
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function deleteTransactions()
     {
-        //
-    }
+        $beforeDate = Carbon::now()->subYear()->toDateString();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        return response()->streamDownload(function () use ($beforeDate) {
+            $handle = fopen('php://output', 'w');
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            // Header CSV
+            fputcsv($handle, [
+                'ID','Transaction Date','Amount','Type','Username',
+                'Phone','Nama Rekening','Member Name','Team Name',
+                'Marketing Name','Created At','Updated At'
+            ]);
+
+            // Backup pakai chunk supaya hemat memory
+            Transaction::with(['member.marketing','member.team','user'])
+                ->where('transaction_date', '<', $beforeDate)
+                ->orderBy('id')
+                ->chunk(1000, function ($transactions) use ($handle) {
+                    foreach ($transactions as $trx) {
+                        fputcsv($handle, [
+                            $trx->id,
+                            $trx->transaction_date,
+                            $trx->amount,
+                            $trx->type,
+                            $trx->username,
+                            $trx->phone,
+                            $trx->nama_rekening,
+                            optional($trx->member)->name,
+                            optional($trx->member->team)->name ?? "WA",
+                            optional($trx->member->marketing)->name ?? "WA",
+                            $trx->created_at,
+                            $trx->updated_at,
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+
+            // Setelah backup selesai → hapus data
+            DB::transaction(function () use ($beforeDate) {
+                Transaction::where('transaction_date', '<', $beforeDate)
+                    ->with('followups')
+                    ->chunkById(1000, function ($transactions) {
+                        foreach ($transactions as $trx) {
+                            // hapus followups permanen
+                            $trx->followups()->forceDelete();
+
+                            // hapus transaction permanen
+                            $trx->forceDelete();
+                        }
+                    });
+                // Transaction::where('transaction_date', '<', $beforeDate)->forceDelete();
+            });
+        }, "backup_transactions_" . now()->format('Ymd_His') . ".csv");
     }
 }
