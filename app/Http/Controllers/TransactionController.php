@@ -326,7 +326,8 @@ class TransactionController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'file' => 'required|file|mimes:csv,txt'
+                'file' => 'required|file|mimes:csv',
+                'transaction_date' => 'required|date_format:d-m-Y'
             ]);
 
             if ($validator->fails()) {
@@ -377,9 +378,9 @@ class TransactionController extends Controller
 
                 $stmt = $pdo->prepare("
                     INSERT INTO tmp_transactions
-                        (nama_rekening, username, amount, entry_by, created_at, updated_at)
+                        (nama_rekening, username, amount, entry_by, transaction_date, created_at, updated_at)
                     VALUES
-                        (:nama_rekening, :username, :amount, :entry_by, NOW(), NOW())
+                        (:nama_rekening, :username, :amount, :entry_by, :transaction_date, NOW(), NOW())
                 ");
 
                 $stmt->execute([
@@ -387,7 +388,8 @@ class TransactionController extends Controller
                     // ':username'      => strtolower($username),
                     ':username'     => strtolower(preg_replace('/\s+/', '', $username)),
                     ':amount'        => str_replace(',', '', $nominal),
-                    ':entry_by'      => $user->id
+                    ':entry_by'      => $user->id,
+                    ':transaction_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $request->transaction_date)->format('Y-m-d')
                 ]);
             }
 

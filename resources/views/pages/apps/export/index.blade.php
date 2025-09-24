@@ -41,7 +41,8 @@
                             <option></option>
                             <option value="summary_employee">Summary Employee</option>
                             <option value="redeposit">Report Redeposit</option>
-                            <option value="backup">Backup Report</option>
+                            <option value="backup">Backup Transaction</option>
+                            <option value="delete_transaction">Delete Transaction</option>
                         </select>
                     </div>
                 </div>
@@ -123,11 +124,11 @@
 
             $('#typeReport').on('change', function() {
                 var selectedValue = $(this).val();
-                if (selectedValue === "backup") {
-                    $('#periodeDate').val('').prop('disabled', true);
-                } else {
+                // if (selectedValue === "backup") {
+                //     $('#periodeDate').val('').prop('disabled', true);
+                // } else {
                     $('#periodeDate').prop('disabled', false);
-                }
+                // }
                 console.log("Selected Type Report: " + selectedValue);
             });
 
@@ -136,7 +137,8 @@
                 let periode = document.querySelector('#periodeDate').value;
 
                 if (!typeReport || !periode) {
-                    if (typeReport !== "backup") {
+                    console.log("Type Report or Periode is missing", typeReport, periode);
+                    if (typeReport == "summary_employee" || typeReport == "redeposit") {
                         Swal.fire({
                             icon: 'warning',
                             title: 'Missing Data',
@@ -148,7 +150,22 @@
 
                 // Kalau backup → langsung redirect ke route download
                 if (typeReport === "backup") {
-                    window.location.href = "{{ route('export.delete-transactions') }}";
+                    return
+                    window.location.href = "/export/backup-transactions?periode=" + encodeURIComponent(periode);
+                    return;
+                } else if (typeReport === "delete_transaction") {
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "This action will permanently delete all transactions. You cannot undo this action! Please make sure you have backed up the data first.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "Cancel"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/export/delete-transactions?periode=" + encodeURIComponent(periode);
+                        }
+                    });
                     return;
                 }
 

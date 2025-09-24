@@ -40,7 +40,7 @@ class TransactionDataTable extends DataTable
             })
             ->editColumn('member_id', fn($trx) => $trx->member?->name ?? '—')
             ->addColumn('username', fn($trx) => $trx->member?->username ?? '—')
-            ->editColumn('user_id', fn($trx) => $trx->user?->name ?? '—')
+            // ->editColumn('user_id', fn($trx) => $trx->user?->name ?? '—')
             ->editColumn('amount', fn($transaction) => number_format($transaction->amount, 2))
             // ->editColumn('transaction_date', fn($trx) => $trx->transaction_date->format('Y-m-d'))
             ->editColumn('transaction_date', function ($trx) {
@@ -169,7 +169,7 @@ class TransactionDataTable extends DataTable
             Column::make('amount')->title('Amount'),
             Column::make('transaction_date')->title('Date'),
             Column::make('type')->title('Type'),
-            Column::make('user_id')->title('Insert By'),
+            // Column::make('user_id')->title('Insert By'),
             Column::computed('marketing')->title('Marketing'),
             Column::computed('team')->title('Team'),
             Column::computed('followups')->title('Last Follow Up')->addClass('text-center'),

@@ -70,7 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('export', [ExportReportController::class, 'index'])->name('export.index');
     Route::post('export', [ExportReportController::class, 'store'])->name('export.store');
-    Route::get('export/delete-transactions', [ExportReportController::class, 'deleteTransactions'])->name('export.delete-transactions');
+    Route::get('export/backup-transactions', [ExportReportController::class, 'backupTransactions'])->name('export.backup-transactions');
+    Route::get('export/delete-transactions', [ExportReportController::class, 'deleteOldTransactions'])->name('export.delete-transactions');
     // Route::resource('export', ExportReportController::class);
 
 });

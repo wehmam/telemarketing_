@@ -124,6 +124,12 @@
                 // defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
+
+            flatpickr("#transaction_date", {
+                dateFormat: "d-m-Y",   // format simpan ke DB
+                allowInput: true,   
+                defaultDate: "{{ date('d-m-Y') }}"
+            });
         </script>
 
     @endpush

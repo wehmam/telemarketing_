@@ -174,11 +174,99 @@ class ExportReportController extends Controller
         ]);
     }
 
-    public function deleteTransactions()
-    {
-        $beforeDate = Carbon::now()->subYear()->toDateString();
+    // backup transactions older than 1 year and delete them from database
+    // public function backupTransactions(Request $request)
+    // {
+    //     $beforeDate = Carbon::now()->subYear()->toDateString();
 
-        return response()->streamDownload(function () use ($beforeDate) {
+    //     return response()->streamDownload(function () use ($beforeDate) {
+    //         $handle = fopen('php://output', 'w');
+
+    //         // Header CSV
+    //         fputcsv($handle, [
+    //             'ID','Transaction Date','Amount','Type','Username',
+    //             'Phone','Nama Rekening','Member Name','Team Name',
+    //             'Marketing Name','Created At','Updated At'
+    //         ]);
+
+    //         // Backup pakai chunk supaya hemat memory
+    //         Transaction::with(['member.marketing','member.team','user'])
+    //             ->where('transaction_date', '<', $beforeDate)
+    //             ->orderBy('id')
+    //             ->chunk(1000, function ($transactions) use ($handle) {
+    //                 foreach ($transactions as $trx) {
+    //                     fputcsv($handle, [
+    //                         $trx->id,
+    //                         $trx->transaction_date,
+    //                         $trx->amount,
+    //                         $trx->type,
+    //                         $trx->username,
+    //                         $trx->phone,
+    //                         $trx->nama_rekening,
+    //                         optional($trx->member)->name,
+    //                         optional($trx->member->team)->name ?? "WA",
+    //                         optional($trx->member->marketing)->name ?? "WA",
+    //                         $trx->created_at,
+    //                         $trx->updated_at,
+    //                     ]);
+    //                 }
+    //             });
+
+    //         fclose($handle);
+
+    //         // Setelah backup selesai → hapus data
+    //         DB::transaction(function () use ($beforeDate) {
+    //             Transaction::where('transaction_date', '<', $beforeDate)
+    //                 ->with('followups')
+    //                 ->chunkById(1000, function ($transactions) {
+    //                     foreach ($transactions as $trx) {
+    //                         // hapus followups permanen
+    //                         $trx->followups()->forceDelete();
+
+    //                         // hapus transaction permanen
+    //                         $trx->forceDelete();
+    //                     }
+    //                 });
+    //             // Transaction::where('transaction_date', '<', $beforeDate)->forceDelete();
+    //         });
+    //     }, "backup_transactions_" . now()->format('Ymd_His') . ".csv");
+    // }
+
+
+    public function backupTransactions(Request $request)
+    {
+        $periode = $request->periode;
+        $startDate = null;
+        $endDate = null;
+
+        if ($periode) {
+            $dates = explode(" to ", $periode);
+            $start = trim($dates[0]);
+            $end = isset($dates[1]) ? trim($dates[1]) : $start;
+
+            $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $start)
+                        ->startOfDay()
+                        ->format('Y-m-d');
+
+            $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $end)
+                        ->endOfDay()
+                        ->format('Y-m-d');
+        }
+
+        // Default → 1 tahun lalu (kalau user tidak kasih tanggal)
+        if (!$startDate && !$endDate) {
+            $endDate   = Carbon::now()->subYear()->toDateString();
+        }
+
+        if ($startDate && $endDate) {
+            $query = Transaction::with(['member.marketing','member.team','user'])
+                ->whereBetween('transaction_date', [$startDate, $endDate]);
+        } else {
+            $query = Transaction::with(['member.marketing','member.team','user'])
+                ->where('transaction_date', '<=', $endDate);
+        }
+
+        return response()->streamDownload(function () use ($query, $startDate, $endDate) {
             $handle = fopen('php://output', 'w');
 
             // Header CSV
@@ -188,46 +276,91 @@ class ExportReportController extends Controller
                 'Marketing Name','Created At','Updated At'
             ]);
 
-            // Backup pakai chunk supaya hemat memory
-            Transaction::with(['member.marketing','member.team','user'])
-                ->where('transaction_date', '<', $beforeDate)
-                ->orderBy('id')
-                ->chunk(1000, function ($transactions) use ($handle) {
-                    foreach ($transactions as $trx) {
-                        fputcsv($handle, [
-                            $trx->id,
-                            $trx->transaction_date,
-                            $trx->amount,
-                            $trx->type,
-                            $trx->username,
-                            $trx->phone,
-                            $trx->nama_rekening,
-                            optional($trx->member)->name,
-                            optional($trx->member->team)->name ?? "WA",
-                            optional($trx->member->marketing)->name ?? "WA",
-                            $trx->created_at,
-                            $trx->updated_at,
-                        ]);
-                    }
-                });
+            // ✅ Backup pakai chunk
+            $query->orderBy('id')->chunk(1000, function ($transactions) use ($handle) {
+                foreach ($transactions as $trx) {
+                    fputcsv($handle, [
+                        $trx->id,
+                        $trx->transaction_date,
+                        $trx->amount,
+                        $trx->type,
+                        $trx->username,
+                        $trx->phone,
+                        $trx->nama_rekening,
+                        optional($trx->member)->name,
+                        optional($trx->member->team)->name ?? "WA",
+                        optional($trx->member->marketing)->name ?? "WA",
+                        $trx->created_at,
+                        $trx->updated_at,
+                    ]);
+                }
+            });
 
             fclose($handle);
 
-            // Setelah backup selesai → hapus data
-            DB::transaction(function () use ($beforeDate) {
-                Transaction::where('transaction_date', '<', $beforeDate)
-                    ->with('followups')
-                    ->chunkById(1000, function ($transactions) {
-                        foreach ($transactions as $trx) {
-                            // hapus followups permanen
-                            $trx->followups()->forceDelete();
-
-                            // hapus transaction permanen
-                            $trx->forceDelete();
-                        }
-                    });
-                // Transaction::where('transaction_date', '<', $beforeDate)->forceDelete();
-            });
+            // // ✅ Delete data setelah backup
+            // DB::transaction(function () use ($query) {
+            //     $query->with('followups')->chunkById(1000, function ($transactions) {
+            //         foreach ($transactions as $trx) {
+            //             $trx->followups()->forceDelete();
+            //             $trx->forceDelete();
+            //         }
+            //     });
+            // });
         }, "backup_transactions_" . now()->format('Ymd_His') . ".csv");
+    }
+
+
+
+    public function deleteOldTransactions(Request $request)
+    {
+        $periode = $request->periode;
+        $startDate = null;
+        $endDate = null;
+
+        if ($periode) {
+            $dates = explode(" to ", $periode);
+            $start = trim($dates[0]);
+            $end = isset($dates[1]) ? trim($dates[1]) : $start;
+
+            $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $start)
+                        ->startOfDay()
+                        ->format('Y-m-d');
+
+            $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $end)
+                        ->endOfDay()
+                        ->format('Y-m-d');
+        }
+
+
+        // Default → 1 tahun lalu (kalau user tidak kasih tanggal)
+        if (!$startDate && !$endDate) {
+            $endDate   = Carbon::now()->subYear()->toDateString();
+        }
+
+        if ($startDate && $endDate) {
+            $query = Transaction::with(['member.marketing','member.team','user'])
+                ->whereBetween('transaction_date', [$startDate, $endDate]);
+        } else {
+            $query = Transaction::with(['member.marketing','member.team','user'])
+                ->where('transaction_date', '<=', $endDate);
+        }
+
+        $deletedCount = 0;
+
+        DB::transaction(function () use ($query, &$deletedCount) {
+            $query->with('followups')->chunkById(1000, function ($transactions) use (&$deletedCount) {
+                foreach ($transactions as $trx) {
+                    $trx->followups()->delete();
+                    $trx->delete();
+                    $deletedCount++;
+                }
+            });
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "Success deleting {$deletedCount} transactions",
+        ]);
     }
 }

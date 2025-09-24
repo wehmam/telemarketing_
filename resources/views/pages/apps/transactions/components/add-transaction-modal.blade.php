@@ -24,6 +24,21 @@
                     <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_members_scroll" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_members_header" data-kt-scroll-wrappers="#kt_modal_add_members_scroll" data-kt-scroll-offset="300px">
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Transaction Date</label>
+                            <input type="text"
+                                id="transaction_date"
+                                name="transaction_date"
+                                class="form-control form-control-solid"
+                                placeholder="Select date"
+                                required>
+                            @error('transaction_date')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <!--end::Input group-->
+
+                        <!--begin::Input group-->
+                        <div class="fv-row mb-7">
                             <label class="required fw-semibold fs-6 mb-2">Choose File Transactions (Excel / CSV)</label>
                             <input type="file"
                                 name="file"
