@@ -33,7 +33,7 @@
          <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
-            <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-control="select2" data-placeholder="Select Marketing">
+            <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-control="select2" data-allow-clear="true" data-placeholder="Select Marketing">
                 <option></option>
                 @foreach ($marketings as $marketing)
                     <option value="{{ $marketing->id }}">{{ $marketing->name }}</option>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\BackupExport;
 use App\Exports\ReportExport;
+use App\Exports\ReportExportRedeposit;
+use App\Helpers\ActivityLogger;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -121,26 +123,51 @@ class ExportReportController extends Controller
                     break;
 
                 case 'redeposit':
-                    $report = DB::table('transactions as t')
+                    $teamData = DB::table('teams as tm')
+                        ->leftJoin('members as m', 'm.team_id', '=', 'tm.id')
+                        ->leftJoin('transactions as t', function($join) use ($startDate, $endDate) {
+                            $join->on('t.member_id', '=', 'm.id')
+                                ->where('t.type', 'REDEPOSIT')
+                                ->whereBetween('t.transaction_date', [$startDate, $endDate]);
+                        })
                         ->select(
-                            't.id',
-                            'm.name as member_name',
-                            'u.name as marketing_name',
-                            't.amount',
-                            't.created_at as deposit_date'
+                            DB::raw("COALESCE(tm.name, 'WA') as team_name"),
+                            DB::raw("COALESCE(SUM(t.amount), 0) as total_redeposit_amount"),
+                            DB::raw("COALESCE(COUNT(t.id), 0) as total_redeposit_count")
                         )
-                        ->join('members as m', 't.member_id', '=', 'm.id')
-                        ->join('users as u', 'm.marketing_id', '=', 'u.id')
-                        ->where('t.type', '=', 'deposit')
-                        ->whereBetween('t.created_at', [$startDate, $endDate])
-                        ->get();
+                        ->groupBy('tm.name');
+
+                    // Query for WA (members without a team)
+                    $waData = DB::table('members as m')
+                        ->leftJoin('transactions as t', function($join) use ($startDate, $endDate) {
+                            $join->on('t.member_id', '=', 'm.id')
+                                ->where('t.type', 'REDEPOSIT')
+                                ->whereBetween('t.transaction_date', [$startDate, $endDate]);
+                        })
+                        ->whereNull('m.team_id')
+                        ->select(
+                            DB::raw("'WA' as team_name"),
+                            DB::raw("COALESCE(SUM(t.amount), 0) as total_redeposit_amount"),
+                            DB::raw("COALESCE(COUNT(t.id), 0) as total_redeposit_count")
+                        );
+
+                    $report = collect($teamData->unionAll($waData)->get());
                     break;
 
                 default:
                     throw new \Exception("Unknown report type: {$typeReport}");
             }
 
-            return Excel::download(new ReportExport($report, $typeReport, $startDate, $endDate), $typeReport . '_report.xlsx');
+            if ($report->isEmpty()) {
+                throw new \Exception("No data found for the selected period.");
+            }
+
+            if ($typeReport === 'summary_employee') {
+                return Excel::download(new ReportExport($report, $typeReport, $startDate, $endDate), $typeReport . '_report.xlsx');
+            } else {
+                return Excel::download(new ReportExportRedeposit($report, $typeReport, $startDate, $endDate), $typeReport . '_report.xlsx');
+            }
+
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
@@ -253,19 +280,24 @@ class ExportReportController extends Controller
                         ->format('Y-m-d');
         }
 
+        $logMsg = "Backup Transactions";
         // Default → 1 tahun lalu (kalau user tidak kasih tanggal)
         if (!$startDate && !$endDate) {
             $endDate   = Carbon::now()->subYear()->toDateString();
+            $logMsg .= " older than {$endDate}";
         }
 
         if ($startDate && $endDate) {
             $query = Transaction::with(['member.marketing','member.team','user'])
                 ->whereBetween('transaction_date', [$startDate, $endDate]);
+            $logMsg .= " from {$startDate} to {$endDate}";
         } else {
             $query = Transaction::with(['member.marketing','member.team','user'])
                 ->where('transaction_date', '<=', $endDate);
+            $logMsg .= " up to {$endDate}";
         }
 
+        ActivityLogger::log($logMsg, 200);
         return response()->streamDownload(function () use ($query, $startDate, $endDate) {
             $handle = fopen('php://output', 'w');
 
@@ -333,17 +365,23 @@ class ExportReportController extends Controller
         }
 
 
+        $logMsg = "Delete Old Transactions";
         // Default → 1 tahun lalu (kalau user tidak kasih tanggal)
         if (!$startDate && !$endDate) {
             $endDate   = Carbon::now()->subYear()->toDateString();
+            $logMsg .= " older than {$endDate}";
         }
 
         if ($startDate && $endDate) {
             $query = Transaction::with(['member.marketing','member.team','user'])
                 ->whereBetween('transaction_date', [$startDate, $endDate]);
+
+            $logMsg .= " from {$startDate} to {$endDate}";
         } else {
             $query = Transaction::with(['member.marketing','member.team','user'])
                 ->where('transaction_date', '<=', $endDate);
+
+            $logMsg .= " up to {$endDate}";
         }
 
         $deletedCount = 0;
@@ -351,12 +389,14 @@ class ExportReportController extends Controller
         DB::transaction(function () use ($query, &$deletedCount) {
             $query->with('followups')->chunkById(1000, function ($transactions) use (&$deletedCount) {
                 foreach ($transactions as $trx) {
-                    $trx->followups()->delete();
-                    $trx->delete();
+                    $trx->followups()->forceDelete();
+                    $trx->forceDelete();
                     $deletedCount++;
                 }
             });
         });
+
+        ActivityLogger::log($logMsg, 200);
 
         return response()->json([
             'success' => true,

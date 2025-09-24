@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Maatwebsite\Excel\Concerns\WithEvents;
 
-class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
+class ReportExportRedeposit implements FromView, WithStyles, WithEvents, WithColumnWidths
 {
     protected $report;
     protected $typeReport;
@@ -71,14 +71,9 @@ class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
     public function columnWidths(): array
     {
         return [
-            'A' => 50, // Marketing
-            'B' => 50, // Team
-            'C' => 50, // Start Kerja
-            'D' => 50, // Member Daftar
-            'E' => 50, // Total Deposit Amount
-            'F' => 50, // Total Deposit Transactions
-            // 'I' => 30, // Start Date
-            // 'J' => 30, // End Date
+            'A' => 25,
+            'B' => 25,
+            'C' => 25
         ];
     }
 
@@ -87,17 +82,17 @@ class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $sheet->getColumnDimension('I')->setWidth(20);
-                $sheet->getColumnDimension('J')->setWidth(20);
+                $sheet->getColumnDimension('E')->setWidth(20);
+                $sheet->getColumnDimension('F')->setWidth(20);
                 $lastRow = $sheet->getHighestRow() + 1;
 
-                $sheet->setCellValue('I3', 'Start Date');
-                $sheet->setCellValue('I4', $this->startDate);
-                $sheet->setCellValue('J3', 'End Date');
-                $sheet->setCellValue('J4', $this->endDate);
+                $sheet->setCellValue('E2', 'Start Date');
+                $sheet->setCellValue('E3', $this->startDate);
+                $sheet->setCellValue('F2', 'End Date');
+                $sheet->setCellValue('F3', $this->endDate);
 
                 // Style Start/End date cells
-                $sheet->getStyle('I3:J3')->applyFromArray([
+                $sheet->getStyle('E2:F2')->applyFromArray([
                     'font' => [
                         'name' => 'Calibri',
                         'bold' => true,
@@ -120,22 +115,18 @@ class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
                 $sheet->insertNewRowBefore(2, 1);
 
                 // Merge A2:C2
-                $sheet->mergeCells('A2:B2');
+                // $sheet->mergeCells('A2:B2');
                 $sheet->setCellValue('A2', 'TOTAL');
 
                 // D2 = sum of member daftar
+                $sheet->setCellValue('B2', "=SUM(B3:B{$lastRow})");
+
+                // E2 = sum of total deposit amount
                 $sheet->setCellValue('C2', "=SUM(C3:C{$lastRow})");
-
-                // E2 = sum of total deposit amount
-                $sheet->setCellValue('D2', "=SUM(D3:D{$lastRow})");
-
-                // E2 = sum of total deposit amount
-                $sheet->setCellValue('E2', "=SUM(E3:E{$lastRow})");
-
 
 
                 // Style row 2
-                $sheet->getStyle('A2:D2')->applyFromArray([
+                $sheet->getStyle('A2:C2')->applyFromArray([
                     'font' => [
                         'name' => 'Calibri',
                         'bold' => true,
@@ -153,15 +144,11 @@ class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
                 ]);
 
                 // Format numeric columns
-                $sheet->getStyle("C3:C{$lastRow}")
-                    ->getNumberFormat()
-                    ->setFormatCode(NumberFormat::FORMAT_NUMBER);
-
-                $sheet->getStyle("D3:D{$lastRow}")
+                $sheet->getStyle("B2:B{$lastRow}")
                     ->getNumberFormat()
                     ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 
-                $sheet->getStyle("E3:E{$lastRow}")
+                $sheet->getStyle("D2:D{$lastRow}")
                     ->getNumberFormat()
                     ->setFormatCode(NumberFormat::FORMAT_NUMBER);
             }
