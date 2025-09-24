@@ -87,17 +87,6 @@
 
             @can('transaction-management.import')
                 <!--begin::Add Member Button-->
-                <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
-                    {{-- <button type="button" class="btn btn-sm btn-info p-3" onclick="window.location='{{ route('transactions.downloadTemplate') }}'"> --}}
-                    <button type="button" class="btn btn-sm btn-info p-3" onclick="window.location='{{ route('transactions.index') }}'">
-                        {!! getIcon('file', 'fs-2', 'files-folders', 'i') !!}
-
-                        Download Template
-                    </button>
-                </div>
-                <!--end::Add Member Button-->
-
-                <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0">
                     <button type="button" class="btn btn-sm btn-primary p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_add_transactions">
                         {!! getIcon('plus', 'fs-2', '', 'i') !!}

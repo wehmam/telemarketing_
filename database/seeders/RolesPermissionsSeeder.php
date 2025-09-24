@@ -56,6 +56,7 @@ class RolesPermissionsSeeder extends Seeder
                 'member-management.delete',
                 'member-management.export',
                 'member-management.restore',
+                'member-management.import',
 
                 'log-management.read',
                 'log-management.export',
@@ -66,6 +67,8 @@ class RolesPermissionsSeeder extends Seeder
                 'configuration-management.delete',
                 'configuration-management.export',
                 'configuration-management.import',
+
+                'export-management.export',
             ],
             'leader' => [
                 'user-management.read',
@@ -115,6 +118,8 @@ class RolesPermissionsSeeder extends Seeder
 
         User::find(1)->assignRole('administrator');
         User::find(2)->assignRole('leader');
-        User::find(3)->assignRole('marketing');
+        User::whereIn('id', [3, 4, 5, 6, 7])->get()->each(function ($user) {
+            $user->assignRole('marketing');
+        });
     }
 }

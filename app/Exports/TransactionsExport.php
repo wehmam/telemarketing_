@@ -78,8 +78,8 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
             $trx->transaction_date ? \Carbon\Carbon::parse($trx->transaction_date)->format('Y-m-d') : '—',
             $trx->type,
             $trx->user?->name ?? '—',
-            $trx->member?->marketing?->name ?? '—',
-            $trx->member?->team?->name ?? '—',
+            $trx->member?->marketing?->name ?? 'WA',
+            $trx->member?->team?->name ?? 'WA',
         ];
     }
 

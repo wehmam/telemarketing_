@@ -5,7 +5,7 @@
 		<!--begin::Title-->
 		<div class="card-title d-flex flex-column">
 			<!--begin::Amount-->
-			<span class="fs-2hx fw-bold text-black me-2 lh-1 ls-n2">Rp. {{ number_format($totalDeposit, 2) }}</span>
+			<span class="fs-2hx fw-bold text-black me-2 lh-1 ls-n2">Rp. {{ number_format($totalRedeposit, 2) }}</span>
 			<!--end::Amount-->
 			<!--begin::Subtitle-->
 			<span class="text-black opacity-75 pt-1 fw-semibold fs-6">Total REDEPOSIT</span>

@@ -114,11 +114,11 @@ class AuthenticatedSessionController extends Controller
             $user->session_id = null;
             $user->save(); // save() works because $user is an Eloquent model
 
-            ActivityLogger::log(
-                "Logout successful for user {$user->email}",
-                200,
-                $user->id
-            );
+            // ActivityLogger::log(
+            //     "Logout successful for user {$user->email}",
+            //     200,
+            //     $user->id
+            // );
         }
 
         ActivityLogger::log("Logout successful for user {$user?->email}", 200, $user->id);

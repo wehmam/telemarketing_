@@ -33,6 +33,7 @@ return new class extends Migration
             $table->index('phone');
             $table->index('marketing_id');
             $table->index('team_id');
+            $table->index('username');
 
             $table->index(['marketing_id', 'team_id']);
         });

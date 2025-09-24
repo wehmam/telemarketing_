@@ -450,3 +450,45 @@ if (!function_exists('responseCustom')) {
         ];
     }
 }
+
+if (!function_exists('formatRupiah')) {
+    /**
+     * Format number to Rupiah currency
+     *
+     * @param float|int $amount
+     * @param bool $includeSymbol
+     * @return string
+     */
+    function formatRupiah($value)
+    {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        // Hapus spasi
+        $value = trim($value);
+
+        // Jika ada koma (,) dan titik (.) sekaligus
+        if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
+            // Kalau koma ada di belakang → format Indonesia (1.000,50)
+            if (strrpos($value, ',') > strrpos($value, '.')) {
+                $value = str_replace('.', '', $value);   // hapus pemisah ribuan
+                $value = str_replace(',', '.', $value); // ganti koma jadi titik (decimal)
+            } else {
+                // format US (100,000.50)
+                $value = str_replace(',', '', $value); // hapus pemisah ribuan
+            }
+        } else {
+            // Kalau hanya ada koma → anggap koma sebagai decimal
+            if (strpos($value, ',') !== false) {
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
+            } else {
+                // Kalau hanya titik → hapus pemisah ribuan
+                $value = str_replace(',', '', $value);
+            }
+        }
+
+        return (float) $value;
+    }
+}

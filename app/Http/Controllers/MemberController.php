@@ -205,11 +205,100 @@ class MemberController extends Controller
         return $dataTable->setMemberContext($member->id)->ajax();
     }
 
+    // public function import(Request $request)
+    // {
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'file' => 'required|mimes:xlsx,xls,csv', // max 2MB
+    //         ]);
+
+    //         if ($validator->fails()) {
+    //             $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+    //             return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+    //         }
+
+    //         $user = auth()->user();
+    //         $file = $request->file('file');
+    //         $handle = fopen($file->getRealPath(), "r");
+    //         $faker = Faker::create();
+
+    //         fgetcsv($handle, 1000, ",");
+
+    //         DB::beginTransaction();
+    //         $countImport = 0;
+    //         $countNewMembers = 0;
+    //         while (($row = fgetcsv($handle, 0, ",")) !== false) {
+    //             $countImport++;
+    //             if ($countImport > 3000) {
+    //                 break; // ✅ stop after 3000 rows
+    //             }
+
+    //             $tgl        = $row[1];
+    //             $tim        = $row[2];
+    //             $marketing  = $row[3];
+    //             $namaPlayer = $row[4];
+    //             $username   = strtolower(preg_replace('/\s+/', '', trim($row[5]))); // USERNAME → lowercase & hapus spasi
+    //             $nominal    = (float) str_replace([",", "."], "", $row[6]);
+    //             $phone      = '62' . $faker->numerify('8##########');
+
+
+    //             $member = Members::where('username', $username)->first();
+    //             if (!$member) {
+    //                 $teamId = $tim ? Team::where('name', $tim)->value('id') : null;
+    //                 $marketingId = $marketing ? User::where('name', $marketing)->value('id') : null;
+
+    //                 $member = Members::create([
+    //                     'name'          => ucwords(strtolower($namaPlayer)),
+    //                     'username'      => strtolower($username),
+    //                     'phone'         => $phone,
+    //                     'nama_rekening' => null,
+    //                     'marketing_id'  => $teamId && $marketingId ? $marketingId : null,
+    //                     'team_id'       => $teamId && $marketingId ? $teamId : null,
+    //                     'created_at'    => \Carbon\Carbon::parse($tgl)->format('Y-m-d H:i:s'),
+    //                 ]);
+    //                 $countNewMembers++;
+
+    //                 // Kalau nominal > 0 → bikin transaction
+    //                 if ((float)$nominal > 0) {
+    //                     Transaction::create([
+    //                         'id'               => \Illuminate\Support\Str::uuid(),
+    //                         'member_id'        => $member->id,
+    //                         'user_id'          => $teamId && $marketingId ? $marketingId : auth()->id(),
+    //                         'amount'           => $nominal,
+    //                         'transaction_date' => \Carbon\Carbon::parse($tgl)->format('Y-m-d'),
+    //                         'type'             => 'DEPOSIT',
+    //                         'username'         => strtolower($username),
+    //                         'phone'            => $member->phone,
+    //                         'nama_rekening'    => $member->nama_rekening,
+    //                     ]);
+    //                 }
+    //             } else {
+    //                 // kalau sudah ada → skip
+    //                 continue;
+    //             }
+    //         }
+
+    //         DB::commit();
+    //         fclose($handle);
+
+    //         if ($countNewMembers === 0) {
+    //             return response()->json(responseCustom(true, "No new members were added. All usernames already exist in the system."));
+    //         }
+
+    //         return response()->json(responseCustom(true, "✅ Import success, total processed: {$countImport}, new members added: {$countNewMembers}"));
+    //     } catch (\Throwable $th) {
+    //         if (isset($pdo) && $pdo->inTransaction()) {
+    //             $pdo->rollBack();
+    //         }
+    //         return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
+    //     }
+    // }
+
     public function import(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'file' => 'required|mimes:xlsx,xls,csv', // max 2MB
+                'file' => 'required|mimes:xlsx,xls,csv',
             ]);
 
             if ($validator->fails()) {
@@ -217,80 +306,108 @@ class MemberController extends Controller
                 return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
             }
 
-            $user = auth()->user();
             $file = $request->file('file');
             $handle = fopen($file->getRealPath(), "r");
             $faker = Faker::create();
 
             fgetcsv($handle, 1000, ",");
 
+            $existingUsernames = Members::pluck('username')->map(fn($u) => strtolower($u))->toArray();
+            $existingUsernames = array_flip($existingUsernames);
+
             DB::beginTransaction();
             $countImport = 0;
             $countNewMembers = 0;
+            $newMembers = [];
+            $newTransactions = [];
+
             while (($row = fgetcsv($handle, 0, ",")) !== false) {
                 $countImport++;
-                if ($countImport > 3000) {
-                    break; // ✅ stop after 3000 rows
-                }
+                if ($countImport > 5000) break; // ✅ stop after 5000 rows
 
                 $tgl        = $row[1];
-                $tim        = $row[2];
-                $marketing  = $row[3];
-                $namaPlayer = $row[4];
-                $username   = strtolower(preg_replace('/\s+/', '', trim($row[5]))); // USERNAME → lowercase & hapus spasi
-                $nominal    = (float) str_replace([",", "."], "", $row[6]);
-                $phone      = '62' . $faker->numerify('8##########');
+                $marketing  = $row[2];
+                $namaPlayer = $row[3];
+                $username   = strtolower(preg_replace('/\s+/', '', trim($row[4])));
+                // $nominal    = (float) str_replace([",", "."], "", $row[6]);
 
+                // new format excel last send
+                $nominal = formatRupiah($row[6]) ?: 0;
 
-                $member = Members::where('username', $username)->first();
-                if (!$member) {
-                    $teamId = $tim ? Team::where('name', $tim)->value('id') : null;
-                    $marketingId = $marketing ? User::where('name', $marketing)->value('id') : null;
+                // $phone      = $row[5] ?: '62' . $faker->numerify('8##########');
+                $phone = !empty($row[5]) ? ltrim($row[5], '+') : null;
 
-                    $member = Members::create([
-                        'name'          => ucwords(strtolower($namaPlayer)),
-                        'username'      => strtolower($username),
-                        'phone'         => $phone,
-                        'nama_rekening' => null,
-                        'marketing_id'  => $teamId && $marketingId ? $marketingId : null,
-                        'team_id'       => $teamId && $marketingId ? $teamId : null,
-                        'created_at'    => \Carbon\Carbon::parse($tgl)->format('Y-m-d H:i:s'),
-                    ]);
-                    $countNewMembers++;
+                // ✅ Cek array
+                if (isset($existingUsernames[$username])) {
+                    continue; // skip kalau sudah ada
+                }
 
-                    // Kalau nominal > 0 → bikin transaction
-                    if ((float)$nominal > 0) {
-                        Transaction::create([
-                            'id'               => \Illuminate\Support\Str::uuid(),
-                            'member_id'        => $member->id,
-                            'user_id'          => $teamId && $marketingId ? $marketingId : auth()->id(),
-                            'amount'           => $nominal,
-                            'transaction_date' => \Carbon\Carbon::parse($tgl)->format('Y-m-d'),
-                            'type'             => 'DEPOSIT',
-                            'username'         => strtolower($username),
-                            'phone'            => $member->phone,
-                            'nama_rekening'    => $member->nama_rekening,
-                        ]);
-                    }
-                } else {
-                    // kalau sudah ada → skip
-                    continue;
+                // $teamId = $tim ? Team::where('name', $tim)->value('id') : null;
+                $marketingUser = $marketing ? User::where('name', $marketing)->first() : null;
+                $marketingId = $marketingUser?->id;
+                $teamId      = $marketingUser?->team_id;
+
+                $newMembers[] = [
+                    'name'          => ucwords(strtolower($namaPlayer)),
+                    'username'      => strtolower($username),
+                    'phone'         => $phone,
+                    'nama_rekening' => null,
+                    'marketing_id'  => $teamId && $marketingId ? $marketingId : null,
+                    'team_id'       => $teamId && $marketingId ? $teamId : null,
+                    'created_at'    => \Carbon\Carbon::parse($tgl)->format('Y-m-d H:i:s'),
+                    'updated_at'    => now(),
+                ];
+
+                $existingUsernames[$username] = true;
+                $countNewMembers++;
+
+                if ($nominal > 0) {
+                    $newTransactions[] = [
+                        'id'               => (string) \Illuminate\Support\Str::uuid(),
+                        'member_id'        => null,
+                        'user_id'          => $teamId && $marketingId ? $marketingId : auth()->id(),
+                        'amount'           => $nominal,
+                        'transaction_date' => \Carbon\Carbon::parse($tgl)->format('Y-m-d'),
+                        'type'             => 'DEPOSIT',
+                        'username'         => strtolower($username),
+                        'phone'            => $phone,
+                        'nama_rekening'    => null,
+                        'created_at'       => now(),
+                        'updated_at'       => now(),
+                    ];
+                }
+            }
+
+            // ✅ Bulk insert members
+            if (!empty($newMembers)) {
+                Members::insert($newMembers);
+
+                // ambil mapping username → id
+                $inserted = Members::whereIn('username', array_column($newMembers, 'username'))
+                            ->pluck('id', 'username')
+                            ->toArray();
+
+                // update member_id di transaksi
+                foreach ($newTransactions as &$trx) {
+                    $trx['member_id'] = $inserted[$trx['username']] ?? null;
+                }
+
+                // ✅ Bulk insert transaksi
+                if (!empty($newTransactions)) {
+                    Transaction::insert($newTransactions);
                 }
             }
 
             DB::commit();
             fclose($handle);
 
-            if ($countNewMembers === 0) {
-                return response()->json(responseCustom(true, "No new members were added. All usernames already exist in the system."));
-            }
-
             return response()->json(responseCustom(true, "✅ Import success, total processed: {$countImport}, new members added: {$countNewMembers}"));
         } catch (\Throwable $th) {
-            if (isset($pdo) && $pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
+            DB::rollBack();
             return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
         }
     }
+
+
+
 }

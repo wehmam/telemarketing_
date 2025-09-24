@@ -53,9 +53,22 @@ $('.sStatus').on('change', function() {
     window.LaravelDataTables['transactions-table'].ajax.reload();
 });
 
-$('.sLastDeposit').on('change', function() {
-    window.LaravelDataTables['transactions-table'].ajax.reload();
-})
+$('.sLastDeposit').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
+$('#amountDeposit').on('keyup', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
+$('#sMarketing').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
+$('#sTeam').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
 
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
@@ -64,11 +77,13 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_phone = $('#sPhone').val();
     data.s_status = $('.sStatus:checked').val();
     data.s_last_deposit = $('.sLastDeposit').val();
+    data.s_amount_deposit = $('#amountDeposit').val().replace(/\./g, '');
+    data.s_marketing = $('#sMarketing').val();
+    data.s_team = $('#sTeam').val();
 });
 
 // ===== Update Total Transactions =====
 function updateHeaderTransaction(json) {
-    console.log('AJAX Response JSON:', json); // Debugging line
     if (json && json.totalAmount !== undefined) {
         $('#totalTransactions').text(formatRupiah(json.totalAmount));
     }
@@ -193,6 +208,18 @@ $(document).ready(function() {
 
     });
 })
+
+const inputAmountDeposit = document.getElementById('amountDeposit');
+if (inputAmountDeposit) {
+    inputAmountDeposit.addEventListener('input', function (e) {
+        let value = this.value.replace(/\D/g, ''); // hanya angka
+        if (value) {
+            this.value = new Intl.NumberFormat('id-ID').format(value); // format ribuan Indonesia
+        } else {
+            this.value = '';
+        }
+    });
+}
 
 document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (e) {
     e.addEventListener('click', function() {

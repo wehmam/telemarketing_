@@ -21,7 +21,7 @@
 
             <div class="card-toolbar">
 
-            {{-- @can('member-management.import') --}}
+            @can('member-management.import')
                 <!--begin::Add Member Button-->
             <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
                     <button type="button" class="btn btn-sm btn-info p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_import_members">
@@ -30,7 +30,7 @@
                     </button>
                 </div>
                 <!--end::Add Member Button-->
-            {{-- @endcan --}}
+            @endcan
 
 
             @can('member-management.create')

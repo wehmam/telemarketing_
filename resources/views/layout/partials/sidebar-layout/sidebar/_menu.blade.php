@@ -174,18 +174,18 @@
                 <!--end:Menu item-->
             @endcan
 
-            {{-- @can('export-management.read') --}}
+            @can('export-management.export')
                 <!--begin:Menu item-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                    <a class="menu-link {{ request()->routeIs('export.index') ? 'active' : '' }}" href="{{ route('export.index') }}">
                         <span class="menu-icon">{!! getIcon('cloud-download', 'fs-2', '', 'i') !!}</span>
                         <span class="menu-title">Export Report</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
                 <!--end:Menu item-->
-            {{-- @endcan --}}
+            @endcan
 
             @can('configuration-management.read')
                  <!--begin:Menu item-->

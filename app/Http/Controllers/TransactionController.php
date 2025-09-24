@@ -18,7 +18,11 @@ class TransactionController extends Controller
      */
     public function index(TransactionDataTable $dataTable)
     {
-        return $dataTable->render('pages.apps.transactions.index');
+        $teams = \App\Models\Team::orderBy('id', 'asc')->get();
+        $marketings = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'marketing');
+        })->orderBy('id', 'asc')->get();
+        return $dataTable->render('pages.apps.transactions.index', compact('teams', 'marketings'));
     }
 
     /**

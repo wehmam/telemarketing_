@@ -19,10 +19,10 @@ class MembersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->rawColumns(['deleted_at'])
             ->editColumn('marketing_id', function (Members $member) {
-                return $member->marketing?->name ?? '—';
+                return $member->marketing?->name ?? 'WA';
             })
             ->editColumn('team_id', function (Members $member) {
-                return $member->team?->name ?? '—';
+                return $member->team?->name ?? 'WA';
             })
             // ->editColumn('deleted_at', function (Members $member) {
             //     return sprintf(
@@ -38,9 +38,9 @@ class MembersDataTable extends DataTable
                     ? \Carbon\Carbon::parse($lastDeposit->transaction_date)->format('Y-m-d')
                     : '—';
             })
-            ->addColumn('type', function (Members $member) {
-                return ($member->marketing_id && $member->team_id) ? $member->team?->name ?? 'WA' : 'WA';
-            })
+            // ->addColumn('type', function (Members $member) {
+            //     return ($member->marketing_id && $member->team_id) ? $member->team?->name ?? 'WA' : 'WA';
+            // })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
             })
@@ -68,7 +68,7 @@ class MembersDataTable extends DataTable
         $username = request('s_username');
         $phone = request('s_phone');
         $namaRekening = request('s_nama_rekening');
-        $lastDepositRange = request('s_last_deposit');
+        $createdAtRange = request('s_created_at');
 
         if ($status === 'wa') {
             $query->whereNull('marketing_id')->orWhereNull('team_id');
@@ -90,17 +90,23 @@ class MembersDataTable extends DataTable
             $query->where('nama_rekening', 'like', '%' . $namaRekening . '%');
         }
 
-        if ($lastDepositRange) {
-            if ($lastDepositRange) {
-                [$start, $end] = explode(' - ', $lastDepositRange);
+        if ($lastDepositRange = request('s_last_deposit')) {
+            $dates = explode(' to ', $lastDepositRange);
+            if (count($dates) === 2) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->format('Y-m-d');
 
-                $query->join('transactions as t', 'members.id', '=', 't.member_id')
-                    ->select('members.*')
-                    ->groupBy('members.id')
-                    ->havingRaw('MAX(t.deposit_date) BETWEEN ? AND ?', [
-                        \Carbon\Carbon::createFromFormat('d-m-Y', trim($start))->startOfDay(),
-                        \Carbon\Carbon::createFromFormat('d-m-Y', trim($end))->endOfDay()
+                $query->whereHas('transactions', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('transaction_date', [
+                        $startDate,
+                        $endDate
                     ]);
+                });
+            } else {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereHas('transactions', function ($q) use ($startDate) {
+                    $q->whereDate('transaction_date', $startDate);
+                });
             }
         }
 
@@ -137,7 +143,7 @@ class MembersDataTable extends DataTable
             Column::make('team_id')->title('Team'),
             // Column::make('deleted_at')->title('Status'),
             Column::make('last_deposit')->title('Last Deposit'),
-            Column::make('type')->title('Member Type'), // <-- added
+            // Column::make('type')->title('Member Type'), // <-- added
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

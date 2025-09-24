@@ -46,12 +46,17 @@ $('.sStatus').on('change', function() {
     window.LaravelDataTables['members-table'].ajax.reload();
 });
 
+$('#periodeLastDeposit').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
     data.s_nama_rekening = $('#sNamaRekening').val();
     data.s_username = $('#sUsername').val();
     data.s_phone = $('#sPhone').val();
     data.s_status = $('.sStatus:checked').val();
+    data.s_last_deposit = $('#periodeLastDeposit').val();
 });
 
 $('#statusFilter').on('change', function() {

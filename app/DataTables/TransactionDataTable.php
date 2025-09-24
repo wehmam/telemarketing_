@@ -48,8 +48,8 @@ class TransactionDataTable extends DataTable
                     ? \Carbon\Carbon::parse($trx->transaction_date)->format('Y-m-d')
                     : '—';
             })
-            ->addColumn('marketing', fn($trx) => $trx->member?->marketing?->name ?? '—')
-            ->addColumn('team', fn($trx) => $trx->member?->team?->name ?? '—')
+            ->addColumn('marketing', fn($trx) => $trx->member?->marketing?->name ?? 'WA')
+            ->addColumn('team', fn($trx) => $trx->member?->team?->name ?? 'WA')
             ->addColumn('followups', function ($trx) {
                 $last = $trx->followups->sortByDesc('followed_up_at')->first();
                 return $last
@@ -80,7 +80,34 @@ class TransactionDataTable extends DataTable
         $phone = request('s_phone');
         $namaRekening = request('s_nama_rekening');
         $lastDepositRange = request('s_last_deposit');
+        $amountDeposit = request('s_amount_deposit');
+        $marketingId = request('s_marketing');
+        $teamId = request('s_team');
 
+        // Filter by amount deposit
+         if ($amountDeposit && is_numeric($amountDeposit)) {
+            $query->where('amount', '=', (float)$amountDeposit);
+        }
+
+        // Filter by marketing context
+        if ($marketingId) {
+            if ($marketingId === 'WA') {
+                $query->whereHas('member', fn($q) => $q->whereNull('marketing_id'));
+            } else {
+                $query->whereHas('member', fn($q) => $q->where('marketing_id', $marketingId));
+            }
+        }
+
+        // Filter by team context
+        if ($teamId) {
+            if ($teamId === 'WA') {
+                $query->whereHas('member', fn($q) => $q->whereNull('team_id'));
+            } else {
+                $query->whereHas('member', fn($q) => $q->where('team_id', $teamId));
+            }
+        }
+
+        // Filter by member context
         if ($this->memberId) {
             $model->where('member_id', $this->memberId);
         }
@@ -104,12 +131,15 @@ class TransactionDataTable extends DataTable
         }
 
         if ($lastDepositRange) {
-            $dates = explode(' - ', $lastDepositRange);
+            $dates = explode(' to ', $lastDepositRange);
             if (count($dates) === 2) {
-                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->startOfDay();
-                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->endOfDay();
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->format('Y-m-d');
 
-                $query->whereBetween('transaction_date', [$startDate->toDateString(), $endDate->toDateString()]);
+                $query->whereBetween(\DB::raw('CAST(transaction_date AS DATE)'), [$startDate, $endDate]);
+            } elseif (count($dates) === 1) {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereDate('transaction_date', $date);
             }
         }
 
