@@ -62,6 +62,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('members/followup', MemberFollowUpController::class);
     Route::resource("members", MemberController::class);
+
+    // baru tambah members export kalo error comment ini
+    Route::get('members/export/{type}', [\App\Http\Controllers\MemberController::class, 'export'])->name('members.export');
+    // ends
     Route::post('/members/import', [MemberController::class, 'import'])->name('members.import');
     Route::post('/members/{id}/restore', [MemberController::class, 'restore'])->name('members.restore');
     Route::get('/members/{member}/transactions/data', [MemberController::class, 'transactionsData'])->name('members.transactions.data');

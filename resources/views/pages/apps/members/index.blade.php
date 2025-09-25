@@ -21,9 +21,20 @@
 
             <div class="card-toolbar">
 
+            @can('member-management.export')
+                <!--begin::Add Member Button-->
+                <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
+                    <a href="javascript:void(0);" class="btn btn-sm btn-success p-3" id="btnExportExcel">
+                        {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
+                        Export
+                    </a>
+                </div>
+                <!--end::Add Member Button-->
+            @endcan
+
             @can('member-management.import')
                 <!--begin::Add Member Button-->
-            <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
+                <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
                     <button type="button" class="btn btn-sm btn-info p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_import_members">
                         {!! getIcon('file', 'fs-2', 'files-folders', 'i') !!}
                         Import

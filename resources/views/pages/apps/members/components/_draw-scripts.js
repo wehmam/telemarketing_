@@ -50,6 +50,14 @@ $('#periodeLastDeposit').on('change', debounce(function() {
     dt.ajax.reload();
 }, 500));
 
+$('#sMarketing').on('change', function() {
+    window.LaravelDataTables['members-table'].ajax.reload();
+});
+
+$('#sTeam').on('change', function() {
+    window.LaravelDataTables['members-table'].ajax.reload();
+});
+
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
     data.s_nama_rekening = $('#sNamaRekening').val();
@@ -57,6 +65,8 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_phone = $('#sPhone').val();
     data.s_status = $('.sStatus:checked').val();
     data.s_last_deposit = $('#periodeLastDeposit').val();
+    data.s_marketing = $('#sMarketing').val();
+    data.s_team = $('#sTeam').val();
 });
 
 $('#statusFilter').on('change', function() {
@@ -78,6 +88,47 @@ if (modalImportMember) {
         // Livewire.emit('modal.show.role_name', e.relatedTarget.getAttribute('data-role-id'));
     });
 }
+
+$('#btnExportExcel').off('click').on('click', function(e) {
+    e.preventDefault();
+    showLoadPage();
+
+    let params = {
+        s_nama_rekening: $('#sNamaRekening').val(),
+        s_username: $('#sUsername').val(),
+        s_phone: $('#sPhone').val(),
+        s_status: $('.sStatus:checked').val(),
+        s_last_deposit: $('#periodeLastDeposit').val(),
+    };
+
+    let query = $.param(params);
+    let url = '/members/export/excel?' + query;
+
+    fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => {
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = "members.xlsx";
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                filename = disposition.split('filename=')[1].replace(/"/g, '');
+            }
+            return response.blob().then(blob => ({ blob, filename }));
+        })
+        .then(({ blob, filename }) => {
+            hideLoadPage();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+            hideLoadPage();
+            Swal.fire("Error", "Failed to export file.", "error");
+        });
+});
 
 // ===== Form Submit =====
 $(document).ready(function () {

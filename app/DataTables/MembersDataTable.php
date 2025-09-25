@@ -69,6 +69,8 @@ class MembersDataTable extends DataTable
         $phone = request('s_phone');
         $namaRekening = request('s_nama_rekening');
         $createdAtRange = request('s_created_at');
+        $marketingId = request('s_marketing');
+        $teamId = request('s_team');
 
         if ($status === 'wa') {
             $query->whereNull('marketing_id')->orWhereNull('team_id');
@@ -107,6 +109,22 @@ class MembersDataTable extends DataTable
                 $query->whereHas('transactions', function ($q) use ($startDate) {
                     $q->whereDate('transaction_date', $startDate);
                 });
+            }
+        }
+
+        if ($marketingId) {
+            if ($marketingId === 'WA') {
+                $query->whereNull('marketing_id');
+            } else {
+                $query->where('marketing_id', $marketingId);
+            }
+        }
+
+        if ($teamId) {
+            if ($teamId === 'WA') {
+                $query->whereNull('team_id');
+            } else {
+                $query->where('team_id', $teamId);
             }
         }
 

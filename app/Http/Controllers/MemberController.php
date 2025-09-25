@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MemberController extends Controller
 {
@@ -413,6 +414,17 @@ class MemberController extends Controller
         }
     }
 
+    /**
+    * Export to Excel or CSV.
+    */
+    public function export(Request $request, $type)
+    {
+        ActivityLogger::log("Exported Members data file.");
+        return Excel::download(
+            new \App\Exports\MembersExport($request->all()),
+            'members-' . now()->format('YmdHis') . '.xlsx'
+        );
+    }
 
 
 }
