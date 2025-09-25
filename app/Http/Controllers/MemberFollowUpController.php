@@ -56,19 +56,14 @@ class MemberFollowUpController extends Controller
 
             $created = 0;
             foreach ($member->transactions as $transaction) {
-                $alreadyFollowed = $member->followups()
-                    ->where('transaction_id', $transaction->id)
-                    ->exists();
-
-                if (! $alreadyFollowed) {
-                    $member->followups()->create([
-                        'transaction_id'=> $transaction->id,
-                        'user_id'       => $currentUser->id,
-                        'followed_up_at'=> now(),
-                        'notes'         => 'Follow up by ' . $currentUser->name,
-                    ]);
-                    $created++;
-                }
+                $member->followups()->create([
+                    'member_id'     => $member->id,
+                    'transaction_id'=> $transaction->id,
+                    'user_id'       => $currentUser->id,
+                    'followed_up_at'=> now(),
+                    'notes'         => 'Follow up by ' . $currentUser->name,
+                ]);
+                $created++;
             }
 
             if ($member->transactions->isEmpty()) {

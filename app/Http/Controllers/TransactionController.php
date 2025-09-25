@@ -494,6 +494,7 @@ class TransactionController extends Controller
 
             $waLink = "https://wa.me/{$phone}";
             $transaction->followups()->create([
+                'member_id'      => $transaction->member->id,
                 'user_id'        => auth()->id(),
                 'note'           => "Followed up via Link WA : {$waLink}!",
                 'followed_up_at' => now(),

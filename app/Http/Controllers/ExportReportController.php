@@ -63,7 +63,7 @@ class ExportReportController extends Controller
                                 ELSE marketing_name
                             END AS marketing,
                             team_name,
-                            MIN(start_kerja) AS start_kerja,
+                            MAX(start_kerja) AS start_kerja,
 
                             -- jumlah member yang daftar pada periode
                             COALESCE(SUM(member_in_period),0) AS member_daftar,
@@ -81,7 +81,7 @@ class ExportReportController extends Controller
                                 u.name AS marketing_name,
                                 t_team.name AS team_name,
                                 u.created_at AS start_kerja,
-                                CASE WHEN m.created_at BETWEEN '$startDate 00:00:00' AND '$endDate 23:59:59' THEN 1 ELSE 0 END AS member_in_period,
+                                CASE WHEN m.created_at BETWEEN '$startDate' AND '$endDate' THEN 1 ELSE 0 END AS member_in_period,
                                 0 AS deposit_amount,
                                 0 AS deposit_count
                             FROM members m
