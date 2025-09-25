@@ -145,7 +145,8 @@ $(document).ready(function () {
                 );
                 $('#kt_modal_import_members').modal('hide');
                 $('#kt_modal_import_members_form')[0].reset();
-                window.LaravelDataTables['members-table'].ajax.reload();
+                // window.LaravelDataTables['members-table'].ajax.reload();
+                dt.ajax.reload();
             },
             error: function (xhr) {
                 hideLoadPage();

@@ -14,7 +14,7 @@
 
     @can('user-management.update')
         <!--begin::Menu item-->
-        <div class="menu-item px-3">
+        <div class="menu-item px-3 {{ $user->id == 1 && !auth()->user()->hasRole('administrator') ? 'd-none' : '' }}">
             <a href="#" class="menu-link px-3" data-kt-user-id="{{ $user->id }}" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user" data-kt-action="update_row">
                 Edit
             </a>

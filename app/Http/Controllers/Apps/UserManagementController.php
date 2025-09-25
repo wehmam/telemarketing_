@@ -46,7 +46,7 @@ class UserManagementController extends Controller
         $membersTable      = $membersDataTable->setUserContext($user->id, $user->name, $teamName);
         // $transactionsTable = $memberTransactions->setMemberContext($member->id, $
         $logTable          = $logDataTable->setUserContext($user->id);
-
+        
         ActivityLogger::log("View User {$user->name} Detail", 200);
         return view('pages.apps.user-management.users.show', [
             'user'         => $user,
@@ -98,7 +98,7 @@ class UserManagementController extends Controller
             return response()->json(responseCustom(false, 'User not found.'), 404);
         }
 
-        
+
         if (!$user->deleted_at) {
             return response()->json(responseCustom(false, 'User is not deleted.'));
         }

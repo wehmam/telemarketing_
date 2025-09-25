@@ -125,7 +125,7 @@
                                     <!--begin::Switch-->
                                     <label class="form-check form-switch form-check-custom form-check-solid">
                                         <input class="form-check-input" type="checkbox" wire:model.defer="is_active" name="is_active" value="1" checked="checked">
-                                        <span class="form-check-label fw-semibold text-muted">Allowed</span>
+                                        <span class="form-check-label fw-semibold text-muted">Active</span>
                                     </label>
                                     <!--end::Switch-->
                                 </div>
@@ -145,7 +145,7 @@
                             @error('role')
                             <span class="text-danger">{{ $message }}</span> @enderror
                             <!--begin::Roles-->
-                            @foreach($roles as $role)
+                            {{-- @foreach($roles as $role)
                                 <!--begin::Input row-->
                                 <div class="d-flex fv-row">
                                     <!--begin::Radio-->
@@ -170,7 +170,78 @@
                                 @if(!$loop->last)
                                     <div class='separator separator-dashed my-5'></div>
                                 @endif
+                            @endforeach --}}
+                            {{-- @foreach($roles as $role)
+                                <div class="d-flex fv-row">
+                                    <div class="form-check form-check-custom form-check-solid">
+                                        <input
+                                            class="form-check-input me-3"
+                                            id="kt_modal_update_role_option_{{ $role->id }}"
+                                            wire:model.defer="role"
+                                            name="role"
+                                            type="radio"
+                                            value="{{ $role->name }}"
+                                            checked="{{ $role->name === $role ? 'checked' : '' }}"
+                                            @if(
+                                                // disable if editing self AND current user is admin
+                                                $edit_mode && $user_id === auth()->id() && auth()->user()->hasRole('administrator')
+                                            )
+                                                disabled
+                                            @endif
+                                        />
+                                        <label class="form-check-label" for="kt_modal_update_role_option_{{ $role->id }}">
+                                            <div class="fw-bold text-gray-800">{{ ucwords($role->name) }}</div>
+                                            <div class="text-gray-600">{{ $role->description }}</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                @if(!$loop->last)
+                                    <div class='separator separator-dashed my-5'></div>
+                                @endif
+                            @endforeach --}}
+
+
+
+                            @foreach($roles as $role)
+                                @if($role->name === 'administrator' && !auth()->user()->hasRole('administrator'))
+                                    @continue
+                                @endif
+                                <div class="d-flex fv-row">
+                                    <div class="form-check form-check-custom form-check-solid">
+                                        <input
+                                            class="form-check-input me-3"
+                                            id="kt_modal_update_role_option_{{ $role->id }}"
+                                            wire:model.defer="role"
+                                            name="role"
+                                            type="radio"
+                                            value="{{ $role->name }}"
+                                            checked="{{ $role->name === $role ? 'checked' : '' }}"
+                                            @if($edit_mode && $user_id === auth()->id() && auth()->user()->hasRole('administrator'))
+                                                disabled
+                                            @elseif ($edit_mode && $user_id === auth()->id() && auth()->user()->hasRole('leader'))
+                                                disabled
+                                            @endif
+
+                                            @if ($role->name === 'administrator')
+                                                disabled
+                                            @endif
+
+                                            @if ($role->name === 'leader' && auth()->user()->hasRole('leader'))
+                                                disabled
+                                            @endif
+                                        />
+                                        <label class="form-check-label" for="kt_modal_update_role_option_{{ $role->id }}">
+                                            <div class="fw-bold text-gray-800">{{ ucwords($role->name) }}</div>
+                                            <div class="text-gray-600">{{ $role->description }}</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                @if(!$loop->last)
+                                    <div class='separator separator-dashed my-5'></div>
+                                @endif
                             @endforeach
+
+
                             <!--end::Roles-->
                         </div>
                         <!--end::Input group-->

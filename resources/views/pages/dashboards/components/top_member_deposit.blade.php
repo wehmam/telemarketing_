@@ -35,7 +35,7 @@
                     <div class="bullet w-8px h-3px rounded-2 bg-success me-3"></div>
                     <!--end::Bullet-->
                     <!--begin::Label-->
-                    <div class="text-gray-500 flex-grow-1 me-4 fs-5">{{ !empty($member->name) ? $member->name : $member->username }}</div>
+                    <div class="text-gray-500 flex-grow-1 me-4 fs-5">{{ $member->username }}</div>
                     <!--end::Label-->
                     <!--begin::Stats-->
                     <div class="fw-bolder text-gray-700 text-xxl-end">Rp. {{ number_format($member->transactions_sum_amount, 2) }}</div>

@@ -23,8 +23,13 @@ class MemberController extends Controller
      */
     public function index(MembersDataTable $dataTable)
     {
+        $teams = \App\Models\Team::orderBy('id', 'asc')->get();
+        $marketings = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'marketing');
+        })->orderBy('id', 'asc')->get();
+
         ActivityLogger::log("View List Members", 200);
-        return $dataTable->render('pages.apps.members.index');
+        return $dataTable->render('pages.apps.members.index', compact('teams', 'marketings'));
     }
 
     /**

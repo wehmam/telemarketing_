@@ -68,10 +68,10 @@ class PermissionsDataTable extends DataTable
             Column::make('name'),
             Column::make('assigned_to'),
             Column::make('created_at')->addClass('text-nowrap'),
-            Column::computed('actions')
-                ->addClass('text-end text-nowrap')
-                ->exportable(false)
-                ->printable(false),
+            // Column::computed('actions')
+            //     ->addClass('text-end text-nowrap')
+            //     ->exportable(false)
+            //     ->printable(false),
         ];
     }
 

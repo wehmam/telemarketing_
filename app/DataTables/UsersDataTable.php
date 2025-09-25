@@ -27,7 +27,7 @@ class UsersDataTable extends DataTable
                 return ucwords($user->roles->first()?->name);
             })
             ->editColumn('last_login_at', function (User $user) {
-                return sprintf('<div class="badge badge-info fw-bold">%s</div>', $user->last_login_at ? $user->last_login_at->diffForHumans() : $user->updated_at->diffForHumans());
+                return sprintf('<div class="badge badge-info fw-bold">%s</div>', $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never Logged In');
             })
             ->editColumn('is_active', function (User $user) {
                 $class = $user->is_active && is_null($user->deleted_at) ? 'success' : 'danger';

@@ -24,7 +24,7 @@
         <!--end::Col-->
 
         <!--begin::Col-->
-        <div class="col-xxl-4">
+        <div class="col-xxl-4 d-none">
             <label class="fs-6 form-label fw-bold text-dark">Status Member</label>
             <!--begin::Radio group-->
             <div class="nav-group nav-group-fluid">
@@ -54,7 +54,31 @@
          <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
-            <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" value="{{ date("d-m-Y") }}" tabindex="-1">
+            <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" placeholder="Periode Last Deposit" tabindex="-1">
+        </div>
+        <!--end::Col-->
+
+        <!--begin::Col-->
+        <div class="col-xxl-4">
+            <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
+            <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Marketing">
+                <option></option>
+                @foreach ($marketings as $marketing)
+                    <option value="{{ $marketing->id }}">{{ $marketing->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <!--end::Col-->
+
+        <!--begin::Col-->
+        <div class="col-xxl-4">
+            <label class="fs-6 form-label fw-bold text-dark">Team</label>
+            <select name="search_team" id="sTeam" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Team">
+                <option></option>
+                @foreach ($teams as $team)
+                    <option value="{{ $team->id }}">{{ $team->name }}</option>
+                @endforeach
+            </select>
         </div>
         <!--end::Col-->
     </div>

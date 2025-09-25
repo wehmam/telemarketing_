@@ -72,7 +72,7 @@
             flatpickr("#periodeLastDeposit", {
                 mode: "range",            // memungkinkan pilih dua tanggal (start & end)
                 dateFormat: "d-m-Y",      // format sesuai Laravel
-                defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
+                // defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
 

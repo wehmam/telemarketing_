@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Members;
+use App\Models\Transaction;
 use App\Models\TransactionFollowup;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\EloquentDataTable;
@@ -82,12 +83,19 @@ class MembersFollowUpDataTable extends DataTable
             $query->where('marketing_id', $marketingId);
         }
 
-        if ($nominalDeposit = request('s_total_deposit')) {
-            $query->whereHas('transactions', function ($q) use ($nominalDeposit) {
-                $q->selectRaw('SUM(amount) as total_amount')
-                  ->groupBy('member_id')
-                  ->havingRaw('total_amount = ?', [$nominalDeposit]);
-            });
+        $nominalDeposit = request('s_total_deposit');
+        if ($nominalDeposit !== null && $nominalDeposit !== '') {
+            $nominalDeposit = (int) $nominalDeposit;
+
+            if ($nominalDeposit === 0) {
+                $query->whereDoesntHave('transactions');
+            } else {
+                $query->whereHas('transactions', function ($q) use ($nominalDeposit) {
+                    $q->selectRaw('member_id, SUM(amount) as total_amount')
+                    ->groupBy('member_id')
+                    ->havingRaw('SUM(amount) = ?', [$nominalDeposit]);
+                });
+            }
         }
 
         if ($lastDepositRange = request('s_last_deposit')) {
@@ -106,6 +114,15 @@ class MembersFollowUpDataTable extends DataTable
                 $query->whereHas('transactions', function ($q) use ($date) {
                     $q->whereDate('transaction_date', $date);
                 });
+            }
+        }
+
+        if ($status = request('s_status')) {
+            if ($status === 'wa') {
+                $query->whereNull('team_id')
+                    ->whereNull('marketing_id');
+            } elseif ($status === 'has_team') {
+                $query->whereNotNull('team_id');
             }
         }
 

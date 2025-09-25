@@ -50,6 +50,10 @@ $('#periodeLastDeposit').on('change', debounce(function() {
     dt.ajax.reload();
 }, 500));
 
+$('.sStatus').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 500));
+
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
     data.s_nama_rekening = $('#sNamaRekening').val();
@@ -59,6 +63,7 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_team = $('#sTeam').val();
     data.s_total_deposit = $('#totalDeposit').val().replace(/\./g, '');
     data.s_last_deposit = $('#periodeLastDeposit').val();
+    data.s_status = $('.sStatus:checked').val();
 });
 
 $('#statusFilter').on('change', function() {
@@ -102,7 +107,7 @@ document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (
             if(data.status) {
                 if (data.data.redirectUrl) {
                     window.open(data.data.redirectUrl, '_blank');
-                    window.LaravelDataTables['members-followup-table'].ajax.reload();
+                    window.LaravelDataTables['members-followup-table'].ajax.reload(null, false);
                     return
                 } else {
                     Swal.fire({

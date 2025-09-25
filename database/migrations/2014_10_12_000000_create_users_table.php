@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('session_id')->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('avatar')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable(); 
             $table->rememberToken();
             $table->timestamps();
 
