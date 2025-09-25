@@ -105,3 +105,9 @@ Breadcrumbs::for('followup.index', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard'); // or 'home' depending on your setup
     $trail->push('Follow Ups', route('followup.index'));
 });
+
+// Home > Dashboard > Activity Logs
+Breadcrumbs::for('logs.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Activity Logs', route('logs.index'));
+});

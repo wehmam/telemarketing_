@@ -187,6 +187,36 @@
                 <!--end:Menu item-->
             @endcan
 
+            {{-- @can('configuration-management.read') --}}
+                 <!--begin:Menu item-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('logs.*') ? 'here show' : '' }}">
+                    <!--begin:Menu link-->
+                    <span class="menu-link">
+                        <span class="menu-icon">{!! getIcon('artificial-intelligence', 'fs-2', 'technologies') !!}</span>
+                        <span class="menu-title">Activity Log</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                         <!--begin:Menu item-->
+                        <div class="menu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('logs.index') ? 'active' : '' }}" href="{{ route('logs.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Log Activity</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
+                </div>
+                <!--end:Menu item-->
+            {{-- @endcan --}}
+
             @can('configuration-management.read')
                  <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('settings.*') ? 'here show' : '' }}">

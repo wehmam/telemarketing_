@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Apps\PermissionManagementController;
 use App\Http\Controllers\Apps\RoleManagementController;
 use App\Http\Controllers\Apps\UserManagementController;
@@ -78,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('export/delete-transactions', [ExportReportController::class, 'deleteOldTransactions'])->name('export.delete-transactions');
     // Route::resource('export', ExportReportController::class);
 
+    Route::get("/logs", [ActivityLogController::class, 'index'])->name('logs.index');
 });
 
 Route::get('/error', function () {
