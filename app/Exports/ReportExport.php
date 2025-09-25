@@ -91,13 +91,13 @@ class ReportExport implements FromView, WithStyles, WithEvents, WithColumnWidths
                 $sheet->getColumnDimension('J')->setWidth(20);
                 $lastRow = $sheet->getHighestRow() + 1;
 
-                $sheet->setCellValue('I3', 'Start Date');
-                $sheet->setCellValue('I4', $this->startDate);
-                $sheet->setCellValue('J3', 'End Date');
-                $sheet->setCellValue('J4', $this->endDate);
+                $sheet->setCellValue('I1', 'Start Date');
+                $sheet->setCellValue('I2', $this->startDate);
+                $sheet->setCellValue('J1', 'End Date');
+                $sheet->setCellValue('J2', $this->endDate);
 
                 // Style Start/End date cells
-                $sheet->getStyle('I3:J3')->applyFromArray([
+                $sheet->getStyle('I1:J1')->applyFromArray([
                     'font' => [
                         'name' => 'Calibri',
                         'bold' => true,

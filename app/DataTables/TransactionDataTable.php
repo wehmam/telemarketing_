@@ -65,7 +65,9 @@ class TransactionDataTable extends DataTable
                 'totalAmount' => (clone $query)->sum('amount'),
                 'totalMember' => (clone $query)->distinct('member_id')->count('member_id'),
                 'totalMemberDeposit' => (clone $query)->where('type', 'DEPOSIT')->sum("amount"),
-                'totalMemberRedeposit' => (clone $query)->where('type', 'REDEPOSIT')->sum("amount")
+                'totalMemberRedeposit' => (clone $query)->where('type', 'REDEPOSIT')->sum("amount"),
+                'totalDeposit' => (clone $query)->where('type', 'DEPOSIT')->count(),
+                'totalRedeposit' => (clone $query)->where('type', 'REDEPOSIT')->count(),
             ]);
     }
 
@@ -85,7 +87,7 @@ class TransactionDataTable extends DataTable
         $teamId = request('s_team');
 
         // Filter by amount deposit
-         if ($amountDeposit && is_numeric($amountDeposit)) {
+        if ($amountDeposit && is_numeric($amountDeposit)) {
             $query->where('amount', '=', (float)$amountDeposit);
         }
 

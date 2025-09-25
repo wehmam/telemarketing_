@@ -99,6 +99,14 @@ function updateHeaderTransaction(json) {
     if (json && json.totalMemberRedeposit !== undefined) {
         $('#totalMemberRedeposit').text(formatRupiah(json.totalMemberRedeposit));
     }
+
+    if (json && json.totalDeposit !== undefined) {
+        $('#totalDeposit').text(json.totalDeposit);
+    }
+
+    if (json && json.totalRedeposit !== undefined) {
+        $('#totalRedeposit').text(json.totalRedeposit);
+    }
 }
 
 // First load
@@ -111,30 +119,89 @@ dt.on('xhr.dt', function (e, settings, json, xhr) {
     updateHeaderTransaction(json);
 });
 
-const btnExportExcel = document.getElementById('btnExportExcel');
-if (btnExportExcel) {
-    document.getElementById('btnExportExcel').addEventListener('click', function (e) {
-        e.preventDefault();
-        showLoadPage();
+// const btnExportExcel = document.getElementById('btnExportExcel');
+// if (btnExportExcel) {
+//     document.getElementById('btnExportExcel').addEventListener('click', function (e) {
+//         e.preventDefault();
+//         showLoadPage();
 
-        let params = {
-            s_nama_rekening: $('#sNamaRekening').val(),
-            s_username: $('#sUsername').val(),
-            s_phone: $('#sPhone').val(),
-            s_status: $('.sStatus:checked').val(),
-            s_last_deposit: $('.sLastDeposit').val(),
-        };
-        let query = $.param(params);
-        let url = '/transactions/export/excel?' + query;
+//         let params = {
+//             // data.s_nama_rekening = $('#sNamaRekening').val();
+//             // data.s_username = $('#sUsername').val();
+//             // data.s_phone = $('#sPhone').val();
+//             // data.s_status = $('.sStatus:checked').val();
+//             // data.s_last_deposit = $('.sLastDeposit').val();
+//             // data.s_amount_deposit = $('#amountDeposit').val().replace(/\./g, '');
+//             // data.s_marketing = $('#sMarketing').val();
+//             // data.s_team = $('#sTeam').val();
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
+
+//             s_nama_rekening: $('#sNamaRekening').val(),
+//             s_username: $('#sUsername').val(),
+//             s_phone: $('#sPhone').val(),
+//             s_status: $('.sStatus:checked').val(),
+//             s_last_deposit: $('.sLastDeposit').val(),
+//             s_amount_deposit: $('#amountDeposit').val().replace(/\./g, ''),
+//             s_marketing: $('#sMarketing').val(),
+//             s_team: $('#sTeam').val()
+//         };
+//         let query = $.param(params);
+//         let url = '/transactions/export/excel?' + query;
+
+//         fetch(url, {
+//             method: 'GET',
+//             headers: {
+//                 'X-Requested-With': 'XMLHttpRequest',
+//             }
+//         })
+//         .then(response => {
+//             // Try to read filename from Content-Disposition header
+//             const disposition = response.headers.get('Content-Disposition');
+//             let filename = "transactions.xlsx";
+//             if (disposition && disposition.indexOf('filename=') !== -1) {
+//                 filename = disposition.split('filename=')[1].replace(/"/g, '');
+//             }
+//             return response.blob().then(blob => ({ blob, filename }));
+//         })
+//         .then(({ blob, filename }) => {
+//             hideLoadPage();
+
+//             const url = window.URL.createObjectURL(blob);
+//             const a = document.createElement('a');
+//             a.href = url;
+//             a.download = filename;
+//             document.body.appendChild(a);
+//             a.click();
+//             a.remove();
+//             window.URL.revokeObjectURL(url);
+//         })
+//         .catch(() => {
+//             hideLoadPage();
+//             Swal.fire("Error", "Failed to export file.", "error");
+//         });
+//     });
+// }
+
+$('#btnExportExcel').off('click').on('click', function(e) {
+    e.preventDefault();
+    showLoadPage();
+
+    let params = {
+        s_nama_rekening: $('#sNamaRekening').val(),
+        s_username: $('#sUsername').val(),
+        s_phone: $('#sPhone').val(),
+        s_status: $('.sStatus:checked').val(),
+        s_last_deposit: $('.sLastDeposit').val(),
+        s_amount_deposit: $('#amountDeposit').val().replace(/\./g, ''),
+        s_marketing: $('#sMarketing').val(),
+        s_team: $('#sTeam').val()
+    };
+
+    let query = $.param(params);
+    let url = '/transactions/export/excel?' + query;
+
+    fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => {
-            // Try to read filename from Content-Disposition header
             const disposition = response.headers.get('Content-Disposition');
             let filename = "transactions.xlsx";
             if (disposition && disposition.indexOf('filename=') !== -1) {
@@ -144,7 +211,6 @@ if (btnExportExcel) {
         })
         .then(({ blob, filename }) => {
             hideLoadPage();
-
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -158,8 +224,8 @@ if (btnExportExcel) {
             hideLoadPage();
             Swal.fire("Error", "Failed to export file.", "error");
         });
-    });
-}
+});
+
 
 // ===== Modal Show Event =====
 const modal = document.querySelector('#kt_modal_add_transactions');

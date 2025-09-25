@@ -42,11 +42,35 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
         }
 
         if (!empty($this->filters['s_last_deposit'])) {
-            $dates = explode(' - ', $this->filters['s_last_deposit']);
+            $dates = explode(' to ', $this->filters['s_last_deposit']);
+
             if (count($dates) === 2) {
-                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->startOfDay();
-                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->endOfDay();
-                $query->whereBetween('transaction_date', [$startDate, $endDate]);
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->format('Y-m-d');
+                $query->whereBetween(\DB::raw('CAST(transaction_date AS DATE)'), [$startDate, $endDate]);
+            } elseif (count($dates) === 1) {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereDate('transaction_date', $date);
+            }
+        }
+
+        if (!empty($this->filters['s_amount_deposit']) && is_numeric($this->filters['s_amount_deposit'])) {
+            $query->where('amount', '=', (float) $this->filters['s_amount_deposit']);
+        }
+
+        if (!empty($this->filters['s_marketing'])) {
+            if ($this->filters['s_marketing'] === 'WA') {
+                $query->whereHas('member', fn($q) => $q->whereNull('marketing_id'));
+            } else {
+                $query->whereHas('member', fn($q) => $q->where('marketing_id', $this->filters['s_marketing']));
+            }
+        }
+
+        if (!empty($this->filters['s_team'])) {
+            if ($this->filters['s_team'] === 'WA') {
+                $query->whereHas('member', fn($q) => $q->whereNull('team_id'));
+            } else {
+                $query->whereHas('member', fn($q) => $q->where('team_id', $this->filters['s_team']));
             }
         }
 

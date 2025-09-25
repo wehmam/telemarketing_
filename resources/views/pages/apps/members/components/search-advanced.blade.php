@@ -75,6 +75,7 @@
             <label class="fs-6 form-label fw-bold text-dark">Team</label>
             <select name="search_team" id="sTeam" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Team">
                 <option></option>
+                <option value="WA">WA</option>
                 @foreach ($teams as $team)
                     <option value="{{ $team->id }}">{{ $team->name }}</option>
                 @endforeach
