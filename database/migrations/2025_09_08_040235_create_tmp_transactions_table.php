@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('tmp_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_rekening')->nullable(); 
+            $table->string('nama_rekening')->nullable();
             $table->string('username')->nullable();
             $table->string('phone', 20)->nullable();
             $table->decimal('amount', 15, 2)->nullable();
             $table->dateTime('transaction_date')->nullable();
 
             $table->unsignedBigInteger('entry_by')->nullable(); // who imported
+            $table->string('batch_code');  // batch identifier
+
+            $table->index('batch_code');
+
             $table->timestamps();
         });
     }

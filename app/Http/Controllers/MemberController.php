@@ -322,6 +322,16 @@ class MemberController extends Controller
             $existingUsernames = array_flip($existingUsernames);
 
             DB::beginTransaction();
+
+            // === Generate batch code for members ===
+            $today = now()->format('Y-m-d');
+            $countToday = DB::table('transactions')
+                ->whereDate('created_at', $today)
+                ->distinct('batch_code')
+                ->count('batch_code');
+            $nextNumber = $countToday + 1;
+            $batchCode = "BATCH_MEMBERS_{$today}_{$nextNumber}";
+
             $countImport = 0;
             $countNewMembers = 0;
             $newMembers = [];
@@ -378,6 +388,7 @@ class MemberController extends Controller
                         'username'         => strtolower($username),
                         'phone'            => $phone,
                         'nama_rekening'    => null,
+                        'batch_code'       => $batchCode,
                         'created_at'       => now(),
                         'updated_at'       => now(),
                     ];

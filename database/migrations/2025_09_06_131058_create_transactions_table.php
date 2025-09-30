@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string("username")->nullable();
             $table->string('phone')->nullable();
             $table->string('nama_rekening')->nullable();
+            $table->string('batch_code');  
 
             $table->timestamps();
             $table->softDeletes();

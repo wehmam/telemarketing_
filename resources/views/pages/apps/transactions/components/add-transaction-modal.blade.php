@@ -30,6 +30,7 @@
                                 name="transaction_date"
                                 class="form-control form-control-solid"
                                 placeholder="Select date"
+                                autocomplete="off"
                                 required>
                             @error('transaction_date')
                                 <span class="text-danger">{{ $message }}</span>

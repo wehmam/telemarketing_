@@ -237,42 +237,91 @@ if (modal) {
 
 $(document).ready(function() {
     // $('#kt_modal_import_transaction_form').on('submit', function (e) {
+    // $('#kt_modal_import_transaction_form').off('submit').on('submit', function (e) {
+    //     e.preventDefault();
+
+    //     let formData = new FormData(this);
+    //     let url = '/transactions/import';
+
+    //     showLoadPage();
+    //     $.ajax({
+    //         type: "POST",
+    //         url: url,
+    //         data: formData,
+    //         processData: false,
+    //         contentType: false,
+    //         success: function (response) {
+    //             hideLoadPage();
+    //             Swal.fire(
+    //                 response.status ? "Success" : "Error",
+    //                 response.message,
+    //                 response.status ? "success" : "error"
+    //             );
+    //             $('#kt_modal_add_transactions').modal('hide');
+    //             $('#kt_modal_import_transaction_form')[0].reset();
+    //             window.LaravelDataTables['transactions-table'].ajax.reload();
+    //         },
+    //         error: function (xhr) {
+    //             hideLoadPage();
+    //             if (xhr.status === 422) {
+    //                 let message = xhr.responseJSON.message;
+    //                 Swal.fire("Validation Error", message, "error");
+    //             } else {
+    //                 Swal.fire("Error", message ?? "Something went wrong", "error");
+    //             }
+    //         }
+    //     })
+
+    // });
+
     $('#kt_modal_import_transaction_form').off('submit').on('submit', function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);
         let url = '/transactions/import';
 
-        showLoadPage();
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                hideLoadPage();
-                Swal.fire(
-                    response.status ? "Success" : "Error",
-                    response.message,
-                    response.status ? "success" : "error"
-                );
-                $('#kt_modal_add_transactions').modal('hide');
-                $('#kt_modal_import_transaction_form')[0].reset();
-                window.LaravelDataTables['transactions-table'].ajax.reload();
-            },
-            error: function (xhr) {
-                hideLoadPage();
-                if (xhr.status === 422) {
-                    let message = xhr.responseJSON.message;
-                    Swal.fire("Validation Error", message, "error");
-                } else {
-                    Swal.fire("Error", message ?? "Something went wrong", "error");
-                }
-            }
-        })
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to import these transactions?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Import",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoadPage();
 
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        hideLoadPage();
+                        Swal.fire(
+                            response.status ? "Success" : "Error",
+                            response.message,
+                            response.status ? "success" : "error"
+                        );
+                        $('#kt_modal_add_transactions').modal('hide');
+                        $('#kt_modal_import_transaction_form')[0].reset();
+                        window.LaravelDataTables['transactions-table'].ajax.reload();
+                    },
+                    error: function (xhr) {
+                        hideLoadPage();
+                        if (xhr.status === 422) {
+                            let message = xhr.responseJSON.message;
+                            Swal.fire("Validation Error", message, "error");
+                        } else {
+                            Swal.fire("Error", xhr.responseJSON?.message ?? "Something went wrong", "error");
+                        }
+                    }
+                });
+            }
+        });
     });
+
 })
 
 const inputAmountDeposit = document.getElementById('amountDeposit');
