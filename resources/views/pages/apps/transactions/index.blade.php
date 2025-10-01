@@ -130,6 +130,7 @@
 
     <!--begin::Modal-->
         @include("pages.apps.transactions.components.add-transaction-modal")
+        @include("pages.apps.transactions.components.update-transaction-modal")
     <!--end::Modal-->
 
     @push('scripts')

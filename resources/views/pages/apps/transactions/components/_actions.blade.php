@@ -12,6 +12,16 @@
     </div>
     <!--end::Menu item-->
 
+    @can('transaction-management.update')
+        <!--begin::Menu item-->
+        <div class="menu-item px-3 {{  $transaction->deleted_at ? 'd-none' : '' }}">
+            <a href="#" class="menu-link px-3 kt_modal_update_transaction" data-transaction="{{  $transaction }}" data-kt-action="edit_row">
+                Edit
+            </a>
+        </div>
+        <!--end::Menu item-->
+    @endcan
+
     @can('transaction-management.delete')
         <!--begin::Menu item-->
         <div class="menu-item px-3 {{  $transaction->deleted_at ? 'd-none' : '' }}">

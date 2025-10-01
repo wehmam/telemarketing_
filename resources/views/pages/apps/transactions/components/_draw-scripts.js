@@ -322,6 +322,93 @@ $(document).ready(function() {
         });
     });
 
+    $('#kt_modal_update_transaction_form').off('submit').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        let transactionId = $('#iTransactionId').val();
+        let amount = formData.get('amount') || '';
+        amount = amount
+            .replace(/^Rp\s*/, '')
+            .replace(/\./g, '')
+            .replace(/,/g, '.')
+
+
+        formData.set('amount', amount);
+        formData.append('_method', 'PUT');
+
+
+        let url = '/transactions/' + transactionId;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to update this transaction?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Update",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoadPage();
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        hideLoadPage();
+                        Swal.fire(
+                            response.status ? "Success" : "Error",
+                            response.message,
+                            response.status ? "success" : "error"
+                        );
+                        $('#kt_modal_update_transaction').modal('hide');
+                        $('#kt_modal_update_transaction_form')[0].reset();
+                        window.LaravelDataTables['transactions-table'].ajax.reload();
+                    },
+                    error: function (xhr) {
+                        hideLoadPage();
+                        if (xhr.status === 422) {
+                            let message = xhr.responseJSON.message;
+                            Swal.fire("Validation Error", message, "error");
+                        } else {
+                            Swal.fire("Error", xhr.responseJSON?.message ?? "Something went wrong", "error");
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    $('#iAmount').on('input', function (e) {
+        const $inputField = $(this);
+        let value = $inputField.val().replace(/[^0-9]/g, '');
+        if (value) {
+            $inputField.val(formatRupiah(value))
+        } else {
+            $inputField.val(formatRupiah(0))
+        }
+    });
+
+    $(document).on("click", ".kt_modal_update_transaction", function(e) {
+        e.preventDefault();
+
+        showLoadPage();
+        var transaction = $(this).data("transaction");
+
+        var marketing = transaction.member.marketing ? transaction.member.marketing : 'WA';
+        console.log("marketing", marketing);
+
+        $("#iTransactionId").val(transaction.id);
+        $("#iMember").val(transaction.member.username ?? '');
+        $("#iMarketing").val(marketing);
+        $("#iAmount").val(formatRupiah(transaction.amount));
+        $("#kt_modal_update_transaction").modal("show");
+        hideLoadPage();
+    });
+
 })
 
 const inputAmountDeposit = document.getElementById('amountDeposit');

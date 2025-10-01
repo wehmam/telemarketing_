@@ -44,6 +44,7 @@ class RolesPermissionsSeeder extends Seeder
                 'team-management.delete',
 
                 'transaction-management.read',
+                'transaction-management.update',
                 'transaction-management.delete',
                 'transaction-management.follow-up',
                 'transaction-management.restore',

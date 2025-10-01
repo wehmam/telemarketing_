@@ -65,7 +65,31 @@ class TransactionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), [
+                'transaction_id' => 'required|exists:transactions,id',
+                'amount' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+                return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+            }
+
+            $transaction = \App\Models\Transaction::find($id);
+            if (!$transaction) {
+                return response()->json(responseCustom(false, "Transaction not found."));
+            }
+
+            $oldAmount = $transaction->amount;
+            $transaction->amount = $request->amount;
+            $transaction->save();
+
+            ActivityLogger::log("Updated transaction ID: {$transaction->id}, Member: {$transaction->member?->name}, Amount: from {$oldAmount} to {$transaction->amount}");
+            return response()->json(responseCustom(true, "Transaction updated successfully."));
+        } catch (\Throwable $th) {
+            return response()->json(responseCustom(false, "Failed to update transaction: " . $th->getMessage()));
+        }
     }
 
     /**
