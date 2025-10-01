@@ -1,13 +1,6 @@
 // Initialize KTMenu
 KTMenu.init();
 
-// ===== Search Input =====
-const searchInput = document.getElementById('mySearchInput');
-if (searchInput) {
-    searchInput.addEventListener('keyup', function () {
-        window.LaravelDataTables['members-followup-table'].search(this.value).draw();
-    });
-}
 
 function debounce(func, delay) {
     let timer;
@@ -18,6 +11,13 @@ function debounce(func, delay) {
 }
 
 const dt = window.LaravelDataTables['members-followup-table'];
+
+const searchInput = document.getElementById('mySearchInput');
+if (searchInput) {
+    searchInput.addEventListener('keyup', debounce(function () {
+        dt.search(this.value).draw();
+    }, 1000));
+}
 
 // nama rekening
 $('#sNamaRekening').on('keyup', debounce(function() {

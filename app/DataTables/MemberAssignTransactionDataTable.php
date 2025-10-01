@@ -37,7 +37,7 @@ class MemberAssignTransactionDataTable extends DataTable
     public function query(Members $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->whereHas('transactions') // only members who have transactions
+            // ->whereHas('transactions') // only members who have transactions
             ->with(['transactions', 'marketing', 'team']);
 
         // filters

@@ -27,6 +27,10 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('teams');
 
+            $table->string('batch_code')->nullable();
+            $table->timestamp('import_at')->nullable();
+
+
             $table->timestamps();
             $table->softDeletes();
 

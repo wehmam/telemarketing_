@@ -19,7 +19,7 @@ if (searchInput) {
         clearTimeout(debounceTimer); // cancel previous timer
         debounceTimer = setTimeout(() => {
             window.LaravelDataTables['transactions-table'].search(this.value).draw();
-        }, 300); // delay in milliseconds (300ms)
+        }, 1000); // delay in milliseconds (300ms)
     });
 }
 

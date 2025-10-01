@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Facades\Excel;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 class MemberController extends Controller
 {
@@ -60,17 +61,17 @@ class MemberController extends Controller
 
         $user = Auth::user();
         $teamId = $user->team_id;
-        if (!$teamId) {
-            return response()->json(responseCustom(false, "You must be part of a team to add members., please contact your team leader!"), 422);
-        }
+        // if (!$teamId) {
+        //     return response()->json(responseCustom(false, "You must be part of a team to add members., please contact your team leader!"), 422);
+        // }
 
         $member = Members::create([
             'name'              => ucwords($request->name),
             'username'          => strtolower($request->username),
             'phone'             => $request->phone,
             'nama_rekening'     => strtoupper($request->nama_rekening),
-            'marketing_id'      => $user->id,
-            'team_id'           => $teamId
+            'marketing_id'      => $teamId ? $user->id : null,
+            'team_id'           => $teamId ?? null
         ]);
         ActivityLogger::log("Add Member {$member->name}", 201);
 
@@ -300,7 +301,7 @@ class MemberController extends Controller
     //     }
     // }
 
-    public function import(Request $request)
+    public function importOld(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -435,6 +436,162 @@ class MemberController extends Controller
             new \App\Exports\MembersExport($request->all()),
             'members-' . now()->format('YmdHis') . '.xlsx'
         );
+    }
+
+    public function import(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|mimes:xlsx,csv',
+            ]);
+
+            if ($validator->fails()) {
+                $errorMsg = collect($validator->errors())->flatten()->implode(' ');
+                return response()->json(responseCustom(false, "Validation Failed : " . $errorMsg, errors: $validator->errors()), 422);
+            }
+
+            $file = $request->file('file');
+
+            // ✅ store file with original extension
+            $path = $file->storeAs(
+                'imports',
+                'members_' . time() . '.' . $file->getClientOriginalExtension()
+            );
+            $filePath = storage_path('app/' . $path);
+
+            // load existing usernames
+            $existingUsernames = Members::pluck('username')->map(fn($u) => strtolower($u))->toArray();
+            $existingUsernames = array_flip($existingUsernames);
+
+            DB::beginTransaction();
+
+            // === Generate batch code for members ===
+            $today = now()->format('Y-m-d');
+            $countToday = DB::table('members')
+                ->whereDate('import_at', $today)
+                ->distinct('batch_code')
+                ->count('batch_code');
+            $nextNumber = $countToday + 1;
+            $batchCode = "BATCH_MEMBERS_{$today}_{$nextNumber}";
+
+            $countImport = 0;
+            $countNewMembers = 0;
+            $newMembers = [];
+            $newTransactions = [];
+
+            // === Detect extension and open with Spout ===
+            $extension = strtolower($file->getClientOriginalExtension());
+            switch ($extension) {
+                case 'xlsx':
+                    $reader = \Box\Spout\Reader\Common\Creator\ReaderEntityFactory::createXLSXReader();
+                    break;
+                case 'csv':
+                    $reader = \Box\Spout\Reader\Common\Creator\ReaderEntityFactory::createCSVReader();
+                    break;
+                default:
+                    throw new \Exception("Unsupported file type: {$extension}");
+            }
+
+            $reader->open($filePath);
+
+            foreach ($reader->getSheetIterator() as $sheetIndex => $sheet) {
+                foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+                    $cells = $row->toArray();
+
+                    if ($rowIndex === 1) {
+                        continue; // ✅ skip header row
+                    }
+
+                    $countImport++;
+                    if ($countImport > 5000) break 2;
+
+                    $tgl        = $cells[1] ?? null;
+                    $marketing  = $cells[2] ?? null;
+                    $namaPlayer = $cells[3] ?? null;
+                    $username   = strtolower(preg_replace('/\s+/', '', trim($cells[4] ?? '')));
+                    $nominal    = isset($cells[6]) ? formatRupiah($cells[6]) : 0;
+                    $phone      = !empty($cells[5]) ? ltrim($cells[5], '+') : null;
+
+                    if (isset($existingUsernames[$username])) {
+                        continue; // skip existing
+                    }
+
+                    $marketingUser = $marketing ? User::where('name', $marketing)->first() : null;
+                    $marketingId   = $marketingUser?->id;
+                    $teamId        = $marketingUser?->team_id;
+
+                    $newMembers[] = [
+                        'name'          => ucwords(strtolower($namaPlayer)),
+                        'username'      => $username,
+                        'phone'         => $phone,
+                        'nama_rekening' => null,
+                        'marketing_id'  => $teamId && $marketingId ? $marketingId : null,
+                        'team_id'       => $teamId && $marketingId ? $teamId : null,
+                        'created_at'    => \Carbon\Carbon::parse($tgl)->format('Y-m-d H:i:s'),
+                        'updated_at'    => now(),
+                        'batch_code'    => $batchCode,
+                        'import_at'     => now(),
+                    ];
+
+                    $existingUsernames[$username] = true;
+                    $countNewMembers++;
+
+                    if ($nominal > 0) {
+                        $newTransactions[] = [
+                            'id'               => (string) \Illuminate\Support\Str::uuid(),
+                            'member_id'        => null,
+                            'user_id'          => $teamId && $marketingId ? $marketingId : auth()->id(),
+                            'amount'           => $nominal,
+                            'transaction_date' => \Carbon\Carbon::parse($tgl)->format('Y-m-d'),
+                            'type'             => 'DEPOSIT',
+                            'username'         => $username,
+                            'phone'            => $phone,
+                            'nama_rekening'    => null,
+                            'batch_code'       => $batchCode,
+                            'created_at'       => now(),
+                            'updated_at'       => now(),
+                        ];
+                    }
+                }
+            }
+
+            $reader->close();
+
+            // ✅ Bulk insert
+            if (!empty($newMembers)) {
+                Members::insert($newMembers);
+
+                // mapping username → id
+                $inserted = Members::whereIn('username', array_column($newMembers, 'username'))
+                            ->pluck('id', 'username')
+                            ->toArray();
+
+                foreach ($newTransactions as &$trx) {
+                    $trx['member_id'] = $inserted[$trx['username']] ?? null;
+                }
+
+                if (!empty($newTransactions)) {
+                    Transaction::insert($newTransactions);
+                }
+            }
+
+            DB::commit();
+
+            // ✅ Delete file after import
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+
+            return response()->json(responseCustom(true, "✅ Import success, total processed: {$countImport}, new members added: {$countNewMembers}"));
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            // delete file if error
+            if (isset($filePath) && file_exists($filePath)) {
+                @unlink($filePath);
+            }
+            return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
+        }
     }
 
 

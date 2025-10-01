@@ -8,14 +8,6 @@ $.ajaxSetup({
     }
 });
 
-// ===== Search Input =====
-const searchInput = document.getElementById('mySearchInput');
-if (searchInput) {
-    searchInput.addEventListener('keyup', function () {
-        window.LaravelDataTables['members-table'].search(this.value).draw();
-    });
-}
-
 function debounce(func, delay) {
     let timer;
     return function(...args) {
@@ -25,6 +17,15 @@ function debounce(func, delay) {
 }
 
 const dt = window.LaravelDataTables['members-table'];
+
+
+// ===== Search Input =====
+const searchInput = document.getElementById('mySearchInput');
+if (searchInput) {
+    searchInput.addEventListener('keyup', debounce(function () {
+        dt.search(this.value).draw();
+    }, 1000));
+}
 
 // nama rekening
 $('#sNamaRekening').on('keyup', debounce(function() {

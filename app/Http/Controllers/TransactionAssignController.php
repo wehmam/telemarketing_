@@ -18,8 +18,10 @@ class TransactionAssignController extends Controller
      */
     public function index(MemberAssignTransactionDataTable $dataTable)
     {
-        $fromMembers = \App\Models\Members::whereHas('transactions')
-            ->orderBy('name')
+        // $fromMembers = \App\Models\Members::whereHas('transactions')
+        //     ->orderBy('name')
+        //     ->get();
+        $fromMembers = \App\Models\Members::orderBy('name')
             ->get();
 
         $toUsers = \App\Models\User::whereHas('roles')   // hanya user yg punya role
