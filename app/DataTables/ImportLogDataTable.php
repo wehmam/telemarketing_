@@ -37,9 +37,9 @@ class ImportLogDataTable extends DataTable
         return DB::table(DB::raw("(
             SELECT batch_code, MAX(import_at) AS latest_date
             FROM (
-                SELECT batch_code, import_at FROM starterkit.members WHERE import_at IS NOT NULL
+                SELECT batch_code, import_at FROM members WHERE import_at IS NOT NULL
                 UNION ALL
-                SELECT batch_code, import_at FROM starterkit.transactions WHERE import_at IS NOT NULL
+                SELECT batch_code, import_at FROM transactions WHERE import_at IS NOT NULL
             ) AS all_batches
             GROUP BY batch_code
         ) as q"));

@@ -122,9 +122,9 @@ class RolesPermissionsSeeder extends Seeder
         }
 
         User::find(1)->assignRole('administrator');
-        User::find(2)->assignRole('leader');
-        User::whereIn('id', [3, 4, 5, 6, 7])->get()->each(function ($user) {
-            $user->assignRole('marketing');
-        });
+        // User::find(2)->assignRole('leader');
+        // User::whereIn('id', [3, 4, 5, 6, 7])->get()->each(function ($user) {
+        //     $user->assignRole('marketing');
+        // });
     }
 }
