@@ -187,6 +187,20 @@
                 <!--end:Menu item-->
             @endcan
 
+            @can('import-management.index')
+                <!--begin:Menu item-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    {{-- {!! getIcon('people', 'fs-2', 'users') !!} --}}
+                    <a class="menu-link {{ request()->routeIs('import.index') ? 'active' : '' }}" href="{{ route('import.index') }}">
+                        <span class="menu-icon">{!! getIcon('some-files', 'fs-2', 'filess-folders') !!}</span>
+                        <span class="menu-title">History Import</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+            @endcan
+
             {{-- @can('configuration-management.read') --}}
                  <!--begin:Menu item-->
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('logs.*') ? 'here show' : '' }}">

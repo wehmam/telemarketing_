@@ -70,6 +70,10 @@ class RolesPermissionsSeeder extends Seeder
                 'configuration-management.import',
 
                 'export-management.export',
+
+                'import-management.index',
+                'import-management.update',
+
             ],
             'leader' => [
                 'user-management.read',

@@ -9,6 +9,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Apps\TeamManagementController;
 use App\Http\Controllers\ExportReportController;
+use App\Http\Controllers\ImportLogController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberFollowUpController;
 use App\Http\Controllers\TransactionAssignController;
@@ -78,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('export/backup-transactions', [ExportReportController::class, 'backupTransactions'])->name('export.backup-transactions');
     Route::get('export/delete-transactions', [ExportReportController::class, 'deleteOldTransactions'])->name('export.delete-transactions');
     // Route::resource('export', ExportReportController::class);
+
+    Route::get('importlog', [ImportLogController::class, 'index'])->name('import.index');
+    Route::post('importlog/update', [ImportLogController::class, 'update'])->name('import.update');
 
     Route::get("/logs", [ActivityLogController::class, 'index'])->name('logs.index');
 });

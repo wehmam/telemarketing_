@@ -28,7 +28,8 @@ return new class extends Migration
             $table->string("username")->nullable();
             $table->string('phone')->nullable();
             $table->string('nama_rekening')->nullable();
-            $table->string('batch_code');  
+            $table->string('batch_code');
+            $table->timestamp('import_at')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

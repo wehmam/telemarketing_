@@ -18,7 +18,9 @@ class Members extends Model
         'phone',
         'nama_rekening',
         'marketing_id',
-        'team_id'
+        'team_id',
+        'batch_code',
+        'import_at',
     ];
 
     protected $dates = ['deleted_at'];

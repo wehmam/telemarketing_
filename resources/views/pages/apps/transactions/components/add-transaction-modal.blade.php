@@ -1,4 +1,4 @@
-<div class="modal fade" id="kt_modal_add_transactions" tabindex="-1" aria-hidden="true" wire:ignore.self>
+<div class="modal fade" id="kt_modal_add_transactions" tabindex="-1" aria-hidden="true"  data-bs-focus="false" wire:ignore.self>
     <!--begin::Modal dialog-->
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <!--begin::Modal content-->

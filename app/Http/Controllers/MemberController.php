@@ -582,6 +582,7 @@ class MemberController extends Controller
                 @unlink($filePath);
             }
 
+            ActivityLogger::log("Imported Members data file. Batch Code: {$batchCode}");
             return response()->json(responseCustom(true, "✅ Import success, total processed: {$countImport}, new members added: {$countNewMembers}"));
 
         } catch (\Throwable $th) {

@@ -150,7 +150,6 @@
 
                 // Kalau backup → langsung redirect ke route download
                 if (typeReport === "backup") {
-                    return
                     window.location.href = "/export/backup-transactions?periode=" + encodeURIComponent(periode);
                     return;
                 } else if (typeReport === "delete_transaction") {

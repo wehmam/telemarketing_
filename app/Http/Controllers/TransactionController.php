@@ -443,7 +443,7 @@ public function import(Request $request)
         ");
 
         $pdo->exec("
-            INSERT INTO transactions (id, member_id, user_id, amount, transaction_date, type, username, phone, nama_rekening, batch_code ,created_at, updated_at)
+            INSERT INTO transactions (id, member_id, user_id, amount, transaction_date, type, username, phone, nama_rekening, batch_code ,created_at, updated_at, import_at)
             SELECT
                 UUID(),
                 m.id,
@@ -466,6 +466,7 @@ public function import(Request $request)
                 t.phone,
                 t.nama_rekening,
                 t.batch_code,
+                NOW(),
                 NOW(),
                 NOW()
             FROM tmp_transactions t
@@ -498,7 +499,7 @@ private function bulkInsertTmp($pdo, array $rows)
         VALUES $placeholders
     ");
     $flatValues = [];
-    foreach ($rows as $r) {
+    foreach ($rows as $r) {         
         $flatValues = array_merge($flatValues, $r);
     }
     $stmt->execute($flatValues);

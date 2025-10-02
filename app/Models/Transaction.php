@@ -24,6 +24,8 @@ class Transaction extends Model
         'username',
         'phone',
         'nama_rekening',
+        'batch_code',
+        'import_at',
     ];
 
     protected static function booted()
