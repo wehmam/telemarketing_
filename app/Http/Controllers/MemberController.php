@@ -343,7 +343,7 @@ class MemberController extends Controller
                 if ($countImport > 5000) break; // ✅ stop after 5000 rows
 
                 $tgl        = $row[1];
-                $marketing  = $row[2];
+                $marketing  = strtolower($row[2]);
                 $namaPlayer = $row[3];
                 $username   = strtolower(preg_replace('/\s+/', '', trim($row[4])));
                 // $nominal    = (float) str_replace([",", "."], "", $row[6]);
@@ -505,6 +505,10 @@ class MemberController extends Controller
                     $countImport++;
                     if ($countImport > 5000) break 2;
 
+                    if (isset($cells[4]) && $cells[4] instanceof \DateTimeInterface) {
+                        return response()->json(responseCustom(false, "❌ ERROR: Row {$rowIndex}, Col 4 (username) not valid", errors: $cells), 422);
+                    }
+
                     $tgl        = $cells[1] ?? null;
                     $marketing  = $cells[2] ?? null;
                     $namaPlayer = $cells[3] ?? null;
@@ -516,7 +520,7 @@ class MemberController extends Controller
                         continue; // skip existing
                     }
 
-                    $marketingUser = $marketing ? User::where('name', $marketing)->first() : null;
+                    $marketingUser = $marketing ? User::where('name', strtolower($marketing))->first() : null;
                     $marketingId   = $marketingUser?->id;
                     $teamId        = $marketingUser?->team_id;
 

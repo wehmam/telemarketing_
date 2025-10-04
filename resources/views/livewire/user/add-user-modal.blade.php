@@ -77,10 +77,10 @@
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
-                            <label class="required fw-semibold fs-6 mb-2">Full Name</label>
+                            <label class="required fw-semibold fs-6 mb-2">Username</label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="text" wire:model.defer="name" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Full name"/>
+                            <input type="text" wire:model.defer="name" name="name" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Username"/>
                             <!--end::Input-->
                             @error('name')
                             <span class="text-danger">{{ $message }}</span> @enderror

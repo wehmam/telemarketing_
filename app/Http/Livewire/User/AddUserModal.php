@@ -45,8 +45,9 @@ class AddUserModal extends Component
     public function rules()
     {
         return [
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . ($this->user_id ?? 'NULL'),
+            // 'name' => 'required|string',
+            'name' => 'required|string|unique:users,name,' . ($this->user_id ?? 'NULL'),
+            'email' => 'email|unique:users,email,' . ($this->user_id ?? 'NULL'),
             'role' => 'required|string',
             'avatar' => 'nullable|sometimes|image|max:1024',
             'password' => 'nullable|min:6',
@@ -87,8 +88,11 @@ class AddUserModal extends Component
         $this->validate();
 
         DB::transaction(function () {
+            $username   = strtolower(preg_replace('/\s+/', '', trim($this->name)));
+
             $data = [
-                'name' => $this->name,
+                // 'name' => strtolower($this->name),
+                'name' => $username,
                 'email' => $this->email,
                 'is_active' => $this->is_active,
                 'profile_photo_path' => $this->avatar

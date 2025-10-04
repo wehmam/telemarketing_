@@ -33,6 +33,10 @@
             @endcan
 
             @can('member-management.import')
+                <a href="{{ asset('assets/templates/TEMPLATE_MEMBER.xlsx') }}" class="btn btn-sm btn-warning me-3" download>
+                    {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
+                    Template
+                </a>
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0 me-3">
                     <button type="button" class="btn btn-sm btn-info p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_import_members">

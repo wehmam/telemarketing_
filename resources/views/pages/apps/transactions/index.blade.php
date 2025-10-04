@@ -103,6 +103,10 @@
             @endcan
 
             @can('transaction-management.import')
+                <a href="{{ asset('assets/templates/TEMPLATE_TRANSACTIONS.xlsx') }}" class="btn btn-sm btn-warning me-3" download>
+                    {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
+                    Template
+                </a>
                 <!--begin::Add Member Button-->
                 <div class="d-flex align-items-center mt-2 mt-md-0">
                     <button type="button" class="btn btn-sm btn-primary p-3" data-bs-toggle="modal" data-bs-target="#kt_modal_add_transactions">

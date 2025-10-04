@@ -29,7 +29,8 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            // 'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'], // allow username login
             'password' => ['required', 'string'],
         ];
     }
@@ -41,11 +42,31 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // public function authenticate()
+    // {
+    //     $this->ensureIsNotRateLimited();
+
+    //     if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+    //         RateLimiter::hit($this->throttleKey());
+
+    //         throw ValidationException::withMessages([
+    //             'email' => trans('auth.failed'),
+    //         ]);
+    //     }
+
+    //     RateLimiter::clear($this->throttleKey());
+    // }
     public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $login = strtolower($this->input('email'));
+        $password = $this->input('password');
+
+        // cek apakah input berupa email atau username
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+
+        if (! Auth::attempt([$field => $login, 'password' => $password], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
