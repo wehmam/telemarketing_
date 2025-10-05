@@ -43,7 +43,8 @@ class ImportLogController extends Controller
                 if ($batchType === 'Import Transactions') {
                     DB::table('transactions')->where('batch_code', $batchCode)->update(['transaction_date' => $date]);
                 } else {
-                    return response()->json(responseCustom(false, "Change date action is only applicable for transactions type."), 400);
+                    DB::table('members')->where('batch_code', $batchCode)->update(['created_at' => $date]);
+                    // return response()->json(responseCustom(false, "Change date action is only applicable for transactions type."), 400);
                 }
 
                 ActivityLogger::log("Update import date for batch_code: $batchCode to $date, type: $batchType");

@@ -452,7 +452,7 @@ public function import(Request $request)
                 t.phone,
                 COALESCE(t.nama_rekening, t.username) AS name,
                 t.nama_rekening,
-                NULL, NULL, NOW(), NOW()
+                NULL, NULL, COALESCE(t.transaction_date, NOW()), NOW()
             FROM tmp_transactions t
             LEFT JOIN members m ON LOWER(m.username) = LOWER(t.username)
             WHERE m.id IS NULL

@@ -96,7 +96,7 @@ $('#btnExportExcel').off('click').on('click', function(e) {
     e.preventDefault();
     showLoadPage();
 
-    let url = '/summary/export';
+    let url = '/summary/export?s_date=' + encodeURIComponent($('.sLastDeposit').val());
 
     fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => {
