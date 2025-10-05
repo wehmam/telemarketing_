@@ -443,6 +443,7 @@ class MemberController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'file' => 'required|mimes:xlsx,csv',
+                'import_date' => 'required|date_format:d-m-Y'
             ]);
 
             if ($validator->fails()) {
@@ -517,7 +518,7 @@ class MemberController extends Controller
                     // $phone      = !empty($cells[5]) ? ltrim($cells[5], '+') : null;
 
                     // NEW
-                    $tgl        = now();
+                    $tgl        = \Carbon\Carbon::createFromFormat('d-m-Y', $request->import_date)->format('Y-m-d') ?? now()->format('Y-m-d');
                     $marketing  = $cells[3] ?? null;
                     $namaPlayer = $cells[1] ?? null;
                     $username   = strtolower(preg_replace('/\s+/', '', trim($cells[0] ?? '')));

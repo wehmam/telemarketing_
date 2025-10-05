@@ -85,12 +85,23 @@
         {{ $dataTable->scripts() }}
         <script>
             flatpickr("#periodeLastDeposit", {
-                mode: "range",            // memungkinkan pilih dua tanggal (start & end)
-                dateFormat: "d-m-Y",      // format sesuai Laravel
+                mode: "range",
+                dateFormat: "d-m-Y",
                 // defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
 
+            flatpickr("#registerDate", {
+                mode: "range",
+                dateFormat: "d-m-Y",
+                allowInput: true
+            });
+
+            flatpickr("#import_date", {
+                dateFormat: "d-m-Y",
+                allowInput: true,
+                defaultDate: "{{ date('d-m-Y') }}"
+            });
 
             const phoneInput = document.getElementById('iPhone');
 

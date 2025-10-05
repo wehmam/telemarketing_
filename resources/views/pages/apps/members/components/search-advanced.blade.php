@@ -52,14 +52,19 @@
         <!--end::Col-->
 
          <!--begin::Col-->
-        <div class="col-xxl-4">
+        <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
             <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" placeholder="Periode Last Deposit" tabindex="-1">
         </div>
         <!--end::Col-->
 
+        <div class="col-xxl-3">
+            <label class="fs-6 form-label fw-bold text-dark">Register Date</label>
+            <input type="text" class="form-control form-control form-control-solid" id="registerDate" name="register_date" placeholder="Register Date" tabindex="-1">
+        </div>
+
         <!--begin::Col-->
-        <div class="col-xxl-4">
+        <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
             <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Marketing">
                 <option></option>
@@ -71,7 +76,7 @@
         <!--end::Col-->
 
         <!--begin::Col-->
-        <div class="col-xxl-4">
+        <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Team</label>
             <select name="search_team" id="sTeam" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Team">
                 <option></option>

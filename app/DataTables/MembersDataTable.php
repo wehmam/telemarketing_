@@ -38,9 +38,9 @@ class MembersDataTable extends DataTable
                     ? \Carbon\Carbon::parse($lastDeposit->transaction_date)->format('Y-m-d')
                     : '—';
             })
-            // ->addColumn('type', function (Members $member) {
-            //     return ($member->marketing_id && $member->team_id) ? $member->team?->name ?? 'WA' : 'WA';
-            // })
+            ->addColumn('created_at', function (Members $member) {
+                return $member->created_at ? $member->created_at->format('d F Y') : '—';
+            })
             ->addColumn('action', function (Members $member) {
                 return view('pages.apps.members.components._actions', compact('member'));
             })
@@ -71,6 +71,7 @@ class MembersDataTable extends DataTable
         $createdAtRange = request('s_created_at');
         $marketingId = request('s_marketing');
         $teamId = request('s_team');
+        $registerDateRange = request('s_register_date');
 
         if ($status === 'wa') {
             $query->whereNull('marketing_id')->orWhereNull('team_id');
@@ -109,6 +110,18 @@ class MembersDataTable extends DataTable
                 $query->whereHas('transactions', function ($q) use ($startDate) {
                     $q->whereDate('transaction_date', $startDate);
                 });
+            }
+        }
+
+        if ($registerDateRange) {
+            $dates = explode(' to ', $registerDateRange);
+            if (count($dates) === 2) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->startOfDay();
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[1]))->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } else {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereDate('created_at', $date);
             }
         }
 
@@ -162,6 +175,7 @@ class MembersDataTable extends DataTable
             // Column::make('deleted_at')->title('Status'),
             Column::make('last_deposit')->title('Last Deposit'),
             // Column::make('type')->title('Member Type'), // <-- added
+            Column::make('created_at')->title('Register At'),
             Column::make('batch_code')->title('Batch Code'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')

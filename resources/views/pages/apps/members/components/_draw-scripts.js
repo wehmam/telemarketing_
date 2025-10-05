@@ -49,7 +49,11 @@ $('.sStatus').on('change', function() {
 
 $('#periodeLastDeposit').on('change', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 800));
+
+$('#registerDate').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 800));
 
 $('#sMarketing').on('change', function() {
     window.LaravelDataTables['members-table'].ajax.reload();
@@ -66,6 +70,7 @@ dt.on('preXhr.dt', function(e, settings, data) {
     data.s_phone = $('#sPhone').val();
     data.s_status = $('.sStatus:checked').val();
     data.s_last_deposit = $('#periodeLastDeposit').val();
+    data.s_register_date = $('#registerDate').val();
     data.s_marketing = $('#sMarketing').val();
     data.s_team = $('#sTeam').val();
 });
