@@ -509,12 +509,20 @@ class MemberController extends Controller
                         return response()->json(responseCustom(false, "❌ ERROR: Row {$rowIndex}, Col 4 (username) not valid", errors: $cells), 422);
                     }
 
-                    $tgl        = $cells[1] ?? null;
-                    $marketing  = $cells[2] ?? null;
-                    $namaPlayer = $cells[3] ?? null;
-                    $username   = strtolower(preg_replace('/\s+/', '', trim($cells[4] ?? '')));
-                    $nominal    = isset($cells[6]) ? formatRupiah($cells[6]) : 0;
-                    $phone      = !empty($cells[5]) ? ltrim($cells[5], '+') : null;
+                    // $tgl        = $cells[1] ?? null;
+                    // $marketing  = $cells[2] ?? null;
+                    // $namaPlayer = $cells[3] ?? null;
+                    // $username   = strtolower(preg_replace('/\s+/', '', trim($cells[4] ?? '')));
+                    // $nominal    = isset($cells[6]) ? formatRupiah($cells[6]) : 0;
+                    // $phone      = !empty($cells[5]) ? ltrim($cells[5], '+') : null;
+
+                    // NEW
+                    $tgl        = now();
+                    $marketing  = $cells[3] ?? null;
+                    $namaPlayer = $cells[1] ?? null;
+                    $username   = strtolower(preg_replace('/\s+/', '', trim($cells[0] ?? '')));
+                    $nominal    = isset($cells[4]) ? formatRupiah($cells[4]) : 0;
+                    $phone      = !empty($cells[2]) ? ltrim($cells[2], '+') : null;
 
                     if (isset($existingUsernames[$username])) {
                         continue; // skip existing

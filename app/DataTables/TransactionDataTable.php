@@ -175,6 +175,7 @@ class TransactionDataTable extends DataTable
             Column::computed('marketing')->title('Marketing'),
             Column::computed('team')->title('Team'),
             Column::computed('followups')->title('Last Follow Up')->addClass('text-center'),
+            Column::make('batch_code')->title('Batch Code'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)

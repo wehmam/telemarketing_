@@ -162,6 +162,7 @@ class MembersDataTable extends DataTable
             // Column::make('deleted_at')->title('Status'),
             Column::make('last_deposit')->title('Last Deposit'),
             // Column::make('type')->title('Member Type'), // <-- added
+            Column::make('batch_code')->title('Batch Code'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')
                 ->exportable(false)
