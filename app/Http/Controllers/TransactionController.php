@@ -398,11 +398,23 @@ public function import(Request $request)
             if ($i === 1) continue;
 
             $cells = $row->toArray();
-            $nama_rekening = $cells[2] ?? null; // C
-            $usernameCsv   = $cells[3] ?? null; // D
-            $nominal       = $cells[7] ?? null; // H
+            // $nama_rekening = $cells[2] ?? null; // C
+            // $usernameCsv   = $cells[3] ?? null; // D
+            // $nominal       = $cells[7] ?? null; // H
+
+            $nama_rekening = $cells[0] ?? null; // A
+            $usernameCsv   = $cells[1] ?? null; // B
+            $nominal       = $cells[2] ?? null; // C
 
             if (!$usernameCsv) continue;
+
+            $nominalClean = str_replace(',', '', $nominal);
+            if (!is_numeric($nominalClean) || $nominalClean <= 0) {
+                return response()->json(
+                    responseCustom(false, "❌ Invalid nominal value '{$nominal}' for username '{$usernameCsv}' on row {$i}. It must be a valid Amount."),
+                    422
+                );
+            }
 
             $rownum++;
             if ($rownum > 5000) break;
@@ -426,6 +438,11 @@ public function import(Request $request)
 
         if (!empty($rows)) {
             $this->bulkInsertTmp($pdo, $rows);
+        } else {
+            return response()->json(
+                responseCustom(false, "❌ No valid data found in the Excel/CSV file."),
+                422
+            );
         }
 
         $pdo->exec("
@@ -499,7 +516,7 @@ private function bulkInsertTmp($pdo, array $rows)
         VALUES $placeholders
     ");
     $flatValues = [];
-    foreach ($rows as $r) {         
+    foreach ($rows as $r) {
         $flatValues = array_merge($flatValues, $r);
     }
     $stmt->execute($flatValues);
