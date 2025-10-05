@@ -12,6 +12,7 @@ use App\Http\Controllers\ExportReportController;
 use App\Http\Controllers\ImportLogController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberFollowUpController;
+use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\TransactionAssignController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('importlog/update', [ImportLogController::class, 'update'])->name('import.update');
 
     Route::get("/logs", [ActivityLogController::class, 'index'])->name('logs.index');
+
+    Route::get("summary", [SummaryController::class, 'index'])->name('summary.index');
+    Route::get("summary/export", [SummaryController::class, 'export'])->name('summary.export');
 });
 
 Route::get('/error', function () {

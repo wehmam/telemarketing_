@@ -64,24 +64,20 @@ class ExportReportController extends Controller
                             END AS marketing,
                             team_name,
                             MAX(start_kerja) AS start_kerja,
-
-                            -- jumlah member yang daftar pada periode
                             COALESCE(SUM(member_in_period),0) AS member_daftar,
-
-                            -- total nominal deposit
                             COALESCE(SUM(deposit_amount),0) AS total_deposit_amount,
-
-                            -- jumlah transaksi deposit
                             COALESCE(SUM(deposit_count),0) AS total_deposit_transactions
 
                         FROM (
-                            -- gabungkan semua marketing + WA
                             SELECT
                                 m.marketing_id,
                                 u.name AS marketing_name,
                                 t_team.name AS team_name,
-                                u.created_at AS start_kerja,
-                                CASE WHEN m.created_at BETWEEN '$startDate' AND '$endDate' THEN 1 ELSE 0 END AS member_in_period,
+                                m.created_at AS start_kerja,
+                                CASE
+                                    WHEN m.created_at BETWEEN '$startDate' AND '$endDate' THEN 1
+                                    ELSE 0
+                                END AS member_in_period,
                                 0 AS deposit_amount,
                                 0 AS deposit_count
                             FROM members m
@@ -99,8 +95,8 @@ class ExportReportController extends Controller
                                 m.marketing_id,
                                 u.name AS marketing_name,
                                 t_team.name AS team_name,
+                                m.created_at AS start_kerja,
                                 0 AS member_in_period,
-                                u.created_at AS start_kerja,
                                 CASE WHEN t.type = 'DEPOSIT' THEN t.amount ELSE 0 END AS deposit_amount,
                                 CASE WHEN t.type = 'DEPOSIT' THEN 1 ELSE 0 END AS deposit_count
                             FROM transactions t

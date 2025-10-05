@@ -117,3 +117,9 @@ Breadcrumbs::for('import.index', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard'); // or 'home' depending on your setup
     $trail->push('Import Logs', route('import.index'));
 });
+
+// Home > Dashboard > Import Logs
+Breadcrumbs::for('summary.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard'); // or 'home' depending on your setup
+    $trail->push('Summary Report', route('summary.index'));
+});

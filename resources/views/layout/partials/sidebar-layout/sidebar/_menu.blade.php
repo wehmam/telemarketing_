@@ -176,13 +176,42 @@
 
             @can('export-management.export')
                 <!--begin:Menu item-->
-                <div class="menu-item">
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('export.*') || request()->routeIs('summary.*') ? 'here show' : '' }}">
                     <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('export.index') ? 'active' : '' }}" href="{{ route('export.index') }}">
+                    <span class="menu-link">
                         <span class="menu-icon">{!! getIcon('cloud-download', 'fs-2', '', 'i') !!}</span>
-                        <span class="menu-title">Export Report</span>
-                    </a>
+                        <span class="menu-title">Report</span>
+                        <span class="menu-arrow"></span>
+                    </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('summary.index') ? 'active' : '' }}" href="{{ route('summary.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Summary</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('export.index') ? 'active' : '' }}" href="{{ route('export.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Export</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
             @endcan
