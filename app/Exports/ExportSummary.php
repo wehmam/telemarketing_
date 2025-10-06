@@ -78,6 +78,7 @@ class ExportSummary implements FromView, WithStyles, WithEvents, WithColumnWidth
             'F' => 25, // Deposit Count
             'G' => 25, // Redeposit Amount
             'H' => 25, // Redeposit Count
+            'I' => 20, // Total Followup
         ];
     }
 
@@ -86,17 +87,17 @@ class ExportSummary implements FromView, WithStyles, WithEvents, WithColumnWidth
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $sheet->getColumnDimension('J')->setWidth(20);
                 $sheet->getColumnDimension('K')->setWidth(20);
+                $sheet->getColumnDimension('L')->setWidth(20);
                 $lastRow = $sheet->getHighestRow() + 1;
 
                 // Start/End Date
-                $sheet->setCellValue('J1', 'Start Date');
-                $sheet->setCellValue('J2', \Carbon\Carbon::createFromFormat('Y-m-d', $this->startDate)->format('d F Y'));
-                $sheet->setCellValue('K1', 'End Date');
-                $sheet->setCellValue('K2', \Carbon\Carbon::createFromFormat('Y-m-d', $this->endDate)->format('d F Y'));
+                $sheet->setCellValue('K1', 'Start Date');
+                $sheet->setCellValue('K2', \Carbon\Carbon::createFromFormat('Y-m-d', $this->startDate)->format('d F Y'));
+                $sheet->setCellValue('L1', 'End Date');
+                $sheet->setCellValue('L2', \Carbon\Carbon::createFromFormat('Y-m-d', $this->endDate)->format('d F Y'));
 
-                $sheet->getStyle('J1:K1')->applyFromArray([
+                $sheet->getStyle('K1:L1')->applyFromArray([
                     'font' => [
                         'name' => 'Calibri',
                         'bold' => true,

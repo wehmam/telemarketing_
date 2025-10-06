@@ -9,6 +9,7 @@
             <th>Total Deposit Transactions</th>
             <th>Total Redeposit Amount</th>
             <th>Total Redeposit Transactions</th>
+            <th>Total Followup</th>
         </tr>
     </thead>
     <tbody>
@@ -22,6 +23,7 @@
                 <td>{{ (int) $row->total_deposit_transactions }}</td>
                 <td>{{ $row->total_redeposit_amount }}</td>
                 <td>{{ (int) $row->total_redeposit_transactions }}</td>
+                <td>{{ (int) $row->total_followups ?? 0 }}</td>
             </tr>
         @endforeach
     </tbody>
