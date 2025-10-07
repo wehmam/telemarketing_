@@ -4,12 +4,12 @@
     <!--end::Separator-->
     <!--begin::Row-->
     <div class="row g-8 mb-8">
-        <!--begin::Col-->
+        {{-- <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Account Name</label>
             <input type="text" class="form-control form-control form-control-solid" id="sNamaRekening" name="search_nama_rekening" tabindex="-1">
         </div>
-        <!--end::Col-->
+        <!--end::Col--> --}}
         <!--begin::Col-->
         <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Username</label>
@@ -52,19 +52,19 @@
         <!--end::Col-->
 
          <!--begin::Col-->
-        <div class="col-xxl-3">
+        <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
             <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" placeholder="Periode Last Deposit" tabindex="-1">
         </div>
         <!--end::Col-->
 
-        <div class="col-xxl-3">
+        <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Register Date</label>
             <input type="text" class="form-control form-control form-control-solid" id="registerDate" name="register_date" placeholder="Register Date" tabindex="-1">
         </div>
 
         <!--begin::Col-->
-        <div class="col-xxl-3">
+        <div class="col-xxl-4">
             <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
             <select name="search_marketing" id="sMarketing" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Marketing">
                 <option></option>
@@ -75,7 +75,7 @@
         </div>
         <!--end::Col-->
 
-        <!--begin::Col-->
+        {{-- <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Team</label>
             <select name="search_team" id="sTeam" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Team">
@@ -86,7 +86,7 @@
                 @endforeach
             </select>
         </div>
-        <!--end::Col-->
+        <!--end::Col--> --}}
     </div>
     <!--end::Row-->
 </div>

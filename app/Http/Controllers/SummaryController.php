@@ -83,25 +83,26 @@ class SummaryController extends Controller
         // $filterTeam      = $teamId ? " AND t_team.team_id = '$teamId' " : "";
 
         $reports = DB::table(DB::raw("(
-            SELECT
+           SELECT
                 CASE WHEN marketing_id IS NULL THEN 'WA' ELSE marketing_name END AS marketing,
                 team_name,
                 MAX(start_kerja) AS start_kerja,
-                COALESCE(SUM(member_in_period),0) AS member_daftar,
-                COALESCE(SUM(deposit_amount),0) AS total_deposit_amount,
-                COALESCE(SUM(deposit_count),0) AS total_deposit_transactions,
-                COALESCE(SUM(redeposit_amount),0) AS total_redeposit_amount,
-                COALESCE(SUM(redeposit_count),0) AS total_redeposit_transactions,
-                COALESCE(SUM(total_followups),0) AS total_followups
+                COALESCE(SUM(member_in_period), 0) AS member_daftar,
+                COALESCE(SUM(deposit_amount), 0) AS total_deposit_amount,
+                COALESCE(SUM(deposit_count), 0) AS total_deposit_transactions,
+                COALESCE(SUM(redeposit_amount), 0) AS total_redeposit_amount,
+                COALESCE(SUM(redeposit_count), 0) AS total_redeposit_transactions,
+                COALESCE(SUM(total_followups), 0) AS total_followups
             FROM (
-                -- === Bagian members ===
+
                 SELECT
                     m.marketing_id,
                     u.name AS marketing_name,
                     t_team.name AS team_name,
                     m.created_at AS start_kerja,
                     CASE
-                        WHEN m.created_at BETWEEN '$start' AND '$end' THEN 1
+                        WHEN m.created_at >= '$start 00:00:00'
+                        AND m.created_at <= '$end 23:59:59' THEN 1
                         ELSE 0
                     END AS member_in_period,
                     0 AS deposit_amount,
@@ -118,9 +119,9 @@ class SummaryController extends Controller
                     GROUP BY tm.user_id
                 ) AS t_team ON t_team.user_id = m.marketing_id
 
+
                 UNION ALL
 
-                -- === Bagian transaksi ===
                 SELECT
                     m.marketing_id,
                     u.name AS marketing_name,
@@ -141,33 +142,34 @@ class SummaryController extends Controller
                     JOIN teams tn ON tn.id = tm.team_id
                     GROUP BY tm.user_id
                 ) AS t_team ON t_team.user_id = m.marketing_id
-                WHERE t.transaction_date BETWEEN '$start' AND '$end'
+                WHERE t.transaction_date >= '$start 00:00:00'
+                AND t.transaction_date <= '$end 23:59:59'
 
                 UNION ALL
 
-                -- === BAGIAN FOLLOWUP ===
                 SELECT
-			        m.marketing_id,
-			        u.name AS marketing_name,
-			        t_team.name AS team_name,
-			        m.created_at AS start_kerja,
-			        0 AS member_in_period,
-			        0 AS deposit_amount,
-			        0 AS deposit_count,
-			        0 AS redeposit_amount,
-			        0 AS redeposit_count,
-			        1 AS total_followups
-			    FROM transaction_followups tf
-			    LEFT JOIN transactions t ON t.id = tf.transaction_id
-			    LEFT JOIN members m ON m.id = t.member_id
-			    LEFT JOIN users u ON u.id = m.marketing_id
-			    LEFT JOIN (
-			        SELECT tm.user_id, MIN(tn.name) AS name
-			        FROM team_members tm
-			        JOIN teams tn ON tn.id = tm.team_id
-			        GROUP BY tm.user_id
-			    ) AS t_team ON t_team.user_id = m.marketing_id
-			    WHERE tf.followed_up_at BETWEEN '$start 00:00:00' AND '$end 23:59:00'
+                    m.marketing_id,
+                    u.name AS marketing_name,
+                    t_team.name AS team_name,
+                    m.created_at AS start_kerja,
+                    0 AS member_in_period,
+                    0 AS deposit_amount,
+                    0 AS deposit_count,
+                    0 AS redeposit_amount,
+                    0 AS redeposit_count,
+                    1 AS total_followups
+                FROM transaction_followups tf
+                LEFT JOIN transactions t ON t.id = tf.transaction_id
+                LEFT JOIN members m ON m.id = t.member_id
+                LEFT JOIN users u ON u.id = m.marketing_id
+                LEFT JOIN (
+                    SELECT tm.user_id, MIN(tn.name) AS name
+                    FROM team_members tm
+                    JOIN teams tn ON tn.id = tm.team_id
+                    GROUP BY tm.user_id
+                ) AS t_team ON t_team.user_id = m.marketing_id
+                WHERE tf.followed_up_at >= '$start 00:00:00'
+                AND tf.followed_up_at <= '$end 23:59:59'
             ) AS combined
             GROUP BY marketing_id, marketing_name, team_name
         ) as summary"))->get();
