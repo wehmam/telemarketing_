@@ -506,16 +506,9 @@ class MemberController extends Controller
                     $countImport++;
                     if ($countImport > 5000) break 2;
 
-                    if (isset($cells[4]) && $cells[4] instanceof \DateTimeInterface) {
+                    if (isset($cells[0]) && $cells[0] instanceof \DateTimeInterface) {
                         return response()->json(responseCustom(false, "❌ ERROR: Row {$rowIndex}, Col 4 (username) not valid", errors: $cells), 422);
                     }
-
-                    // $tgl        = $cells[1] ?? null;
-                    // $marketing  = $cells[2] ?? null;
-                    // $namaPlayer = $cells[3] ?? null;
-                    // $username   = strtolower(preg_replace('/\s+/', '', trim($cells[4] ?? '')));
-                    // $nominal    = isset($cells[6]) ? formatRupiah($cells[6]) : 0;
-                    // $phone      = !empty($cells[5]) ? ltrim($cells[5], '+') : null;
 
                     // NEW
                     $tgl        = \Carbon\Carbon::createFromFormat('d-m-Y', $request->import_date)->format('Y-m-d') ?? now()->format('Y-m-d');
