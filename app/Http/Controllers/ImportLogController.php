@@ -342,6 +342,10 @@ class ImportLogController extends Controller
                     $countImport++;
                     if ($countImport > 5000) break 2;
 
+                    if (isset($cells[0]) && $cells[0] instanceof \DateTimeInterface) {
+                        return response()->json(responseCustom(false, "❌ ERROR: Row {$rowIndex}, Col 0 (username) not valid", errors: $cells), 422);
+                    }
+
                     // $tgl        = $cells[1] ?? null;
                     // $marketing  = $cells[2] ?? null;
                     // $namaPlayer = $cells[3] ?? null;
@@ -439,6 +443,6 @@ class ImportLogController extends Controller
             }
             return response()->json(responseCustom(false, "❌ Import failed: " . $th->getMessage()), 500);
         }
-    }
+    }       
 
 }

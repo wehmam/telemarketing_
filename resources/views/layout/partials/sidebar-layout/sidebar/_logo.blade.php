@@ -4,8 +4,8 @@
 	<a href="/">
 		{{-- <img alt="Logo" src="{{ image('logos/default-dark.svg') }}" class="h-25px app-sidebar-logo-default" /> --}}
         {{-- <img alt="Logo" src="{{ image('logos/default-small.svg') }}" class="h-20px app-sidebar-logo-minimize" /> --}}
-        <img alt="Logo" src="{{ image('logos/logo.png') }}" class="h-200px app-sidebar-logo-default" />
-		<img alt="Logo" src="{{ image('logos/small-logo.png') }}" class="h-40px app-sidebar-logo-minimize" />
+        <img alt="Logo" src="{{ image('logos/rocket.png') }}" class="h-80px app-sidebar-logo-default" />
+		<img alt="Logo" src="{{ image('logos/rocket.png') }}" class="h-20px app-sidebar-logo-minimize" />
 	</a>
 	<!--end::Logo image-->
 	<!--begin::Sidebar toggle-->

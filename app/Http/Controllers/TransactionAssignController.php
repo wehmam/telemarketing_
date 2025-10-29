@@ -21,8 +21,8 @@ class TransactionAssignController extends Controller
         // $fromMembers = \App\Models\Members::whereHas('transactions')
         //     ->orderBy('name')
         //     ->get();
-        $fromMembers = \App\Models\Members::orderBy('name')
-            ->get();
+        // $fromMembers = \App\Models\Members::orderBy('name')
+        //     ->get();
 
         $toUsers = \App\Models\User::whereHas('roles')   // hanya user yg punya role
             ->whereHas('team')               // hanya user yg punya team
@@ -36,12 +36,48 @@ class TransactionAssignController extends Controller
         })->orderBy('id', 'asc')->get();
 
         return $dataTable->render('pages.apps.transaction-assign.index', [
-            'fromMembers' => $fromMembers,
+            // 'fromMembers' => $fromMembers,
             'toUsers'   => $toUsers,
             'teams'     => $teams,
             'marketings' => $marketings
         ]);
     }
+
+    public function getMembers(Request $request)
+    {
+        $search = $request->get('q', '');
+
+        $query = Members::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('username', 'LIKE', "%{$search}%")
+                        ->orWhere('nama_rekening', 'LIKE', "%{$search}%")
+                        ->orWhere('phone', 'LIKE', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(10);
+
+        $items = $query->map(function ($member) {
+            $phone = $member->phone;
+            if ($phone && str_starts_with($phone, '62')) {
+                $phone = '0' . substr($phone, 2);
+            }
+
+            return [
+                'id' => $member->id,
+                'text' => "{$member->name} ({$member->username} - {$phone})",
+            ];
+        });
+
+        return response()->json([
+            'items' => $items,
+            'pagination' => [
+                'more' => $query->hasMorePages(),
+            ],
+        ]);
+    }
+
 
     /**
      * Show the form for creating a new resource.

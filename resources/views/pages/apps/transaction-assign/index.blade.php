@@ -58,6 +58,39 @@
                 // defaultDate: ["{{ date('d-m-Y', strtotime('-7 days')) }}", "{{ date('d-m-Y') }}"],
                 allowInput: true
             });
+
+            $(document).ready(function() {
+                // --- Select Members (From) ---
+                $('#assignFromMemberId').select2({
+                    ajax: {
+                        url: '/gd/listmembers',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term || '', // search keyword
+                                page: params.page || 1
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data.items,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Select members',
+                    minimumInputLength: 1,
+                    multiple: true,
+                    width: '100%'
+                });
+            });
+
         </script>
 
     @endpush

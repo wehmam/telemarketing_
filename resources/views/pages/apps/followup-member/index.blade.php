@@ -49,6 +49,18 @@
                 dateFormat: "d-m-Y",      // format sesuai Laravel
                 allowInput: false
             });
+
+            flatpickr("#periodeFollowUp", {
+                mode: "range",            // memungkinkan pilih dua tanggal (start & end)
+                dateFormat: "d-m-Y",      // format sesuai Laravel
+                allowInput: false
+            });
+
+            flatpickr("#periodeRegister", {
+                mode: "range",            // memungkinkan pilih dua tanggal (start & end)
+                dateFormat: "d-m-Y",      // format sesuai Laravel
+                allowInput: false
+            });
         </script>
     @endpush
 

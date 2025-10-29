@@ -6,7 +6,7 @@
 		<div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0 me-lg-15">
 			<a href="/">
 				{{-- <img alt="Logo" src="{{ image('logos/default-dark.svg') }}" class="h-20px h-lg-30px app-sidebar-logo-default" /> --}}
-                <img alt="Logo" src="{{ image('logos/logo.png') }}" class="h-100px h-lg-80px app-sidebar-logo-default" />
+                <img alt="Logo" src="{{ image('logos/rocket.png') }}" class="h-100px h-lg-80px app-sidebar-logo-default" />
 			</a>
 
 		</div>

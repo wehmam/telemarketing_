@@ -103,4 +103,16 @@ class Members extends Model
             ->latest('transaction_date')
             ->latest('created_at');
     }
+
+    public function followupss()
+    {
+        return $this->hasMany(TransactionFollowup::class, 'member_id');
+    }
+
+    public function lastFollowup()
+    {
+        return $this->hasOne(\App\Models\TransactionFollowup::class, 'member_id')
+            ->latest('followed_up_at')
+            ->latest('created_at');
+    }
 }

@@ -26,7 +26,7 @@
                                     data-control="select2"
                                     data-placeholder="Select members"
                                     required>
-                                @foreach($fromMembers as $member)
+                                {{-- @foreach($fromMembers as $member)
                                     @php
                                         $phone = $member->phone;
                                         if ($member->phone && str_starts_with($member->phone, '62')) {
@@ -36,7 +36,7 @@
                                     <option value="{{ $member->id }}">
                                         {{ $member->name }} ({{ $member->username . " - " . $phone }})
                                     </option>
-                                @endforeach
+                                @endforeach --}}
                             </select>
                             <div class="form-text">You can select multiple members to transfer transactions from.</div>
                         </div>

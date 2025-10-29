@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('transactions/{id}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
 
     Route::resource("transactions-assign", TransactionAssignController::class);
+    Route::get('gd/listmembers', [TransactionAssignController::class, 'getMembers'])->name('transactions-assign.members');
 
 
     Route::resource('members/followup', MemberFollowUpController::class);

@@ -27,43 +27,54 @@ $('#sNamaRekening').on('keyup', debounce(function() {
 // username
 $('#sUsername').on('keyup', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
 
 // phone
 $('#sPhone').on('keyup', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
 
 $('#totalDeposit').on('keyup', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
 
 $('#sMarketing').on('change', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
 
 $('#sTeam').on('change', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
 
 $('#periodeLastDeposit').on('change', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
+
+$('#periodeFollowUp').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 1000));
+
+$('#periodeRegister').on('change', debounce(function() {
+    dt.ajax.reload();
+}, 1000));
 
 $('.sStatus').on('change', debounce(function() {
     dt.ajax.reload();
-}, 500));
+}, 1000));
+
 
 // Kirim data filter ke server sebelum AJAX
 dt.on('preXhr.dt', function(e, settings, data) {
-    data.s_nama_rekening = $('#sNamaRekening').val();
+    // data.s_nama_rekening = $('#sNamaRekening').val();
     data.s_username = $('#sUsername').val();
     data.s_phone = $('#sPhone').val();
     data.s_marketing = $('#sMarketing').val();
-    data.s_team = $('#sTeam').val();
-    data.s_total_deposit = $('#totalDeposit').val().replace(/\./g, '');
+    // data.s_team = $('#sTeam').val();
+    // data.s_total_deposit = $('#totalDeposit').val().replace(/\./g, '');
     data.s_last_deposit = $('#periodeLastDeposit').val();
     data.s_status = $('.sStatus:checked').val();
+    data.s_follow_up = $('#periodeFollowUp').val();
+    data.s_register = $('#periodeRegister').val();
 });
 
 $('#statusFilter').on('change', function() {
@@ -78,14 +89,14 @@ $('#statusFilter').on('change', function() {
 //     });
 // }
 
-document.getElementById('totalDeposit').addEventListener('input', function (e) {
-    let value = this.value.replace(/\D/g, ''); // hanya angka
-    if (value) {
-        this.value = new Intl.NumberFormat('id-ID').format(value); // format ribuan Indonesia
-    } else {
-        this.value = '';
-    }
-});
+// document.getElementById('totalDeposit').addEventListener('input', function (e) {
+//     let value = this.value.replace(/\D/g, ''); // hanya angka
+//     if (value) {
+//         this.value = new Intl.NumberFormat('id-ID').format(value); // format ribuan Indonesia
+//     } else {
+//         this.value = '';
+//     }
+// });
 
 
 document.querySelectorAll('[data-kt-action="follow_up_row"]').forEach(function (e) {

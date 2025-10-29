@@ -4,12 +4,12 @@
     <!--end::Separator-->
     <!--begin::Row-->
     <div class="row g-8 mb-8">
-        <!--begin::Col-->
+        {{-- <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Account Name</label>
             <input type="text" class="form-control form-control form-control-solid" id="sNamaRekening" name="search_nama_rekening" placeholder="Bank Account Name Member" tabindex="-1">
         </div>
-        <!--end::Col-->
+        <!--end::Col--> --}}
         <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Username</label>
@@ -23,20 +23,13 @@
         </div>
         <!--end::Col-->
 
-        <!--begin::Col-->
+        {{-- <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Total Deposit</label>
             <input type="text" class="form-control form-control form-control-solid" id="totalDeposit" name="total_deposit" placeholder="Nominal Deposit" tabindex="-1">
         </div>
-        <!--end::Col-->
-
-        <!--begin::Col-->
-        <div class="col-xxl-3">
-            <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
-            <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" placeholder="Periode Last Deposit" tabindex="-1">
-        </div>
-        <!--end::Col-->
-
+        <!--end::Col--> --}}
+        
         <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Marketing</label>
@@ -49,7 +42,29 @@
         </div>
         <!--end::Col-->
 
+
         <!--begin::Col-->
+        <div class="col-xxl-3">
+            <label class="fs-6 form-label fw-bold text-dark">Last Deposit</label>
+            <input type="text" class="form-control form-control form-control-solid" id="periodeLastDeposit" name="last_deposit" placeholder="Periode Last Deposit" tabindex="-1">
+        </div>
+        <!--end::Col-->
+
+        <!--begin::Col-->
+        <div class="col-xxl-3">
+            <label class="fs-6 form-label fw-bold text-dark">Follow Up Date</label>
+            <input type="text" class="form-control form-control form-control-solid" id="periodeFollowUp" name="follow_up" placeholder="Periode Follow Up" tabindex="-1">
+        </div>
+        <!--end::Col-->
+
+        <!--begin::Col-->
+        <div class="col-xxl-3">
+            <label class="fs-6 form-label fw-bold text-dark">Register Date</label>
+            <input type="text" class="form-control form-control form-control-solid" id="periodeRegister" name="register" placeholder="Periode Register" tabindex="-1">
+        </div>
+        <!--end::Col-->
+
+        {{-- <!--begin::Col-->
         <div class="col-xxl-3">
             <label class="fs-6 form-label fw-bold text-dark">Team</label>
             <select name="search_team" id="sTeam" class="form-select form-select-solid" data-allow-clear="true" data-control="select2" data-placeholder="Select Team">
@@ -59,7 +74,7 @@
                 @endforeach
             </select>
         </div>
-        <!--end::Col-->
+        <!--end::Col--> --}}
 
         <!--begin::Col-->
         <div class="col-xxl-3">

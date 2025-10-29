@@ -166,7 +166,7 @@ class TransactionDataTable extends DataTable
     {
         return [
             Column::make('id')->title('Transaction ID'),
-            Column::make('member_id')->title('Member'),
+            Column::make('member_id')->title('Name'),
             Column::computed('username')->title('Username'),
             Column::make('amount')->title('Amount'),
             Column::make('transaction_date')->title('Date'),
@@ -174,7 +174,7 @@ class TransactionDataTable extends DataTable
             // Column::make('user_id')->title('Insert By'),
             Column::computed('marketing')->title('Marketing'),
             Column::computed('team')->title('Team'),
-            Column::computed('followups')->title('Last Follow Up')->addClass('text-center'),
+            // Column::computed('followups')->title('Last Follow Up')->addClass('text-center'),
             Column::make('batch_code')->title('Batch Code'),
             Column::computed('action')
                 ->addClass('text-end text-nowrap')

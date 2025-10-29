@@ -85,7 +85,7 @@
         <!--end::Col-->
 
         <!--begin::Col-->
-        <div class="col-xxl-3">
+        <div class="col-xxl-3 d-none">
             <label class="fs-6 form-label fw-bold text-dark">Team</label>
             <select name="search_team" id="sTeam" class="form-select form-select-solid" data-control="select2" data-allow-clear="true" data-placeholder="Select Team">
                 <option></option>

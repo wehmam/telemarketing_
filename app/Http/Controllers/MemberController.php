@@ -61,9 +61,9 @@ class MemberController extends Controller
 
         $user = Auth::user();
         $teamId = $user->team_id;
-        // if (!$teamId) {
-        //     return response()->json(responseCustom(false, "You must be part of a team to add members., please contact your team leader!"), 422);
-        // }
+        if (!$teamId) {
+            return response()->json(responseCustom(false, "You must be part of a team to add members., please contact your team leader!"), 422);
+        }
 
         $member = Members::create([
             'name'              => ucwords($request->name),

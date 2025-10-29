@@ -53,6 +53,7 @@ class MembersFollowUpDataTable extends DataTable
             ->addColumn('total_deposit', fn($member) => "Rp. " . number_format( ($member->transactions()->sum("amount") ?? 0) , 0, ",", "." ))
             ->addColumn('last_deposit_amount', fn($member) => "Rp. " . number_format(($member->lastTransaction?->amount ?? '0')  , 0, ",", "."))
             ->addColumn('action', fn($member) => view('pages.apps.followup-member.components._actions', compact('member')))
+            ->addColumn('created_at', fn($member) => $member->created_at ? $member->created_at->format('d F Y') : '—')
             ->rawColumns(['action'])
             ->setRowId('id');
     }
@@ -117,6 +118,36 @@ class MembersFollowUpDataTable extends DataTable
             }
         }
 
+        if ($followUpRange = request('s_follow_up')) {
+            $dates = explode(' to ', $followUpRange);
+            if (count($dates) === 2) {
+                [$startDate, $endDate] = array_map(fn($d) =>
+                    \Carbon\Carbon::createFromFormat('d-m-Y', trim($d))->format('Y-m-d'),
+                    $dates
+                );
+                $query->whereHas('followupss', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween(\DB::raw('DATE(followed_up_at)'), [$startDate, $endDate]);
+                });
+            } else {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereHas('followupss', fn($q) => $q->whereDate('followed_up_at', $date));
+            }
+        }
+
+        if ($registerRange = request('s_register')) {
+            $dates = explode(' to ', $registerRange);
+            if (count($dates) === 2) {
+                [$startDate, $endDate] = array_map(fn($d) =>
+                    \Carbon\Carbon::createFromFormat('d-m-Y', trim($d))->format('Y-m-d'),
+                    $dates
+                );
+                $query->whereBetween(\DB::raw('DATE(created_at)'), [$startDate, $endDate]);
+            } else {
+                $date = \Carbon\Carbon::createFromFormat('d-m-Y', trim($dates[0]))->format('Y-m-d');
+                $query->whereDate('created_at', $date);
+            }
+        }
+
         if ($status = request('s_status')) {
             if ($status === 'wa') {
                 $query->whereNull('team_id')
@@ -152,10 +183,11 @@ class MembersFollowUpDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('name')->title('Member Name'),
-            Column::make('username')->title('Member Username'),
-            Column::make('team_id')->title('Team'),
+            Column::make('name')->title('Name'),
+            Column::make('username')->title('Username'),
+            // Column::make('team_id')->title('Team'),
             Column::make('marketing_id')->title('Marketing'),
+            Column::computed('created_at')->title('Registered At'),
             Column::computed('total_transactions')->title('Total Deposit'),
             Column::computed('total_deposit')->title('Total Deposit Amount'),
             Column::computed('last_transaction_date')->title('Last Deposit Date'),
