@@ -49,36 +49,36 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        if ($user->session_id) {
-            $path = storage_path('framework/sessions/'.$user->session_id);
+        // if ($user->session_id) {
+        //     $path = storage_path('framework/sessions/'.$user->session_id);
 
-            if (file_exists($path)) {
-                ActivityLogger::log("Login attempt denied for user {$user->email} - already logged in on another device", 403);
+        //     if (file_exists($path)) {
+        //         ActivityLogger::log("Login attempt denied for user {$user->email} - already logged in on another device", 403);
 
-                throw ValidationException::withMessages([
-                    'email' => 'This account is already logged in on another device.',
-                ]);
-            }
-        }
-
-
-        if (!$user->hasRole('super-admin')) {
-            $allowedIps = Config::where('key', 'allowed_ips')->first()?->value ?? [];
-            if (is_string($allowedIps)) {
-                $allowedIps = json_decode($allowedIps, true) ?? [];
-            }
-
-            if (!in_array($request->ip(), $allowedIps)) {
-                Auth::logout();
+        //         throw ValidationException::withMessages([
+        //             'email' => 'This account is already logged in on another device.',
+        //         ]);
+        //     }
+        // }
 
 
-                ActivityLogger::log("Login attempt denied for user {$user?->email} - IP {$request->ip()} not in whitelist", 403);
+        // if (!$user->hasRole('administrator')) {
+        //     $allowedIps = Config::where('key', 'allowed_ips')->first()?->value ?? [];
+        //     if (is_string($allowedIps)) {
+        //         $allowedIps = json_decode($allowedIps, true) ?? [];
+        //     }
 
-                throw ValidationException::withMessages([
-                    'email' => 'Your IP address ('.$request->ip().') is not allowed to access this system.',
-                ]);
-            }
-        }
+        //     if (!in_array($request->ip(), $allowedIps)) {
+        //         Auth::logout();
+
+
+        //         ActivityLogger::log("Login attempt denied for user {$user?->email} - IP {$request->ip()} not in whitelist", 403);
+
+        //         throw ValidationException::withMessages([
+        //             'email' => 'Your IP address ('.$request->ip().') is not allowed to access this system.',
+        //         ]);
+        //     }
+        // }
 
         $request->session()->regenerate();
 

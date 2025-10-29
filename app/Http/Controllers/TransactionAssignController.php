@@ -24,9 +24,9 @@ class TransactionAssignController extends Controller
         // $fromMembers = \App\Models\Members::orderBy('name')
         //     ->get();
 
-        $toUsers = \App\Models\User::whereHas('roles')   // hanya user yg punya role
-            ->whereHas('team')               // hanya user yg punya team
-            ->with(['roles','team'])         // eager load
+        $toUsers = \App\Models\User::whereHas('roles')
+            ->whereHas('team')
+            ->with(['roles','team'])     
             ->orderBy('name')
             ->get();
 
