@@ -431,9 +431,11 @@ class MemberController extends Controller
     */
     public function export(Request $request, $type)
     {
+        set_time_limit(0);
+        $export = new \App\Exports\MembersExport($request->all());
         ActivityLogger::log("Exported Members data file.");
         return Excel::download(
-            new \App\Exports\MembersExport($request->all()),
+            $export,
             'members-' . now()->format('YmdHis') . '.xlsx'
         );
     }
