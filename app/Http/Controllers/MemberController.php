@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Facades\Excel;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+
 
 class MemberController extends Controller
 {
@@ -426,19 +430,155 @@ class MemberController extends Controller
         }
     }
 
-    /**
-    * Export to Excel or CSV.
-    */
-    public function export(Request $request, $type)
+    // /**
+    // * Export to Excel or CSV.
+    // */
+    // public function export(Request $request, $type)
+    // {
+    //     set_time_limit(0);
+    //     $export = new \App\Exports\MembersExport($request->all());
+    //     ActivityLogger::log("Exported Members data file.");
+    //     return Excel::download(
+    //         $export,
+    //         'members-' . now()->format('YmdHis') . '.xlsx'
+    //     );
+    // }
+    public function export(Request $request)
     {
         set_time_limit(0);
-        $export = new \App\Exports\MembersExport($request->all());
-        ActivityLogger::log("Exported Members data file.");
-        return Excel::download(
-            $export,
-            'members-' . now()->format('YmdHis') . '.xlsx'
-        );
+        ini_set('memory_limit', '2G');
+
+        $filePath = storage_path('app/members.xlsx');
+        $writer = WriterEntityFactory::createXLSXWriter();
+        $writer->openToFile($filePath);
+
+        // Header
+        $header = WriterEntityFactory::createRowFromArray([
+            'ID',
+            'Member Name',
+            'Rekening Name',
+            'Username',
+            'Phone',
+            'Marketing',
+            'Team',
+            'Last Deposit',
+            'Total Transactions',
+            'Nominal Total Transactions',
+        ]);
+        $writer->addRow($header);
+
+        // Build base query
+        $query = DB::table('members')
+            ->select([
+                'members.id',
+                'members.name',
+                'members.nama_rekening',
+                'members.username',
+                'members.phone',
+                DB::raw('m.name as marketing_name'),
+                DB::raw('t.name as team_name'),
+                DB::raw('(SELECT MAX(transaction_date) FROM transactions WHERE transactions.member_id = members.id) as last_deposit'),
+                DB::raw('(SELECT COUNT(*) FROM transactions WHERE transactions.member_id = members.id) as trx_count'),
+                DB::raw('(SELECT SUM(amount) FROM transactions WHERE transactions.member_id = members.id) as trx_total'),
+            ])
+            ->leftJoin('users as m', 'm.id', '=', 'members.marketing_id')
+            ->leftJoin('teams as t', 't.id', '=', 'members.team_id')
+            ->orderBy('members.id');
+
+        // Apply filters
+        if ($request->filled('s_username')) {
+            $query->where('members.username', 'like', '%'.$request->s_username.'%');
+        }
+        if ($request->filled('s_phone')) {
+            $query->where('members.phone', 'like', '%'.$request->s_phone.'%');
+        }
+        if ($request->filled('s_team')) {
+            $query->where('members.team_id', $request->s_team);
+        }
+        if ($request->filled('s_marketing')) {
+            $query->where('members.marketing_id', $request->s_marketing);
+        }
+
+        // Stream data in chunks
+        $query->orderBy('members.id')->chunk(5000, function ($members) use ($writer) {
+            foreach ($members as $member) {
+                $row = WriterEntityFactory::createRowFromArray([
+                    $member->id,
+                    $member->name ?? '-',
+                    $member->nama_rekening ?? '-',
+                    $member->username ?? '-',
+                    " " . ($member->phone ?? '-'),
+                    $member->marketing_name ?? 'WA',
+                    $member->team_name ?? 'WA',
+                    $member->last_deposit ? date('Y-m-d', strtotime($member->last_deposit)) : '—',
+                    (int) ($member->trx_count ?? 0),
+                    (float) ($member->trx_total ?? 0),
+                ]);
+                $writer->addRow($row);
+            }
+        });
+
+        $writer->close();
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
+
+    public function exportCsv()
+    {
+        $filters = request()->all();
+        $query = (new \App\Exports\MembersExport($filters))->query();
+
+        $filename = 'members_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename={$filename}",
+        ];
+
+        $callback = function () use ($query) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Name', 'Username', 'Phone', 'Team', 'Marketing', 'Last Deposit', 'Trx Count', 'Trx Total']);
+
+            $query->lazyById(5000, 'members.id')->each(function ($row) use ($file) {
+                fputcsv($file, [
+                    $row->id,
+                    $row->name,
+                    $row->username,
+                    $row->phone,
+                    $row->team_name,
+                    $row->marketing_name,
+                    $row->last_deposit,
+                    $row->trx_count,
+                    $row->trx_total,
+                ]);
+            });
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+
+    // public function export(Request $request)
+    // {
+    //     // supaya gak timeout
+    //     set_time_limit(0);
+    //     ini_set('memory_limit', '1024M');
+
+    //     $filters = $request->only([
+    //         's_username',
+    //         's_phone',
+    //         's_nama_rekening',
+    //         's_team',
+    //         's_marketing'
+    //     ]);
+
+    //     return Excel::download(
+    //         new \App\Exports\MembersExport($filters),
+    //         'members-' . now()->format('YmdHis') . '.xlsx'
+    //     );
+    // }
 
     public function import(Request $request)
     {

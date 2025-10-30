@@ -95,46 +95,85 @@ if (modalImportMember) {
     });
 }
 
+// $('#btnExportExcel').off('click').on('click', function(e) {
+//     e.preventDefault();
+//     showLoadPage();
+
+//     let params = {
+//         s_nama_rekening: $('#sNamaRekening').val(),
+//         s_username: $('#sUsername').val(),
+//         s_phone: $('#sPhone').val(),
+//         s_status: $('.sStatus:checked').val(),
+//         s_last_deposit: $('#periodeLastDeposit').val(),
+//     };
+
+//     let query = $.param(params);
+//     let url = '/members/export/excel?' + query;
+
+//     fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+//         .then(response => {
+//             const disposition = response.headers.get('Content-Disposition');
+//             let filename = "members.xlsx";
+//             if (disposition && disposition.indexOf('filename=') !== -1) {
+//                 filename = disposition.split('filename=')[1].replace(/"/g, '');
+//             }
+//             return response.blob().then(blob => ({ blob, filename }));
+//         })
+//         .then(({ blob, filename }) => {
+//             hideLoadPage();
+//             const url = window.URL.createObjectURL(blob);
+//             const a = document.createElement('a');
+//             a.href = url;
+//             a.download = filename;
+//             document.body.appendChild(a);
+//             a.click();
+//             a.remove();
+//             window.URL.revokeObjectURL(url);
+//         })
+//         .catch(() => {
+//             hideLoadPage();
+//             Swal.fire("Error", "Failed to export file.", "error");
+//         });
+// });
+
 $('#btnExportExcel').off('click').on('click', function(e) {
     e.preventDefault();
-    showLoadPage();
 
     let params = {
-        s_nama_rekening: $('#sNamaRekening').val(),
         s_username: $('#sUsername').val(),
         s_phone: $('#sPhone').val(),
         s_status: $('.sStatus:checked').val(),
         s_last_deposit: $('#periodeLastDeposit').val(),
     };
 
-    let query = $.param(params);
-    let url = '/members/export/excel?' + query;
+    // Show loader
+    showLoadPage();
 
-    fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(response => {
-            const disposition = response.headers.get('Content-Disposition');
-            let filename = "members.xlsx";
-            if (disposition && disposition.indexOf('filename=') !== -1) {
-                filename = disposition.split('filename=')[1].replace(/"/g, '');
-            }
-            return response.blob().then(blob => ({ blob, filename }));
-        })
-        .then(({ blob, filename }) => {
-            hideLoadPage();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(() => {
-            hideLoadPage();
-            Swal.fire("Error", "Failed to export file.", "error");
-        });
+    // Trigger export via fetch
+    fetch('/members/export/excel?' + new URLSearchParams(params), {
+        method: 'GET'
+    })
+    .then(response => response.blob()) // get file as blob
+    .then(blob => {
+        // Create a temporary link to download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'members.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        // Hide loader
+        hideLoadPage();
+    })
+    .catch(err => {
+        Swal.fire('Export failed: ' + err.message);
+        hideLoadPage();
+    });
 });
+
 
 // ===== Form Submit =====
 $(document).ready(function () {
