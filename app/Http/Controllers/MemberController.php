@@ -433,24 +433,22 @@ class MemberController extends Controller
     // /**
     // * Export to Excel or CSV.
     // */
-    // public function export(Request $request, $type)
-    // {
-    //     set_time_limit(0);
-    //     $export = new \App\Exports\MembersExport($request->all());
-    //     ActivityLogger::log("Exported Members data file.");
-    //     return Excel::download(
-    //         $export,
-    //         'members-' . now()->format('YmdHis') . '.xlsx'
-    //     );
-    // }
     public function export(Request $request)
     {
         set_time_limit(0);
-        ini_set('memory_limit', '2G');
+        ini_set('memory_limit', '3G');
 
-        $filePath = storage_path('app/members.xlsx');
+        $exportPath = storage_path('app/exports');
+        if (!is_dir($exportPath)) {
+            mkdir($exportPath, 0777, true);
+        }
+        
+        // Dynamic filename
+        $filename = 'members_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        $storagePath = storage_path('app/exports/' . $filename);
+
         $writer = WriterEntityFactory::createXLSXWriter();
-        $writer->openToFile($filePath);
+        $writer->openToFile($storagePath);
 
         // Header
         $header = WriterEntityFactory::createRowFromArray([
@@ -467,7 +465,7 @@ class MemberController extends Controller
         ]);
         $writer->addRow($header);
 
-        // Build base query
+        // Build query with filters
         $query = DB::table('members')
             ->select([
                 'members.id',
@@ -500,9 +498,9 @@ class MemberController extends Controller
         }
 
         // Stream data in chunks
-        $query->orderBy('members.id')->chunk(5000, function ($members) use ($writer) {
+        $query->chunk(5000, function ($members) use ($writer) {
             foreach ($members as $member) {
-                $row = WriterEntityFactory::createRowFromArray([
+                $writer->addRow(WriterEntityFactory::createRowFromArray([
                     $member->id,
                     $member->name ?? '-',
                     $member->nama_rekening ?? '-',
@@ -513,12 +511,27 @@ class MemberController extends Controller
                     $member->last_deposit ? date('Y-m-d', strtotime($member->last_deposit)) : '—',
                     (int) ($member->trx_count ?? 0),
                     (float) ($member->trx_total ?? 0),
-                ]);
-                $writer->addRow($row);
+                ]));
             }
         });
 
         $writer->close();
+
+        // Return JSON with download URL
+        return response()->json([
+            'success' => true,
+            'file_url' => route('members.download', ['filename' => $filename])
+        ]);
+    }
+
+    // Step 2: Download generated file
+    public function download($filename)
+    {
+        $filePath = storage_path('app/exports/' . $filename);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
 
         return response()->download($filePath)->deleteFileAfterSend(true);
     }

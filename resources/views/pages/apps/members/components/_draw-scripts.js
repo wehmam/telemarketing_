@@ -150,28 +150,21 @@ $('#btnExportExcel').off('click').on('click', function(e) {
     showLoadPage();
 
     // Trigger export via fetch
-    fetch('/members/export/excel?' + new URLSearchParams(params), {
-        method: 'GET'
-    })
-    .then(response => response.blob()) // get file as blob
-    .then(blob => {
-        // Create a temporary link to download
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'members.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-
-        // Hide loader
-        hideLoadPage();
-    })
-    .catch(err => {
-        Swal.fire('Export failed: ' + err.message);
-        hideLoadPage();
-    });
+    fetch('/members/export/excel?' + new URLSearchParams(params), { method: 'GET' })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success && res.file_url) {
+                window.location.href = res.file_url;
+            } else {
+                Swal.fire('Export failed!');
+            }
+            hideLoadPage();
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('Export failed!');
+            hideLoadPage();
+        });
 });
 
 
