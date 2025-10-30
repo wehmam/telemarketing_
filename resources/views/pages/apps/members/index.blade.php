@@ -33,7 +33,7 @@
             @endcan
 
             @can('member-management.import')
-                <a href="{{ asset('assets/templates/TEMPLATE_MEMBER.xlsx') }}" class="btn btn-sm btn-warning me-3" download>
+                <a href="{{ asset('assets/templates/TEMPLATE_MEMBERS.xlsx') }}" class="btn btn-sm btn-warning me-3" download>
                     {!! getIcon('cloud-download', 'fs-2', '', 'i') !!}
                     Template
                 </a>
